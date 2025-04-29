@@ -13,7 +13,7 @@ const heading = () => {
       <h3 className="text-base sm:text-xl md:text-2xl font-medium">
         Notecraft is the connected workspace for your ideas, documents, and plans.
       </h3>
-      <Button >
+      <Button className="text-lg">
         Join Notecraft
         <ArrowRight className="h-6 w-6 ml-2"/>
       </Button>
