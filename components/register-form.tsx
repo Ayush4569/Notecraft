@@ -1,7 +1,7 @@
-"use client"
+"use client";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { registerSchema } from "@/schemas";
 import {
   Form,
@@ -24,8 +24,16 @@ import {
 } from "@/components/ui/card";
 
 import Link from "next/link";
+import { signIn, useSession } from "next-auth/react";
+import { Signup } from "@/actions/auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 const SignupForm = () => {
-
+  const router = useRouter();
+  const isAuthenticated = useSession().status === "authenticated";
+  useEffect(() => {
+    isAuthenticated && router.push("/");
+  }, [isAuthenticated, router]);
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -36,8 +44,22 @@ const SignupForm = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof registerSchema>) => {
-    console.log("formData:\n", data);
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    const result = registerSchema.safeParse(data);
+    if (!result.success) {
+      console.log("Error:\n", result.error.format());
+      return;
+    }
+    const { username, email, password } = data;
+    const response = await Signup({ username, email, password });
+    if (response.success) {
+      signIn("credentials", {
+        email,
+        password,
+        redirect: true,
+        callbackUrl: "/",
+      });
+    }
   };
 
   return (
@@ -90,14 +112,24 @@ const SignupForm = () => {
                 )}
               />
             </div>
-            <Button type="submit" size="lg" className="w-full cursor-pointer hover:bg-white hover:text-black transition-all">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full cursor-pointer hover:bg-white hover:text-black transition-all"
+              disabled={
+                form.formState.isSubmitting || form.formState.isValidating
+              }
+            >
               Register
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex justify-between flex-col">
-        <Link className="text-lg underline hover:text-blue-600" href="/auth/login">
+        <Link
+          className="text-lg underline hover:text-blue-600"
+          href="/auth/login"
+        >
           Already have an account ?
         </Link>
       </CardFooter>

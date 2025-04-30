@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/schemas";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -24,7 +25,14 @@ import {
 } from "@/components/ui/card";
 
 import Link from "next/link";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 const LoginForm = () => {
+  const isAuthenticated = useSession().status === "authenticated";
+  const router = useRouter();
+  useEffect(() => {
+    isAuthenticated && router.push("/");
+  }, [isAuthenticated, router]);
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -32,8 +40,25 @@ const LoginForm = () => {
       password: "",
     },
   });
-  const onSubmit = (value: z.infer<typeof loginSchema>) => {
-    console.log("value", value);
+
+  const [error, setError] = useState<string | null>(null);
+  const onSubmit = async (value: z.infer<typeof loginSchema>) => {
+    const result = loginSchema.safeParse(value);
+    if (!result.success) {
+      console.log("Error:\n", result.error.format());
+      return;
+    }
+    const res = await signIn("credentials", {
+      email: value.email,
+      password: value.password,
+      redirect: false,
+    });
+
+    if (res?.error) {
+      setError("Login failed. Please check your credentials.");
+    } else {
+      router.push("/");
+    }
   };
   return (
     <Card className="w-[400px]">
@@ -79,7 +104,11 @@ const LoginForm = () => {
         </Form>
       </CardContent>
       <CardFooter className="flex justify-between flex-col">
-        <Link className="text-lg underline hover:text-blue-600" href="/auth/signup">
+        {error && <p className="text-red-500 text-base my-2 font-semibold">{error}</p>}
+        <Link
+          className="text-lg underline hover:text-blue-600"
+          href="/auth/signup"
+        >
           Don't have an account ?
         </Link>
       </CardFooter>

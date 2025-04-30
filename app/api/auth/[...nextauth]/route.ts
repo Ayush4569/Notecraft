@@ -1,6 +1,8 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import client from "@/db/index"
+import { loginSchema } from "@/schemas"
+import bcrypt from "bcrypt"
 export const authOptions = {
     providers: [
         Credentials({
@@ -9,26 +11,21 @@ export const authOptions = {
                 email: { label: "Email", placeholder: "Enter your email", type: "email" },
                 password: { label: 'password', placeholder: 'Enter password', type: 'password' }
             },
-            authorize:async(credentials)=>{
-                const email = credentials?.email
-                const password = credentials?.password
-                const user = await client.user.findFirst({
-                    where:{
-                        email
-                    }
-                })
-
-                if(!user) {
+            authorize: async (credentials) => {
+                const result = loginSchema.safeParse(credentials);
+                if (!result.success) {
                     return null
                 }
-                if(user && user.password == password){
-                    return {
-                        id:user.id.toString(),
-                        email:user.email,
-                        image:user.profileImage
-                    }
+                const { email, password } = result.data
+                const user = await client.user.findUnique({ where: { email } });
+                if (!user || !user.password) return null;
+                const passwordMatch = await bcrypt.compare(password, user.password);
+                if (!passwordMatch) return null
+                return {
+                    id: user.id.toString(),
+                    name: user.username,
+                    image: user?.profileImage
                 }
-                return null
             }
         })
     ],
@@ -37,18 +34,23 @@ export const authOptions = {
         strategy: 'jwt',
         maxAge: 7 * 24 * 60 * 60,
         updateAge: 5 * 60
-      },
-      callbacks: {
+    },
+    callbacks: {
         // @ts-ignore
         jwt: ({ token }) => {
-          token.userId = token.sub
-          return token
+            token.userId = token.sub
+            return token
         },
         session: ({ session, token }: any) => {
-          session.userId = token.userId
-          return session
+            session.userId = token.userId
+            return session
         }
-      }
+    },
+    pages:{
+        '/login':"/auth/login",
+        '/signup':"/auth/signup"
+    }
 }
 // @ts-ignore
-export default NextAuth(authOptions)
+const handler =  NextAuth(authOptions)
+export { handler as GET, handler as POST }

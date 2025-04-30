@@ -10,7 +10,7 @@ const font = Poppins({
 export default function () {
   return (
     <div className="hidden md:flex items-center gap-x-2">
-      <Image src="/logo.jpg" alt="Logo" width="40" height='40' />
+      <Image src="/logo.jpg" alt="Logo" width="40" height="40" />
       <p className={cn("font-semibold",font.className)}>Notecraft</p>
     </div>
   );
