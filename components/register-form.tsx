@@ -28,9 +28,13 @@ import { signIn, useSession } from "next-auth/react";
 import { Signup } from "@/actions/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { AppDispatch } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { login } from "@/redux/slices/auth";
 const SignupForm = () => {
   const router = useRouter();
   const isAuthenticated = useSession().status === "authenticated";
+  const dispatch = useDispatch<AppDispatch>()
   useEffect(() => {
     isAuthenticated && router.push("/");
   }, [isAuthenticated, router]);
@@ -53,6 +57,7 @@ const SignupForm = () => {
     const { username, email, password } = data;
     const response = await Signup({ username, email, password });
     if (response.success) {
+      dispatch(login(data.email))
       signIn("credentials", {
         email,
         password,
@@ -63,10 +68,10 @@ const SignupForm = () => {
   };
 
   return (
-    <Card className="w-[400px]">
+    <Card className="w-full h-full md:w-[400px] md:h-max">
       <CardHeader>
-        <CardTitle>Register</CardTitle>
-        <CardDescription>Welcome to Notecraft</CardDescription>
+        <CardTitle className="text-xl text-center">Register</CardTitle>
+        <CardDescription className="text-xl text-center">Welcome to Notecraft</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -77,9 +82,11 @@ const SignupForm = () => {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel className="text-xl ">Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your username" {...field} />
+                      <Input
+                      className="placeholder:text-xl p-4"
+                       placeholder="Enter your username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -90,9 +97,9 @@ const SignupForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-xl ">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
+                      <Input className="placeholder:text-xl p-4" placeholder="Enter your email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,9 +110,9 @@ const SignupForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-xl">Password</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="******" type="password" />
+                      <Input className="placeholder:text-xl p-4" {...field} placeholder="Enter password" type="password" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -115,7 +122,7 @@ const SignupForm = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full cursor-pointer hover:bg-white hover:text-black transition-all"
+              className="w-full text-lg cursor-pointer bg-yellow-300 hover:bg-white hover:text-black transition-all"
               disabled={
                 form.formState.isSubmitting || form.formState.isValidating
               }

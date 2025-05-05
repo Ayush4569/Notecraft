@@ -24,7 +24,8 @@ export const authOptions = {
                 return {
                     id: user.id.toString(),
                     name: user.username,
-                    image: user?.profileImage
+                    image: user?.profileImage,
+                    email:user.email
                 }
             }
         })
@@ -52,5 +53,5 @@ export const authOptions = {
     }
 }
 // @ts-ignore
-const handler =  NextAuth(authOptions)
+export const handler =  NextAuth(authOptions)
 export { handler as GET, handler as POST }

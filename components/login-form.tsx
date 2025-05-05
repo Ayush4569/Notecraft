@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -26,9 +26,13 @@ import {
 
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { login } from "@/redux/slices/auth";
 const LoginForm = () => {
   const isAuthenticated = useSession().status === "authenticated";
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   useEffect(() => {
     isAuthenticated && router.push("/");
@@ -41,7 +45,6 @@ const LoginForm = () => {
     },
   });
 
-  const [error, setError] = useState<string | null>(null);
   const onSubmit = async (value: z.infer<typeof loginSchema>) => {
     const result = loginSchema.safeParse(value);
     if (!result.success) {
@@ -55,16 +58,20 @@ const LoginForm = () => {
     });
 
     if (res?.error) {
-      setError("Login failed. Please check your credentials.");
+      form.setError("root", {
+        message: "Login failed. Please check your credentials.",
+      });
     } else {
       router.push("/");
     }
   };
   return (
-    <Card className="w-[400px]">
+    <Card className="w-full h-full md:w-[400px] md:h-max">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Welcome back!</CardDescription>
+        <CardTitle className="text-xl text-center">Login</CardTitle>
+        <CardDescription className="text-xl text-center">
+          Welcome back!
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -75,9 +82,13 @@ const LoginForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-xl">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
+                      <Input
+                        className="placeholder:text-xl p-4"
+                        placeholder="Enter your email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -88,23 +99,39 @@ const LoginForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-xl">Password</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="******" type="password" />
+                      <Input
+                        className="placeholder:text-xl p-4"
+                        {...field}
+                        placeholder="Enter password"
+                        type="password"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <Button type="submit" size="lg" className="w-full">
-              Sign in
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full text-lg cursor-pointer bg-yellow-300 hover:bg-white hover:text-black transition-all"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting || form.formState.isValidating
+                ? "Loading..."
+                : "Login"}
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex justify-between flex-col">
-        {error && <p className="text-red-500 text-base my-2 font-semibold">{error}</p>}
+        {form.formState.errors.root && (
+          <p className="text-red-500 text-base my-2 font-semibold">
+            {form.formState.errors.root.message}
+          </p>
+        )}
         <Link
           className="text-lg underline hover:text-blue-600"
           href="/auth/signup"
@@ -115,5 +142,4 @@ const LoginForm = () => {
     </Card>
   );
 };
-
 export default LoginForm;
