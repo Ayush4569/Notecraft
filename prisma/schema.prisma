@@ -15,5 +15,8 @@ model User{
   password String
   createdAt DateTime @default(now())
   profileImage String? 
+  verifyCode String @default("000000")
+  verifyCodeExpiry DateTime @default(now())
+  isVerified Boolean @default(false)
 }
 

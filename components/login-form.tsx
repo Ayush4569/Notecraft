@@ -14,132 +14,106 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { login } from "@/redux/slices/auth";
+import { signIn,getSession } from "next-auth/react";
+import toast from "react-hot-toast";
+type FormData = z.infer<typeof loginSchema>
 const LoginForm = () => {
-  const isAuthenticated = useSession().status === "authenticated";
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  useEffect(() => {
-    isAuthenticated && router.push("/");
-  }, [isAuthenticated, router]);
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
     },
   });
-
-  const onSubmit = async (value: z.infer<typeof loginSchema>) => {
+  const { isSubmitting, isValidating } = form.formState;
+  const onSubmit = async (value: FormData) => {
     const result = loginSchema.safeParse(value);
     if (!result.success) {
-      console.log("Error:\n", result.error.format());
+      console.log("Error:\n", result.error.format()._errors);
+      toast.error(result.error.format()._errors.toString());
       return;
     }
+    
     const res = await signIn("credentials", {
-      email: value.email,
+      identifier:value.identifier,
       password: value.password,
       redirect: false,
     });
-
+    
     if (res?.error) {
-      form.setError("root", {
-        message: "Login failed. Please check your credentials.",
-      });
-    } else {
-      router.push("/");
+      if (res.error === 'CredentialsSignin') {
+        toast.error('Incorrect username or password')
+      } else {
+        toast.error(res.error.toString())
+      }
+    }
+    if (res?.ok)  {
+      await getSession(); 
+      toast.success("Login successful");
+      router.replace("/"); 
     }
   };
+
   return (
-    <Card className="w-full h-full md:w-[400px] md:h-max">
-      <CardHeader>
-        <CardTitle className="text-xl text-center">Login</CardTitle>
-        <CardDescription className="text-xl text-center">
-          Welcome back!
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xl">Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="placeholder:text-xl p-4"
-                        placeholder="Enter your email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xl">Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="placeholder:text-xl p-4"
-                        {...field}
-                        placeholder="Enter password"
-                        type="password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full text-lg cursor-pointer bg-yellow-300 hover:bg-white hover:text-black transition-all"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting || form.formState.isValidating
-                ? "Loading..."
-                : "Login"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter className="flex justify-between flex-col">
-        {form.formState.errors.root && (
-          <p className="text-red-500 text-base my-2 font-semibold">
-            {form.formState.errors.root.message}
-          </p>
-        )}
-        <Link
-          className="text-lg underline hover:text-blue-600"
-          href="/auth/signup"
-        >
-          Don't have an account ?
-        </Link>
-      </CardFooter>
-    </Card>
+    <div className="flex justify-center items-center min-h-screen">
+    <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
+          Welcome Back to Notecraft
+        </h1>
+        <p className="mb-4">Sign in to continue using our app</p>
+      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            name="identifier"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email/Username</FormLabel>
+                <FormControl>
+                <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="password"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button 
+          className={`cursor-pointer w-full hover:bg-white hover:text-black transition-all ${isSubmitting || isValidating && 'cursor-not-allowed'}`}
+          type="submit"
+          disabled={
+            isSubmitting || isValidating
+          }
+          >
+            Sign In
+          </Button>
+        </form>
+      </Form>
+      <div className="text-center mt-4">
+        <p>
+          Not a member yet?{' '}
+          <Link href="/signup" className="text-blue-600 hover:text-blue-800">
+            Sign up
+          </Link>
+        </p>
+      </div>
+    </div>
+  </div>
   );
 };
 export default LoginForm;

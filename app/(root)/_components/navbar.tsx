@@ -1,19 +1,20 @@
 "use client";
-import React from "react";
 import Logo from "./logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import { useScroll } from "@/hooks/useScroll";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
-import { logout } from "@/redux/slices/auth";
+import { useRouter } from "next/navigation";
 const navbar = () => {
   const scrolled = useScroll();
-  const session = useSession();
-  function handlelogOut (){
+  const router = useRouter()
+  const { data: session, status } = useSession();
+  function handlelogOut() {
     signOut();
-    logout()
   }
+  if (status === "loading") return null;
+  
   return (
     <div
       className={cn(
@@ -23,10 +24,12 @@ const navbar = () => {
     >
       <Logo />
       <div className="flex items-center gap-x-2 justify-between ">
-        {session && session?.data?.user && (
+        {session && session?.user && (
           <>
-            <Button onClick={()=>handlelogOut()} className="cursor-pointer">Logout</Button>
-            <Button variant="ghost" >{session.data.user.name}</Button>
+            <Button size='lg' onClick={() => handlelogOut()} className="cursor-pointer">
+              Logout
+            </Button>
+            <Button variant="ghost">{session.user.username}</Button>
           </>
         )}
         <ModeToggle />

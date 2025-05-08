@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import {
   Card,
   CardContent,
@@ -22,23 +21,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
-import { Signup } from "@/actions/auth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { AppDispatch } from "@/redux/store";
-import { useDispatch } from "react-redux";
-import { login } from "@/redux/slices/auth";
+import axios, { AxiosError } from "axios";
+import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
+type FormData = z.infer<typeof registerSchema>;
 const SignupForm = () => {
   const router = useRouter();
-  const isAuthenticated = useSession().status === "authenticated";
-  const dispatch = useDispatch<AppDispatch>()
-  useEffect(() => {
-    isAuthenticated && router.push("/");
-  }, [isAuthenticated, router]);
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
@@ -47,31 +38,42 @@ const SignupForm = () => {
       profileImage: "",
     },
   });
-
-  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+  const { isSubmitting, isValidating } = form.formState;
+  const onSubmit = async (data: FormData) => {
     const result = registerSchema.safeParse(data);
     if (!result.success) {
-      console.log("Error:\n", result.error.format());
+      console.log("Error:\n", result.error.format()._errors);
+      toast.error(result.error.format()._errors.toString());
       return;
     }
     const { username, email, password } = data;
-    const response = await Signup({ username, email, password });
-    if (response.success) {
-      dispatch(login(data.email))
-      signIn("credentials", {
+    try {
+      const response = await axios.post("/api/signup", {
+        username,
         email,
         password,
-        redirect: true,
-        callbackUrl: "/",
       });
+      toast.success(response.data.message || "user registered");
+      router.replace(`/verifycode/${username}`);
+    } catch (error) {
+      console.error("Error during sign-up:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("unexpected error ");
+      }
     }
   };
 
   return (
-    <Card className="w-full h-full md:w-[400px] md:h-max">
+    <Card className="w-full h-full md:w-[400px] md:h-auto ">
       <CardHeader>
         <CardTitle className="text-xl text-center">Register</CardTitle>
-        <CardDescription className="text-xl text-center">Welcome to Notecraft</CardDescription>
+        <CardDescription className="text-xl text-center">
+          Welcome to Notecraft
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -85,8 +87,10 @@ const SignupForm = () => {
                     <FormLabel className="text-xl ">Username</FormLabel>
                     <FormControl>
                       <Input
-                      className="placeholder:text-xl p-4"
-                       placeholder="Enter your username" {...field} />
+                        className="placeholder:text-xl p-4"
+                        placeholder="Enter your username"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -99,7 +103,11 @@ const SignupForm = () => {
                   <FormItem>
                     <FormLabel className="text-xl ">Email</FormLabel>
                     <FormControl>
-                      <Input className="placeholder:text-xl p-4" placeholder="Enter your email" {...field} />
+                      <Input
+                        className="placeholder:text-xl p-4"
+                        placeholder="Enter your email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -112,7 +120,35 @@ const SignupForm = () => {
                   <FormItem>
                     <FormLabel className="text-xl">Password</FormLabel>
                     <FormControl>
-                      <Input className="placeholder:text-xl p-4" {...field} placeholder="Enter password" type="password" />
+                      <Input
+                        className="placeholder:text-xl p-4"
+                        {...field}
+                        placeholder="Enter password"
+                        type="password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="profileImage"
+                render={({ field: { onChange, ...rest } }) => (
+                  <FormItem>
+                    <FormLabel className="text-xl">
+                      Profile Image (optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        className="cursor-pointer"
+                        accept="image/*"
+                        onChange={(e) => {
+                          onChange(e.target.files); // send FileList to react-hook-form
+                        }}
+                        {...rest}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -121,10 +157,12 @@ const SignupForm = () => {
             </div>
             <Button
               type="submit"
-              size="lg"
-              className="w-full text-lg cursor-pointer bg-yellow-300 hover:bg-white hover:text-black transition-all"
+              className={cn(
+                "cursor-pointer w-full hover:bg-white hover:text-black transition-all",
+                (isSubmitting || isValidating && "cursor-not-allowed")
+              )}
               disabled={
-                form.formState.isSubmitting || form.formState.isValidating
+                isSubmitting || isValidating
               }
             >
               Register
@@ -133,10 +171,7 @@ const SignupForm = () => {
         </Form>
       </CardContent>
       <CardFooter className="flex justify-between flex-col">
-        <Link
-          className="text-lg underline hover:text-blue-600"
-          href="/auth/login"
-        >
+        <Link className="text-lg underline hover:text-blue-600" href="/login">
           Already have an account ?
         </Link>
       </CardFooter>

@@ -1,25 +1,28 @@
-'use client'
-
-import { Provider } from 'react-redux'
-import { store } from '@/redux/store'
-import { SessionProvider } from 'next-auth/react'
-import { ThemeProvider } from 'next-themes'
-import AuthProvider from '@/app/(root)/_components/authprovider'
-
+"use client";
+import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "react-hot-toast";
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <Provider store={store}>
-      <SessionProvider>
-        <AuthProvider />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </SessionProvider>
-    </Provider>
-  )
+    <SessionProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#333",
+              color: "#fff",
+            },
+          }}
+        />
+        {children}
+      </ThemeProvider>
+    </SessionProvider>
+  );
 }
