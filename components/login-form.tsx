@@ -15,9 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { signIn,getSession } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import toast from "react-hot-toast";
-type FormData = z.infer<typeof loginSchema>
+type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const router = useRouter();
   const form = useForm<FormData>({
@@ -35,85 +35,82 @@ const LoginForm = () => {
       toast.error(result.error.format()._errors.toString());
       return;
     }
-    
+
     const res = await signIn("credentials", {
-      identifier:value.identifier,
+      identifier: value.identifier,
       password: value.password,
       redirect: false,
     });
-    
+
     if (res?.error) {
-      if (res.error === 'CredentialsSignin') {
-        toast.error('Incorrect username or password')
+      if (res.error === "CredentialsSignin") {
+        toast.error("Incorrect username or password");
       } else {
-        toast.error(res.error.toString())
+        toast.error(res.error.toString());
       }
     }
-    if (res?.ok)  {
-      await getSession(); 
+    if (res?.ok) {
       toast.success("Login successful");
-      router.replace("/"); 
+      window.location.href = '/';
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-    <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-      <div className="text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
-          Welcome Back to Notecraft
-        </h1>
-        <p className="mb-4">Sign in to continue using our app</p>
-      </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            name="identifier"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email/Username</FormLabel>
-                <FormControl>
-                <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="password"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                <Input type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button 
-          className={`cursor-pointer w-full hover:bg-white hover:text-black transition-all ${isSubmitting || isValidating && 'cursor-not-allowed'}`}
-          type="submit"
-          disabled={
-            isSubmitting || isValidating
-          }
-          >
-            Sign In
-          </Button>
-        </form>
-      </Form>
-      <div className="text-center mt-4">
-        <p>
-          Not a member yet?{' '}
-          <Link href="/signup" className="text-blue-600 hover:text-blue-800">
-            Sign up
-          </Link>
-        </p>
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
+            Welcome Back to Notecraft
+          </h1>
+          <p className="mb-4">Sign in to continue using our app</p>
+        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              name="identifier"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email/Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className={`cursor-pointer w-full hover:bg-white hover:text-black transition-all ${isSubmitting || (isValidating && "cursor-not-allowed")}`}
+              type="submit"
+              disabled={isSubmitting || isValidating}
+            >
+              Sign In
+            </Button>
+          </form>
+        </Form>
+        <div className="text-center mt-4">
+          <p>
+            Not a member yet?{" "}
+            <Link href="/signup" className="text-blue-600 hover:text-blue-800">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
-  </div>
   );
 };
 export default LoginForm;

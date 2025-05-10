@@ -5,31 +5,57 @@ import { cn } from "@/lib/utils";
 import { useScroll } from "@/hooks/useScroll";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 const navbar = () => {
   const scrolled = useScroll();
-  const router = useRouter()
-  const { data: session, status } = useSession();
+  const { data: session, status, } = useSession();
   function handlelogOut() {
     signOut();
   }
-  if (status === "loading") return null;
-  
   return (
     <div
       className={cn(
         "w-full z-50 bg-background p-4 flex items-center justify-between fixed top-0 dark:bg-[#1f1f1f]",
-        scrolled && "border-b shadow-sm"
+        scrolled && "border-b  shadow-xl"
       )}
     >
       <Logo />
       <div className="flex items-center gap-x-2 justify-between ">
-        {session && session?.user && (
-          <>
-            <Button size='lg' onClick={() => handlelogOut()} className="cursor-pointer">
-              Logout
+        {
+          status === 'loading' && (
+            <div className="flex gap-2 animate-pulse">
+              <Skeleton className="h-9 w-30 rounded-md" /> 
+              <Skeleton className="h-9 w-24 rounded-md" /> 
+              <Skeleton className="h-11 w-10 rounded-full" /> 
+            </div>
+          )
+        }
+        {
+          status !== 'loading' && status === 'unauthenticated' &&(
+            <>
+            <Button variant='secondary' asChild className="cursor-pointer">
+             <Link href='/login'>
+             Login
+             </Link>
             </Button>
-            <Button variant="ghost">{session.user.username}</Button>
+            <Button>Get Notecraft free</Button>
+            </>
+          )
+        }
+        {status === 'authenticated' && session?.user && (
+          <>
+            <Button variant='outline' 
+            className="cursor-pointer mx-2">
+              <Link href='/documents'>
+              Enter workspace
+              </Link>
+            </Button>
+            
+              <Button  onClick={handlelogOut}>
+                Logout
+              </Button>
+              <img src={session.user.image || '/avatar.png'} className="h-10 w-10" alt="avatar" />
           </>
         )}
         <ModeToggle />

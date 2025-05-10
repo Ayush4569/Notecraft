@@ -12,8 +12,6 @@ export const authOptions: NextAuthOptions = {
             },
             authorize: async (credentials: any): Promise<any> => {
                 try {
-                    console.log('credentials',credentials);
-                    
                     const user = await client.user.findFirst({
                         where: {
                             OR: [
