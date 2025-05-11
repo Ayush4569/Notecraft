@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/schemas";
-import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -15,11 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { getSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
-  const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -50,22 +48,22 @@ const LoginForm = () => {
       }
     }
     if (res?.ok) {
-      toast.success("Login successful");
       window.location.href = '/';
+      toast.success("Login successful");
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
+    <div className="flex justify-center items-center min-h-screen ">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:invert">
+        <div className="text-center dark:invert">
           <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
             Welcome Back to Notecraft
           </h1>
           <p className="mb-4">Sign in to continue using our app</p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 dark:invert">
             <FormField
               name="identifier"
               control={form.control}
@@ -101,10 +99,10 @@ const LoginForm = () => {
             </Button>
           </form>
         </Form>
-        <div className="text-center mt-4">
+        <div className="text-center mt-4 dark:invert">
           <p>
             Not a member yet?{" "}
-            <Link href="/signup" className="text-blue-600 hover:text-blue-800">
+            <Link href="/signup" className="hover:text-blue-600 underline">
               Sign up
             </Link>
           </p>

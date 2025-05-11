@@ -1,10 +1,14 @@
+import { MobileSidebar } from "./_components/mobile-sidebar";
 import { Sidebar } from "./_components/sidebar";
 
-export default function ({children}:{children:React.ReactNode}){
-   return (
+export default function ({ children }: { children: React.ReactNode }) {
+  return (
     <div className="flex h-full w-full">
-    <Sidebar/>
-    {children}
+      <MobileSidebar />
+
+      <Sidebar />
+
+      {children}
     </div>
-   )
+  );
 }
