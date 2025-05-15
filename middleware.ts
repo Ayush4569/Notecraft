@@ -20,5 +20,5 @@ export default async function (req:NextRequest){
  return NextResponse.next()
 }
 export const config = {
-    matcher: ["/login","/signup","/documents"],
+    matcher: ["/documents"],
 };

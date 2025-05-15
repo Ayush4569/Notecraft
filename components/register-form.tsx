@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
-import toast from "react-hot-toast";
+import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
 type FormData = z.infer<typeof registerSchema>;
 const SignupForm = () => {

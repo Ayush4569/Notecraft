@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import toast from "react-hot-toast";
+import {toast} from "sonner";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const form = useForm<FormData>({
@@ -55,7 +55,7 @@ const LoginForm = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen ">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:invert">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg md:shadow-md dark:invert">
         <div className="text-center dark:invert">
           <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
             Welcome Back to Notecraft
