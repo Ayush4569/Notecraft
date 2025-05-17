@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/db/index"
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
-export async function POST(req: NextRequest) {
+import { Document } from "@/types/document";
+export async function POST(req: NextRequest){
     const { title } = await req.json()
     const session = await getServerSession(authOptions)
     if (!session || !session.user.id) {
@@ -13,10 +14,6 @@ export async function POST(req: NextRequest) {
             status: 403
         })
     }
-    console.log('title',title);
-    console.log('userid',session.user.id);
-    
-    
     try {
         const createdNote = await client.document.create(
             {
@@ -29,7 +26,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             success: true,
             message: 'Note created',
-            note: createdNote
+            note: createdNote 
         }, {
             status: 200
         })

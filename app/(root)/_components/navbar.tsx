@@ -25,9 +25,9 @@ const navbar = () => {
         {
           status === 'loading' && (
             <div className="flex gap-2 animate-pulse">
-              <Skeleton className="h-9 w-30 rounded-md" /> 
-              <Skeleton className="h-9 w-24 rounded-md" /> 
-              <Skeleton className="h-11 w-10 rounded-full" /> 
+              <Skeleton className="h-9 w-30 rounded-md bg-muted-foreground" /> 
+              <Skeleton className="h-9 w-24 rounded-md bg-muted-foreground" /> 
+              <Skeleton className="h-11 w-10 rounded-full bg-muted-foreground" /> 
             </div>
           )
         }

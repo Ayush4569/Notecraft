@@ -17,7 +17,7 @@ export default function Documents() {
         src="/unboxing-dark.svg"
         alt="unboxing"
         width={300}
-        className="hidden dark:block"
+        className="hidden dark:block "
         height={300}
       />
 

@@ -1,58 +1,30 @@
-import { Favorite } from "./favorites"
-
-interface DocumentContent {
-    time: number
-    blocks: Block[]
-    version?: string
+// import {Comment} from "./comments"
+interface BlockNoteBlock {
+    id:string
+    type:"string"
+    props:Record<string,any>   // contruct an obj with properties of type string * their values as any
+    content : string | BlockNoteBlock[]
+    children : BlockNoteBlock[]
 }
 
-type Block = ParagraphBlock | HeadingBlock | ImageBlock | ListBlock
-
-interface ParagraphBlock {
-    type: "paragraph",
-    data: {
-        text: string
-    }
-}
-
-interface HeadingBlock {
-    type: "header",
-    data: {
-        text: string,
-        level: number
-    }
-}
-interface ImageBlock {
-    type: "image",
-    data: {
-        url: string,
-        caption?: string
-    }
-}
-interface ListBlock {
-    type: "list",
-    data: {
-        items: string[],
-        style: string
-    }
+interface BlockNoteContent {
+    version:string
+    blocks:BlockNoteBlock[]
 }
 
 export interface Document {
     id: string;
     title: string;
-    content?: DocumentContent;
+    content?: BlockNoteContent | string;
     createdAt: Date;
-    updatedAt?: Date;
+    updatedAt?: Date | null;
     userId: string;
-    parentId?: string;
+    parentId?: string | null;
     isPublished: boolean;
     coverImage?: string;
     isArchived: boolean;
     isTrashed: boolean;
-    comments: Comment[];
-    FavoriteId?: string;
-    favorite?: Favorite;
-    parent?: Document;
+    comments?: Comment[] | null ;
     children?: Document[];
 }
 

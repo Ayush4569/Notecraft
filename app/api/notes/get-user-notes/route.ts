@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
         const userNotes = await client.document.findMany({
             where:{
                 userId:session.user.id
+            },
+            orderBy:{
+                createdAt:'desc'
             }
         })
         return NextResponse.json({

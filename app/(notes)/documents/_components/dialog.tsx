@@ -12,18 +12,23 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppDispatch } from "@/hooks/redux-hooks";
 import { useCreateDocuments } from "@/hooks/useCreateDocument";
+import { addDocument } from "@/redux/slices/notes";
+import { Document } from "@/types/document";
+import axios from "axios";
 import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function DialogComponent() {
   const [title, setTitle] = useState<string>("");
-  const { mutate: createDocument, isPending } = useCreateDocuments();
 
-  const handleCreate = () => {
-    createDocument(title); 
-  };
-
+  const {isPending,mutate:createDocument} = useCreateDocuments()
+   
+   const handleCreate = ()=>{
+     createDocument(title)
+   }
   return (
     <Dialog>
       <DialogTrigger asChild>

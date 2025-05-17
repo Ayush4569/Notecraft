@@ -1,4 +1,5 @@
 import { User } from "./user";
+import { Document } from "./document";
 
 export interface Comment {
     id: string;
