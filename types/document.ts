@@ -22,6 +22,7 @@ export interface Document {
     parentId?: string | null;
     isPublished: boolean;
     coverImage?: string;
+    icon?:string;
     isArchived: boolean;
     isTrashed: boolean;
     comments?: Comment[] | null ;

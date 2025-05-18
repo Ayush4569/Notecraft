@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { SidebarHeader } from "./sidebar-header";
 import { SideBarDocuments } from "./sidebar-documents";
 import { SidebarItems } from "./sidebar-items";
+// import { SidebarItems } from "./sidebar-items-e";
 import { useCreateDocuments } from "@/hooks/useCreateDocument";
 import { useAppSelector } from "@/hooks/redux-hooks";
 import { useSideBarResizable } from "@/hooks/useSidebarResizable";
@@ -37,24 +38,14 @@ function Sidebar() {
       <aside
         ref={sidebarRef}
         className={cn(
-          `h-full group/sidebar flex flex-col overflow-y-auto bg-secondary relative w-60 z-[99999]`,
+          `h-full group/sidebar flex flex-col overflow-x-hidden overflow-y-auto bg-secondary relative w-60 z-[99999]`,
           isResetting && "transition-all ease-in-out duration-300"
         )}
       >
         <SidebarHeader isMobile={isMobile} collapseSideBar={collapseSidebar} />
-        <SidebarItems
-          label="New page"
-          icon={PlusCircle}
-          onClick={handleCreate}
-        />
-        <SidebarItems
-          label="Search"
-          icon={Search}
-          isSearch
-          onClick={() => {}}
-        />
-
-        <div className="mt-4 px-2">
+        <SidebarItems/>
+      
+        <div className="mt-4">
           <SideBarDocuments />
         </div>
         <div

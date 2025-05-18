@@ -20,7 +20,7 @@ const heading = () => {
       </h3>
       {status === "loading" && (
         <div className="flex w-full justify-center">
-           <Skeleton className="h-9 w-44 rounded-md" />
+           <Skeleton className="h-9 w-44 bg-neutral-200 dark:bg-neutral-700 animate-out rounded-sm" />
         </div>
       )}
       {status === "authenticated" && (

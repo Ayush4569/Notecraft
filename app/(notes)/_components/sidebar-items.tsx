@@ -1,64 +1,30 @@
-import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
 
-interface SidebarItemsProps {
-  id?: string;
-  active?: boolean;
-  documentIcon?: string;
-  expanded?: boolean;
-  isSearch?: boolean;
-  level?: number;
-  onExpand?: () => void;
-  label: string;
-  onClick: () => void;
-  icon: LucideIcon;
-}
+import { PlusCircle, Search } from "lucide-react";
+import { SettingsDialog } from "./settings-dialog";
+import { useCreateDocuments } from "@/hooks/useCreateDocument";
 
-export function SidebarItems({
-  id,
-  active,
-  documentIcon,
-  expanded,
-  isSearch,
-  level,
-  onExpand,
-  label,
-  onClick,
-  icon: Icon,
-}: SidebarItemsProps) {
-  const ChevronIcon = expanded ? ChevronDown : ChevronRight;
+export function SidebarItems() {
+  const {mutate} = useCreateDocuments()
+  const handleCreate = ()=>{
+    mutate('untitled');
+  }
   return (
-    <div
-      role="button"
-      onClick={onClick}
-      style={{ paddingLeft: level ? `${(level * 12) + 12}px` : "12px" }}
-      className={cn(
-        "group min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium gap-x-2 cursor-pointer",
-        active && "bg-primary/5 text-primary"
-      )}
-    >
-      {!!id && (
-        <div
-          role="button"
-          className="h-full rounded-sm hover:bg-neutral-300 dark:bg-neutral-600 mr-1"
-          onClick={() => {}}
-        >
-          <ChevronIcon className="h-4 w-4 shrink-0 text-muted-foreground/50" />
-        </div>
-      )}
-      {documentIcon ? (
-        <div className="shrink-0 mr-2 text-[18px]">{documentIcon}</div>
-      ) : (
-        <Icon className="text-muted-foreground shrink-0 h-[18px]" />
-      )}
-      <span className="truncate">{label}</span>
-      {
-        isSearch && (
-          <kbd className="ml-auto pointer-events-auto inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-            <span className="text-xs">CMD</span>K
-          </kbd>
-        )
-      }
-    </div>
+    <>
+      <div
+        className="group min-h-[27px] text-sm py-1 px-2 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold gap-x-2 cursor-pointer"
+      >
+        <Search className="h-[18px] shrink-0 text-muted-foreground" />
+        <span className="truncate">Search</span>
+      </div>
+
+      <SettingsDialog />
+      <div onClick={handleCreate} className="group min-h-[27px] text-sm py-1 px-2 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold gap-x-2 cursor-pointer">
+        <PlusCircle  className="h-[18px] shrink-0 text-muted-foreground" />
+        <span className="truncate">New page</span>
+        <kbd className="ml-auto pointer-events-auto inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </div>
+    </>
   );
 }

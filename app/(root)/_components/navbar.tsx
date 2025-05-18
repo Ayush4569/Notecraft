@@ -24,10 +24,10 @@ const navbar = () => {
       <div className="flex items-center gap-x-2 justify-between ">
         {
           status === 'loading' && (
-            <div className="flex gap-2 animate-pulse">
-              <Skeleton className="h-9 w-30 rounded-md bg-muted-foreground" /> 
-              <Skeleton className="h-9 w-24 rounded-md bg-muted-foreground" /> 
-              <Skeleton className="h-11 w-10 rounded-full bg-muted-foreground" /> 
+            <div className="flex gap-2 animate-out">
+              <Skeleton className="h-9 w-30 rounded-sm bg-neutral-200 dark:bg-neutral-700" /> 
+              <Skeleton className="h-9 w-24 rounded-sm bg-neutral-200 dark:bg-neutral-700" /> 
+              <Skeleton className="h-10 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700" /> 
             </div>
           )
         }

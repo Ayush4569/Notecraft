@@ -48,8 +48,6 @@ export const useCreateDocuments = () => useMutation<Document, Error, string>({
     onSuccess: (newDoc) => {
 
         queryClient.setQueryData(["documents"], (oldDocs: Document[] | undefined) => {
-            console.log('oldDocs : ', oldDocs);
-            console.log('newDoc : ', newDoc);
 
             if (!oldDocs) return [newDoc]
             return oldDocs.map(doc => doc.id.startsWith('temp-') ? newDoc : doc)
