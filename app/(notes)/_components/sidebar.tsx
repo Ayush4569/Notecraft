@@ -1,10 +1,9 @@
 import { cn } from "@/lib/utils";
-import { ChevronsRight, MenuIcon, PlusCircle, Search } from "lucide-react";
+import { ChevronsRight, MenuIcon } from "lucide-react";
 import React, { useEffect } from "react";
 import { SidebarHeader } from "./sidebar-header";
 import { SideBarDocuments } from "./sidebar-documents";
 import { SidebarItems } from "./sidebar-items";
-// import { SidebarItems } from "./sidebar-items-e";
 import { useCreateDocuments } from "@/hooks/useCreateDocument";
 import { useAppSelector } from "@/hooks/redux-hooks";
 import { useSideBarResizable } from "@/hooks/useSidebarResizable";
@@ -18,7 +17,6 @@ function Sidebar() {
     navbarRef,
     sidebarRef,
   } = useSideBarResizable();
-  const { mutate: createDocument } = useCreateDocuments();
   const isSidebarOpen = useAppSelector((state) => state.sidebar.isOpen);
   useEffect(() => {
     if (isMobile) {
@@ -30,9 +28,6 @@ function Sidebar() {
       collapseSidebar();
     }
   }, [isSidebarOpen]);
-  const handleCreate = () => {
-    createDocument("untitled");
-  };
   return (
     <>
       <aside

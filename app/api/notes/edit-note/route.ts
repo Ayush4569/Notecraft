@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/db/index"
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
-import { Document } from "@/types/document";
-export async function POST(req: NextRequest){
-    const { title,parentId } = await req.json()
+export async function PATCH(req: NextRequest) {
     const session = await getServerSession(authOptions)
+    const {docId,childPageId} = await req.json()
     if (!session || !session.user.id) {
         return NextResponse.json({
             success: false,
@@ -15,27 +14,31 @@ export async function POST(req: NextRequest){
         })
     }
     try {
-        const createdNote = await client.document.create(
-            {
-                data: {
-                    title,
-                    userId: session.user.id,
-                    parentId: parentId ? parentId : null,
+        const updatedDocument = await client.document.update({
+            where:{
+                id:docId
+            },
+            data:{
+                children:{
+                   
                 }
+            },
+            include:{
+                children:true
             }
-        )
+        })
         return NextResponse.json({
             success: true,
-            message: 'Note created',
-            note: createdNote as Document
+            message: 'child page added',
+            notes: updatedDocument
         }, {
             status: 200
         })
     } catch (error) {
-        console.log('Error creating note', error);
+        console.log('Error updating user notes', error);
         return NextResponse.json({
             success: false,
-            message: 'Error creating note'
+            message: 'Error updating user notes'
         }, {
             status: 500
         })

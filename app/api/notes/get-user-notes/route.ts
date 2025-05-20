@@ -15,11 +15,18 @@ export async function GET(req: NextRequest) {
     try {
         const userNotes = await client.document.findMany({
             where:{
-                userId:session.user.id
+                userId:session.user.id,
+                isTrashed:false,
+            },
+            select:{
+                id:true,
+                title:true,
+                parentId:true,
+                icon:true,
             },
             orderBy:{
                 createdAt:'desc'
-            }
+            },
         })
         return NextResponse.json({
             success: true,

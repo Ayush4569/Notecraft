@@ -19,10 +19,10 @@ import { useState } from "react";
 export function DialogComponent() {
   const [title, setTitle] = useState<string>("");
 
-  const {isPending,mutate:createDocument,isSuccess} = useCreateDocuments()
+  const {isPending,mutate:createDocument} = useCreateDocuments()
    
    const handleCreate = ()=>{
-     createDocument(title);
+     createDocument({title});
      setTitle('')
    }
   return (

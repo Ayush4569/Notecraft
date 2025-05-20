@@ -6,7 +6,7 @@ import { useCreateDocuments } from "@/hooks/useCreateDocument";
 export function SidebarItems() {
   const {mutate} = useCreateDocuments()
   const handleCreate = ()=>{
-    mutate('untitled');
+    mutate({title:"untitled"});
   }
   return (
     <>

@@ -29,4 +29,12 @@ export interface Document {
     children?: Document[];
 }
 
+export interface DocNode {
+    id: string;
+    title: string;
+    icon: string;
+    parentId?: string | null;
+    children?: DocNode[];
+}
+
 
