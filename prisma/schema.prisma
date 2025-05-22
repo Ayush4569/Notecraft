@@ -45,7 +45,6 @@ model Document {
   parentId String?
   isPublished Boolean @default(false)
   coverImage String?
-  isArchived Boolean @default(false)
   isTrashed Boolean @default(false)
   comments Comments[]
 }

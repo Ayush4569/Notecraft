@@ -34,7 +34,8 @@ function Sidebar() {
         ref={sidebarRef}
         className={cn(
           `h-full group/sidebar flex flex-col overflow-x-hidden overflow-y-auto bg-secondary relative w-60 z-[99999]`,
-          isResetting && "transition-all ease-in-out duration-300"
+          isResetting && "transition-all ease-in-out duration-300",
+          isMobile && "w-0"
         )}
       >
         <SidebarHeader isMobile={isMobile} collapseSideBar={collapseSidebar} />
@@ -54,7 +55,8 @@ function Sidebar() {
         ref={navbarRef}
         className={cn(
           "absolute top-0 z-[99999] left-60 w-[calc(100%-240px)]",
-          isResetting && "transition-all ease-in-out duration-300"
+          isResetting && "transition-all ease-in-out duration-300",
+          isMobile && "left-0 w-full"
         )}
       >
         <nav className="px-3 py-4 bg-transparent w-full">

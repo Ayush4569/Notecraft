@@ -3379,7 +3379,6 @@ export namespace Prisma {
     parentId: string | null
     isPublished: boolean | null
     coverImage: string | null
-    isArchived: boolean | null
     isTrashed: boolean | null
   }
 
@@ -3393,7 +3392,6 @@ export namespace Prisma {
     parentId: string | null
     isPublished: boolean | null
     coverImage: string | null
-    isArchived: boolean | null
     isTrashed: boolean | null
   }
 
@@ -3408,7 +3406,6 @@ export namespace Prisma {
     parentId: number
     isPublished: number
     coverImage: number
-    isArchived: number
     isTrashed: number
     _all: number
   }
@@ -3424,7 +3421,6 @@ export namespace Prisma {
     parentId?: true
     isPublished?: true
     coverImage?: true
-    isArchived?: true
     isTrashed?: true
   }
 
@@ -3438,7 +3434,6 @@ export namespace Prisma {
     parentId?: true
     isPublished?: true
     coverImage?: true
-    isArchived?: true
     isTrashed?: true
   }
 
@@ -3453,7 +3448,6 @@ export namespace Prisma {
     parentId?: true
     isPublished?: true
     coverImage?: true
-    isArchived?: true
     isTrashed?: true
     _all?: true
   }
@@ -3541,7 +3535,6 @@ export namespace Prisma {
     parentId: string | null
     isPublished: boolean
     coverImage: string | null
-    isArchived: boolean
     isTrashed: boolean
     _count: DocumentCountAggregateOutputType | null
     _min: DocumentMinAggregateOutputType | null
@@ -3573,7 +3566,6 @@ export namespace Prisma {
     parentId?: boolean
     isPublished?: boolean
     coverImage?: boolean
-    isArchived?: boolean
     isTrashed?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     parent?: boolean | Document$parentArgs<ExtArgs>
@@ -3593,7 +3585,6 @@ export namespace Prisma {
     parentId?: boolean
     isPublished?: boolean
     coverImage?: boolean
-    isArchived?: boolean
     isTrashed?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     parent?: boolean | Document$parentArgs<ExtArgs>
@@ -3610,7 +3601,6 @@ export namespace Prisma {
     parentId?: boolean
     isPublished?: boolean
     coverImage?: boolean
-    isArchived?: boolean
     isTrashed?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     parent?: boolean | Document$parentArgs<ExtArgs>
@@ -3627,11 +3617,10 @@ export namespace Prisma {
     parentId?: boolean
     isPublished?: boolean
     coverImage?: boolean
-    isArchived?: boolean
     isTrashed?: boolean
   }
 
-  export type DocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "icon" | "createdAt" | "updatedAt" | "userId" | "parentId" | "isPublished" | "coverImage" | "isArchived" | "isTrashed", ExtArgs["result"]["document"]>
+  export type DocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "icon" | "createdAt" | "updatedAt" | "userId" | "parentId" | "isPublished" | "coverImage" | "isTrashed", ExtArgs["result"]["document"]>
   export type DocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     parent?: boolean | Document$parentArgs<ExtArgs>
@@ -3667,7 +3656,6 @@ export namespace Prisma {
       parentId: string | null
       isPublished: boolean
       coverImage: string | null
-      isArchived: boolean
       isTrashed: boolean
     }, ExtArgs["result"]["document"]>
     composites: {}
@@ -4106,7 +4094,6 @@ export namespace Prisma {
     readonly parentId: FieldRef<"Document", 'String'>
     readonly isPublished: FieldRef<"Document", 'Boolean'>
     readonly coverImage: FieldRef<"Document", 'String'>
-    readonly isArchived: FieldRef<"Document", 'Boolean'>
     readonly isTrashed: FieldRef<"Document", 'Boolean'>
   }
     
@@ -4641,7 +4628,6 @@ export namespace Prisma {
     parentId: 'parentId',
     isPublished: 'isPublished',
     coverImage: 'coverImage',
-    isArchived: 'isArchived',
     isTrashed: 'isTrashed'
   };
 
@@ -4915,7 +4901,6 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Document"> | string | null
     isPublished?: BoolFilter<"Document"> | boolean
     coverImage?: StringNullableFilter<"Document"> | string | null
-    isArchived?: BoolFilter<"Document"> | boolean
     isTrashed?: BoolFilter<"Document"> | boolean
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     parent?: XOR<DocumentNullableScalarRelationFilter, DocumentWhereInput> | null
@@ -4934,7 +4919,6 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     isPublished?: SortOrder
     coverImage?: SortOrderInput | SortOrder
-    isArchived?: SortOrder
     isTrashed?: SortOrder
     user?: UserOrderByWithRelationInput
     parent?: DocumentOrderByWithRelationInput
@@ -4956,7 +4940,6 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Document"> | string | null
     isPublished?: BoolFilter<"Document"> | boolean
     coverImage?: StringNullableFilter<"Document"> | string | null
-    isArchived?: BoolFilter<"Document"> | boolean
     isTrashed?: BoolFilter<"Document"> | boolean
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     parent?: XOR<DocumentNullableScalarRelationFilter, DocumentWhereInput> | null
@@ -4975,7 +4958,6 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     isPublished?: SortOrder
     coverImage?: SortOrderInput | SortOrder
-    isArchived?: SortOrder
     isTrashed?: SortOrder
     _count?: DocumentCountOrderByAggregateInput
     _max?: DocumentMaxOrderByAggregateInput
@@ -4996,7 +4978,6 @@ export namespace Prisma {
     parentId?: StringNullableWithAggregatesFilter<"Document"> | string | null
     isPublished?: BoolWithAggregatesFilter<"Document"> | boolean
     coverImage?: StringNullableWithAggregatesFilter<"Document"> | string | null
-    isArchived?: BoolWithAggregatesFilter<"Document"> | boolean
     isTrashed?: BoolWithAggregatesFilter<"Document"> | boolean
   }
 
@@ -5162,7 +5143,6 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     user: UserCreateNestedOneWithoutDocumentsInput
     parent?: DocumentCreateNestedOneWithoutChildrenInput
@@ -5181,7 +5161,6 @@ export namespace Prisma {
     parentId?: string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     children?: DocumentUncheckedCreateNestedManyWithoutParentInput
     comments?: CommentsUncheckedCreateNestedManyWithoutDocumentInput
@@ -5196,7 +5175,6 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutDocumentsNestedInput
     parent?: DocumentUpdateOneWithoutChildrenNestedInput
@@ -5215,7 +5193,6 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     children?: DocumentUncheckedUpdateManyWithoutParentNestedInput
     comments?: CommentsUncheckedUpdateManyWithoutDocumentNestedInput
@@ -5232,7 +5209,6 @@ export namespace Prisma {
     parentId?: string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
   }
 
@@ -5245,7 +5221,6 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -5260,7 +5235,6 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -5516,7 +5490,6 @@ export namespace Prisma {
     parentId?: SortOrder
     isPublished?: SortOrder
     coverImage?: SortOrder
-    isArchived?: SortOrder
     isTrashed?: SortOrder
   }
 
@@ -5530,7 +5503,6 @@ export namespace Prisma {
     parentId?: SortOrder
     isPublished?: SortOrder
     coverImage?: SortOrder
-    isArchived?: SortOrder
     isTrashed?: SortOrder
   }
 
@@ -5544,7 +5516,6 @@ export namespace Prisma {
     parentId?: SortOrder
     isPublished?: SortOrder
     coverImage?: SortOrder
-    isArchived?: SortOrder
     isTrashed?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
@@ -6013,7 +5984,6 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     parent?: DocumentCreateNestedOneWithoutChildrenInput
     children?: DocumentCreateNestedManyWithoutParentInput
@@ -6030,7 +6000,6 @@ export namespace Prisma {
     parentId?: string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     children?: DocumentUncheckedCreateNestedManyWithoutParentInput
     comments?: CommentsUncheckedCreateNestedManyWithoutDocumentInput
@@ -6102,7 +6071,6 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Document"> | string | null
     isPublished?: BoolFilter<"Document"> | boolean
     coverImage?: StringNullableFilter<"Document"> | string | null
-    isArchived?: BoolFilter<"Document"> | boolean
     isTrashed?: BoolFilter<"Document"> | boolean
   }
 
@@ -6174,7 +6142,6 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     user: UserCreateNestedOneWithoutDocumentsInput
     parent?: DocumentCreateNestedOneWithoutChildrenInput
@@ -6192,7 +6159,6 @@ export namespace Prisma {
     parentId?: string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     children?: DocumentUncheckedCreateNestedManyWithoutParentInput
   }
@@ -6259,7 +6225,6 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutDocumentsNestedInput
     parent?: DocumentUpdateOneWithoutChildrenNestedInput
@@ -6277,7 +6242,6 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     children?: DocumentUncheckedUpdateManyWithoutParentNestedInput
   }
@@ -6322,7 +6286,6 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     user: UserCreateNestedOneWithoutDocumentsInput
     parent?: DocumentCreateNestedOneWithoutChildrenInput
@@ -6340,7 +6303,6 @@ export namespace Prisma {
     parentId?: string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     comments?: CommentsUncheckedCreateNestedManyWithoutDocumentInput
   }
@@ -6359,7 +6321,6 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     user: UserCreateNestedOneWithoutDocumentsInput
     children?: DocumentCreateNestedManyWithoutParentInput
@@ -6376,7 +6337,6 @@ export namespace Prisma {
     userId: string
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
     children?: DocumentUncheckedCreateNestedManyWithoutParentInput
     comments?: CommentsUncheckedCreateNestedManyWithoutDocumentInput
@@ -6475,7 +6435,6 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutDocumentsNestedInput
     parent?: DocumentUpdateOneWithoutChildrenNestedInput
@@ -6493,7 +6452,6 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     comments?: CommentsUncheckedUpdateManyWithoutDocumentNestedInput
   }
@@ -6540,7 +6498,6 @@ export namespace Prisma {
     parentId?: string | null
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
   }
 
@@ -6561,7 +6518,6 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     parent?: DocumentUpdateOneWithoutChildrenNestedInput
     children?: DocumentUpdateManyWithoutParentNestedInput
@@ -6578,7 +6534,6 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     children?: DocumentUncheckedUpdateManyWithoutParentNestedInput
     comments?: CommentsUncheckedUpdateManyWithoutDocumentNestedInput
@@ -6594,7 +6549,6 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -6632,7 +6586,6 @@ export namespace Prisma {
     userId: string
     isPublished?: boolean
     coverImage?: string | null
-    isArchived?: boolean
     isTrashed?: boolean
   }
 
@@ -6653,7 +6606,6 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutDocumentsNestedInput
     children?: DocumentUpdateManyWithoutParentNestedInput
@@ -6670,7 +6622,6 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
     children?: DocumentUncheckedUpdateManyWithoutParentNestedInput
     comments?: CommentsUncheckedUpdateManyWithoutDocumentNestedInput
@@ -6686,7 +6637,6 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    isArchived?: BoolFieldUpdateOperationsInput | boolean
     isTrashed?: BoolFieldUpdateOperationsInput | boolean
   }
 

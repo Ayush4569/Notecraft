@@ -1,4 +1,4 @@
-// import {Comment} from "./comments"
+import {Comment} from "./comments"
 interface BlockNoteBlock {
     id:string
     type:"string"
@@ -23,7 +23,6 @@ export interface Document {
     isPublished: boolean;
     coverImage?: string;
     icon?:string;
-    isArchived: boolean;
     isTrashed: boolean;
     comments?: Comment[] | null ;
     children?: Document[];

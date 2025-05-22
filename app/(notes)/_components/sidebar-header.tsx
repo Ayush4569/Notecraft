@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { ChevronsLeft, Edit } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserDropDown } from "./user-dropdown";
+import Loading from "@/app/loading";
 interface SidebarHeaderProps {
   isMobile: boolean;
   collapseSideBar: () => void;
@@ -13,7 +14,7 @@ export function SidebarHeader({
 }: SidebarHeaderProps) {
   const session = useSession();
   if (session.status === "loading") {
-    return null;
+    return <Loading/>
   }
   const user = session?.data?.user;
   return (

@@ -16,7 +16,7 @@ import { verifySchema } from "@/schemas";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
-import toast from "react-hot-toast";
+import {toast} from "sonner";
 import { cn } from "@/lib/utils";
 export default function VerfifyCode() {
   const router = useRouter();
@@ -38,22 +38,22 @@ export default function VerfifyCode() {
       router.replace("/login");
     } catch (error) {
       console.log("Error verifying code:", error);
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else if (error instanceof AxiosError) {
+       if (error instanceof AxiosError) {
         toast.error(error.response?.data.message);
       }
-      toast.error("unexpected error");
+      else{
+        toast.error("unexpected error");
+      }
     }
   }
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex justify-center items-center bg-white dark:invert min-h-screen md:bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white md:rounded-lg md:shadow-md">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+          <h1 className="text-4xl dark:invert font-extrabold tracking-tight lg:text-5xl mb-6">
             Verify Your Account
           </h1>
-          <p className="mb-4">Enter the verification code sent to your email</p>
+          <p className="mb-4 dark:invert">Enter the verification code sent to your email</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -62,9 +62,9 @@ export default function VerfifyCode() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Verification Code</FormLabel>
+                  <FormLabel className="dark:invert">Verification Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your code" {...field} />
+                    <Input  className="dark:invert" placeholder="Enter your code" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -74,7 +74,7 @@ export default function VerfifyCode() {
               type="submit"
               disabled={isSubmitting || isValidating}
               className={cn(
-                "cursor-pointer hover:bg-white hover:text-black transition-all",
+                "cursor-pointer hover:bg-white w-full md:w-max hover:text-black transition-all",
                 (isSubmitting || isValidating && "cursor-not-allowed")
               )}
             >

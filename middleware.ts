@@ -1,16 +1,16 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 const protectedRoutes = ["/documents"];
-const afterLoginProtectedRoutes = ["/login","/signup"]
+const authRoutes = [/^\/login$/, /^\/signup$/, /^\/verifycode\/[^/]+$/]
 export default async function (req:NextRequest){
 
  const token = await getToken({req});
+   const pathname = req.nextUrl.pathname;
+ const isRouteProtected = protectedRoutes.some(route => pathname.startsWith(route));
 
- const isRouteProtected = protectedRoutes.some(route => req.nextUrl.pathname.includes(route));
+ const authProtectedRoutes = authRoutes.some(route=> route.test(pathname));
 
- const isafterLoginProtectedRoutes = afterLoginProtectedRoutes.some(route=> req.nextUrl.pathname.includes(route));
-
- if(isafterLoginProtectedRoutes && token){
+ if(authProtectedRoutes && token){
     return NextResponse.redirect(new URL('/',req.url))
  }
 
@@ -20,5 +20,5 @@ export default async function (req:NextRequest){
  return NextResponse.next()
 }
 export const config = {
-    matcher: ["/documents"],
+    matcher: ["/documents", "/verifycode/:path*", "/login", "/signup"],
 };

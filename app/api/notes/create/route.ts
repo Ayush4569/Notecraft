@@ -20,14 +20,14 @@ export async function POST(req: NextRequest){
                 data: {
                     title,
                     userId: session.user.id,
-                    parentId: parentId ? parentId : null,
+                    parentId:  parentId ?? null,
                 }
             }
         )
         return NextResponse.json({
             success: true,
             message: 'Note created',
-            note: createdNote as Document
+            note: createdNote 
         }, {
             status: 200
         })

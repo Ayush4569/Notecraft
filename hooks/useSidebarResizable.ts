@@ -18,8 +18,8 @@ export const useSideBarResizable = () => {
 
         if (navbarRef.current && sidebarRef.current) {
             sidebarRef.current.style.width = `${variableWidth}px`
-            navbarRef.current.style.left = `${variableWidth}px`
-            navbarRef.current.style.width = `calc (100% - ${variableWidth}px)`
+            navbarRef.current.style.setProperty('left', `${variableWidth}px`)
+            navbarRef.current.style.setProperty('width', `calc(100% - ${variableWidth}px)`)
         }
     }, [])
     const handleMouseUp = useCallback(() => {
@@ -42,9 +42,9 @@ export const useSideBarResizable = () => {
         setIsResetting(true);
 
         if (sidebarRef.current && navbarRef.current) {
-            sidebarRef.current.style.width = "0";
-            navbarRef.current.style.left = "0";
-            navbarRef.current.style.width = "100%";
+            sidebarRef.current.style.width = "0"
+            navbarRef.current.style.setProperty("width", "100%");
+            navbarRef.current.style.setProperty("left", "0");
         }
 
         const timer = setTimeout(() => setIsResetting(false), 300);
@@ -57,10 +57,9 @@ export const useSideBarResizable = () => {
 
         if (sidebarRef.current && navbarRef.current) {
             sidebarRef.current.style.width = isMobile ? "100%" : `240px`;
-            navbarRef.current.style.width = isMobile ? "0" : `calc(100% - 240px)`;
-            navbarRef.current.style.left = isMobile ? "100%" : `240px`;
+            navbarRef.current.style.setProperty("width", isMobile ? "0" : `calc(100% - 240px)`);
+            navbarRef.current.style.setProperty("left", isMobile ? "0%" : `240px`);
         }
-
         const timer = setTimeout(() => setIsResetting(false), 300);
         return () => clearTimeout(timer);
     }, [dispatch, isMobile]);
