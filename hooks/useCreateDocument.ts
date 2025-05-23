@@ -11,17 +11,8 @@ interface CreateDocumentProps {
 }
 export const useCreateDocuments = () => useMutation({
     mutationFn: async ({ title, parentId }: CreateDocumentProps): Promise<DocNode> => {
-        const toastCreation = toast.loading("creating note...")
-        try {
-            const res = await axios.post('/api/notes/create', { title, parentId });
-            toast.success("Note created", { id: toastCreation })
-            return res.data.note as DocNode
-        } catch (error) {
-            console.log('Failed to create note', error);
-            const message = axios.isAxiosError(error) ? error.response?.data.message : "Failed to create note"
-            toast.error(message, { id: toastCreation });
-            throw new Error(message)
-        }
+        const res = await axios.post('/api/notes/create', { title, parentId });
+        return res.data.note as DocNode
     },
     onMutate: async ({ title, parentId }: CreateDocumentProps) => {
         await queryClient.cancelQueries({ queryKey: ["documents"] });
@@ -41,13 +32,16 @@ export const useCreateDocuments = () => useMutation({
 
         return { previousDocuments }
     },
-    onError: (error, _title, context) => {
+    onError: (error, title, context) => {
         // Rollback to previous state
-        // @ts-ignore
-        queryClient.setQueryData(["documents"], context?.previousDocuments);
+        console.log('Failed to create page', error);
+        toast.error("Error creating page");
+        if (context?.previousDocuments) {
+            queryClient.setQueryData(['documents'], context.previousDocuments);
+        }
     },
     onSuccess: (newDoc) => {
-
+        toast.success("Page created");
         queryClient.setQueryData(["documents"], (oldDocs: DocNode[] | undefined) => {
 
             if (!oldDocs) return [newDoc]
@@ -58,6 +52,5 @@ export const useCreateDocuments = () => useMutation({
         queryClient.invalidateQueries({ queryKey: ["documents"] }).catch((err) => {
             console.error("Failed to invalidate queries:", err);
         });
-        toast.dismiss();
     }
 })

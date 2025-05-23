@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "next-auth/react";
-import { useDeleteDocument } from "@/hooks/useDeleteDocument";
+import { useArchiveDocument } from "@/hooks/useArchiveDocument";
 
 interface DocumentListsProps {
   doc: DocNode;
@@ -39,7 +39,7 @@ export function DocumentLists({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const { mutate: createDocument } = useCreateDocuments();
-  const { mutate: deleteDocument } = useDeleteDocument();
+  const { mutate: archiveDocument } = useArchiveDocument();
 
   const handleCreate = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -52,7 +52,7 @@ export function DocumentLists({
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     e.stopPropagation();
-    deleteDocument(doc.id);
+    archiveDocument(doc.id);
   };
 
   return (

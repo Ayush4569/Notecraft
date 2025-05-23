@@ -1,5 +1,5 @@
 import { ModeToggle } from "@/components/mode-toggle";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Settings } from "lucide-react";
@@ -14,9 +14,11 @@ export function SettingsDialog() {
         </div>
       </DialogTrigger>
       <DialogContent>
+        <DialogTitle>
         <DialogHeader className="border-b pb-3">
           <h2 className="text-lg font-medium">My settings</h2>
         </DialogHeader>
+        </DialogTitle>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-1">
             <Label>Appearance</Label>

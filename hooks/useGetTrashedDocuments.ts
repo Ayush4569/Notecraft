@@ -1,15 +1,14 @@
-import { DocNode } from "@/types/document"
-import { useQuery } from "@tanstack/react-query"
-import axios from "axios"
+import { DocNode } from "@/types/document";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { toast } from "sonner";
 
-
-export const getDocs = () => useQuery<DocNode[],Error>({
-    queryKey: ["documents"],
+export const useGetTrashedDocs = ()=> useQuery({
+    queryKey:["documents","trashed"],
     queryFn: async () => {
+
         try {
-           const res = await axios.get('/api/notes/get-docs');
-            toast.success('Fetched user docs',{duration:500,dismissible:true})
+           const res = await axios.get('/api/notes/get-trashed-notes');
             return res.data.notes as DocNode[] 
         } catch (error) {
             console.log('Error fetching user docs', error);
@@ -18,6 +17,4 @@ export const getDocs = () => useQuery<DocNode[],Error>({
             throw new Error(msg)
         } 
     },
-    staleTime: 1000 * 60,
-    refetchOnWindowFocus:false
 })

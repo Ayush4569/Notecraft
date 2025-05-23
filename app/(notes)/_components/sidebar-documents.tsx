@@ -11,12 +11,12 @@ export function SideBarDocuments() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col w-full gap-y-1 mt-2">
+      <div className="flex flex-col w-full gap-y-2 mt-2">
         {Array.from({ length: fallbackSkeletion }).map((_, idx) => {
           return (
             <Skeleton
               key={idx}
-              className="mt-2 rounded-none bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 h-6 "
+              className="min-h-[22px] text-sm py-[2px] px-2.5 w-full cursor-pointer rounded-sm bg-neutral-200 dark:bg-neutral-700"
             />
           );
         })}

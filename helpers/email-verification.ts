@@ -9,7 +9,7 @@ export async function sendVerificationEmail(email: string, username: string, ver
             to: email,
             subject: 'Notecraft | Verification code',
             react: EmailTemplate({ otp: verifyCode, username })
-        })
+        });
         return { success: true, message: "verification email sent" }
     } catch (error) {
         console.log('Error sending verification email', error);

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import client from "@/db/index"
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/options";
-export async function PATCH(req: NextRequest) {
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions)
-    const {docId,childPageId} = await req.json()
     if (!session || !session.user.id) {
         return NextResponse.json({
             success: false,
@@ -14,31 +13,33 @@ export async function PATCH(req: NextRequest) {
         })
     }
     try {
-        const updatedDocument = await client.document.update({
+        const userNotes = await client.document.findMany({
             where:{
-                id:docId
+                userId:session.user.id,
+                isTrashed:false,
             },
-            data:{
-                children:{
-                   
-                }
+            select:{
+                id:true,
+                title:true,
+                parentId:true,
+                icon:true,
             },
-            include:{
-                children:true
-            }
+            orderBy:{
+                createdAt:'desc'
+            },
         })
         return NextResponse.json({
             success: true,
-            message: 'child page added',
-            notes: updatedDocument
+            message: 'Notes fetched',
+            notes: userNotes
         }, {
             status: 200
         })
     } catch (error) {
-        console.log('Error updating user notes', error);
+        console.log('Error fetching user notes', error);
         return NextResponse.json({
             success: false,
-            message: 'Error updating user notes'
+            message: 'Error fetching user notes'
         }, {
             status: 500
         })
