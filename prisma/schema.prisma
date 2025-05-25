@@ -47,4 +47,5 @@ model Document {
   coverImage String?
   isTrashed Boolean @default(false)
   comments Comments[]
+  @@index([userId])
 }

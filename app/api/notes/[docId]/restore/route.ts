@@ -3,10 +3,12 @@ import client from "@/db/index"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { docIdSchema } from "@/schemas";
+import { applyOperationRecursively } from "@/helpers/parent-with-child";
 
 interface Params {
     params: Promise<{ docId: string }>
 }
+
 
 export async function PATCH(req: NextRequest, { params }: Params) {
     const docId = (await (params)).docId
@@ -28,7 +30,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             select: {
                 id: true,
                 title: true,
-                isTrashed: true
+                isTrashed: true,
+                parent:true
             }
         })
         if (!document) {
@@ -40,24 +43,21 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             })
 
         }
-        await client.document.update({
-            where: {
-                id: docId,
-                userId
-            },
-            data: {
-                isTrashed: !document.isTrashed
-            },
-            select: {
-                id: true,
-                title: true,
-                parentId: true,
-                isTrashed: true
-            },
-        })
+        console.log('document.parent?.isTrashed',document.parent?.isTrashed);
+        
+        if(document.parent?.isTrashed){
+            return NextResponse.json({
+                success: false,
+                message: 'Cannot restore child while parent is still archived'
+            }, {
+                status: 400
+            }) 
+        }
+        const restoredDocs = applyOperationRecursively('restore');
+        await restoredDocs(docId, userId!)
         return NextResponse.json({
             success: true,
-            message: 'Page archived'
+            message: 'Pages restored'
         }, {
             status: 200
         })

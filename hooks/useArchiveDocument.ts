@@ -5,17 +5,25 @@ import axios from "axios";
 import { toast } from "sonner";
 
 export const useArchiveDocument = () => useMutation({
-  mutationFn: async (docId: string) => {
-    await axios.patch(`/api/notes/${docId}/toggle-trash`);
+  mutationFn: async (archivedDoc:DocNode) => {
+    await axios.patch(`/api/notes/${archivedDoc.id}/archive`);
   },
-  onMutate: async (docId: string) => {
+  onMutate: async (archivedDoc:DocNode) => {
     await queryClient.cancelQueries({ queryKey: ['documents'] });
 
     const previousDocuments = queryClient.getQueryData<DocNode[]>(['documents']);
-
-    queryClient.setQueryData(['documents'], (old: DocNode[] | undefined) =>
-      old?.filter(doc => doc.id !== docId)
+    const initalTrashedDoc: DocNode = {
+      id: archivedDoc.id,
+      title:archivedDoc.title,
+      parentId:archivedDoc.parentId,
+      icon: archivedDoc.icon ?? ""
+  }
+    queryClient.setQueryData(['documents'], (old: DocNode[] = []) =>
+      old.filter(doc => doc.id !== archivedDoc.id)
     );
+    queryClient.setQueryData(["documents", "trashed"],(trashDocs:DocNode[] = [])=>{
+      return [initalTrashedDoc,...trashDocs]
+    })
 
     return { previousDocuments };
   },
@@ -33,5 +41,6 @@ export const useArchiveDocument = () => useMutation({
   onSettled: () => {
     // Refetch to ensure data is fresh
     queryClient.invalidateQueries({ queryKey: ['documents'] });
+    queryClient.invalidateQueries({ queryKey: ['documents', 'trashed'] });
   }
 });

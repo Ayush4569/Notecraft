@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/helpers/tanstack";
+import { CommandMenu } from "@/components/command-menu";
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
@@ -19,6 +20,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               enableSystem
               disableTransitionOnChange
             >
+              <CommandMenu/>
               <Toaster position="bottom-center" />
 
               {children}

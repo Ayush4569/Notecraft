@@ -52,7 +52,7 @@ export function DocumentLists({
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     e.stopPropagation();
-    archiveDocument(doc.id);
+    archiveDocument(doc);
   };
 
   return (
@@ -111,7 +111,7 @@ export function DocumentLists({
             <DropdownMenuContent className="w-60 " align="start" forceMount>
               <DropdownMenuItem onClick={(e) => handleTrash(e)}>
                 <Trash className="h-4 w-4 mr-2 " />
-                Delete
+                Archive
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <div className="text-xs capitalize text-muted-foreground p-2">

@@ -9,7 +9,6 @@ export const getDocs = () => useQuery<DocNode[],Error>({
     queryFn: async () => {
         try {
            const res = await axios.get('/api/notes/get-docs');
-            toast.success('Fetched user docs',{duration:500,dismissible:true})
             return res.data.notes as DocNode[] 
         } catch (error) {
             console.log('Error fetching user docs', error);

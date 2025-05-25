@@ -17,4 +17,5 @@ export const useGetTrashedDocs = ()=> useQuery({
             throw new Error(msg)
         } 
     },
+    
 })

@@ -13,33 +13,24 @@ export async function GET(req: NextRequest) {
         })
     }
     try {
-        const userNotes = await client.document.findMany({
+        const document = await client.document.findFirst({
             where:{
                 userId:session.user.id,
                 isTrashed:false,
-            },
-            select:{
-                id:true,
-                title:true,
-                parentId:true,
-                icon:true,
-            },
-            orderBy:{
-                createdAt:'desc'
-            },
+            }
         })
         return NextResponse.json({
             success: true,
-            message: 'Notes fetched',
-            notes: userNotes
+            message: 'Page fetched',
+            notes: document
         }, {
             status: 200
         })
     } catch (error) {
-        console.log('Error fetching user notes', error);
+        console.log('Error fetching page', error);
         return NextResponse.json({
             success: false,
-            message: 'Error fetching user notes'
+            message: 'Error fetching page'
         }, {
             status: 500
         })

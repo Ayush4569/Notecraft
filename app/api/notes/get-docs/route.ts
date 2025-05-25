@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
                 createdAt:'desc'
             },
         })
+        
         return NextResponse.json({
             success: true,
             message: 'Notes fetched',

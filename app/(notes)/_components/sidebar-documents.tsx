@@ -7,16 +7,16 @@ import { DocNode } from "@/types/document";
 export function SideBarDocuments() {
   const { data: documents, isLoading } = getDocs();
 
-  let fallbackSkeletion = documents?.length || 4;
+  let fallbackSkeletion = documents?.length || 16;
 
   if (isLoading) {
     return (
-      <div className="flex flex-col w-full gap-y-2 mt-2">
+      <div className="flex flex-col w-full py-[2px] px-2 gap-y-2 mt-2">
         {Array.from({ length: fallbackSkeletion }).map((_, idx) => {
           return (
             <Skeleton
               key={idx}
-              className="min-h-[22px] text-sm py-[2px] px-2.5 w-full cursor-pointer rounded-sm bg-neutral-200 dark:bg-neutral-700"
+              className="min-h-[22px] text-sm w-full cursor-pointer rounded-xs bg-neutral-200 dark:bg-neutral-700"
             />
           );
         })}
@@ -25,13 +25,12 @@ export function SideBarDocuments() {
   }
   if (!documents || documents.length === 0)
     return <p className="mt-2 px-3">No notes</p>;
-  console.log("docs", documents);
 
   function buildTree(docs: DocNode[]): DocNode[] {
     const map = new Map<string, DocNode & { children: DocNode[] }>();
     const roots: (DocNode & { children: DocNode[] })[] = [];
 
-    docs.forEach((doc) => map.set(doc.id, { ...doc, children: [] }));
+    docs?.forEach((doc) => map.set(doc.id, { ...doc, children: [] }));
 
     docs.forEach((doc) => {
       if (doc.parentId) {

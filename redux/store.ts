@@ -4,6 +4,7 @@ import pageReducer from "./slices/currentpage"
 import { persistStore, persistReducer } from "redux-persist"
 import storage from "redux-persist/lib/storage"
 import { combineReducers } from "redux"
+import searchmenuReducer from "./slices/searchmenu"
 const persistConfig = {
   key: "root",
   storage
@@ -12,6 +13,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
   page: pageReducer,
+  search:searchmenuReducer
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
