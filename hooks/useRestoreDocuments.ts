@@ -19,7 +19,7 @@ export const useRestoreDocuments = () => useMutation({
         await queryClient.cancelQueries({ queryKey: ["documents", "trashed"] })
 
         const trashedDocs = queryClient.getQueryData<DocNode[]>(["documents", "trashed"])
-        queryClient.setQueryData(["documents", "trashed"], (trashDocs: DocNode[] | undefined) => {
+        queryClient.setQueryData(["documents", "trashed"], (trashDocs: DocNode[] =[]) => {
             if (!trashDocs) return;
             return trashDocs.filter(docs => docs.id !== docId)
         })
@@ -32,9 +32,10 @@ export const useRestoreDocuments = () => useMutation({
             queryClient.setQueryData(["documents", "trashed"], context.trashedDocs)
         }
     },
-    onSettled: () => {
+    onSettled: (data,err,docId,context) => {
         // Refetch to ensure data is fresh
         queryClient.invalidateQueries({ queryKey: ['documents'] });
         queryClient.invalidateQueries({ queryKey: ["documents", "trashed"] })
+        queryClient.invalidateQueries({ queryKey: ["document", docId] })
     }
 })

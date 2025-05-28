@@ -2,27 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/db/index"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-export async function GET(req: NextRequest) {
+import { docIdSchema } from "@/schemas";
+interface Params {
+    params: Promise<{ docId: string }>
+}
+export async function GET(req: NextRequest, { params }: Params) {
+    const docId = (await (params)).docId
     const session = await getServerSession(authOptions)
-    if (!session || !session.user.id) {
-        return NextResponse.json({
-            success: false,
-            message: 'Unauthorized'
-        }, {
-            status: 403
-        })
+    const result = docIdSchema.safeParse(docId)
+    if (!session || !session.user) {
+        return NextResponse.json({ success: false, message: "unauthorized" }, { status: 401 })
+    }
+    const userId = session.user.id
+    if (!docId || !result.success) {
+        return NextResponse.json({ success: false, message: "Invalid document id" }, { status: 400 })
     }
     try {
         const document = await client.document.findFirst({
-            where:{
-                userId:session.user.id,
-                isTrashed:false,
+            where: {
+                id: docId,
+                userId,
             }
         })
+        if (!document) {
+            return NextResponse.json({
+                success: false,
+                message: 'No such page exist'
+            }, {
+                status: 500
+            })
+        }
         return NextResponse.json({
             success: true,
             message: 'Page fetched',
-            notes: document
+            note: document
         }, {
             status: 200
         })

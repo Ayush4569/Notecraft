@@ -1,15 +1,60 @@
 import { queryClient } from "@/helpers/tanstack"
-import { Document } from "@/types/document"
+import { DocNode, Document } from "@/types/document"
 import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
 import { toast } from "sonner"
 
-// export const useEditDocuments  =()=> useMutation<Document,Error,string>({
-//     mutationFn:async()=>{
-//        try {
+interface docPayload {
+    title:string;
+    content:string
+    coverImage:string;
+    icon:string;
+    isPublished:boolean
+}
+
+type mutationProps = {
+    docId:string;
+    data: Partial<docPayload>
+}
+
+export const useEditDocument  =()=> useMutation({
+    mutationFn:async({docId,data}:mutationProps)=>{
+       try {
+        const res = await axios.patch(`/api/notes/${docId}/update`,data);
+        return res.data.note
+       } catch (error) {
+        console.error("Error updating doc", error)
+        toast.error(
+          axios.isAxiosError(error)
+            ? error.response?.data.message
+            : "Error updating document"
+        )
+        throw error
+       }
+    },
+    onMutate:async({docId,data}:mutationProps)=>{
+        await queryClient.cancelQueries({queryKey:["document",docId]})
+  
+        const previousDocState = queryClient.getQueryData<Document>(["document",docId]);
         
-//        } catch (error) {
-        
-//        }
-//     }
-// })
+        queryClient.setQueryData(["document",docId],(oldDoc:Document)=>{
+            return {...oldDoc,...data}
+        })
+        queryClient.setQueryData(["documents"],(oldDoc:DocNode[]=[])=>{
+           return oldDoc.map(doc=>doc.id === docId ? {...doc,...data} : doc);
+
+        })
+
+        return {previousDocState}
+    },
+    onError(error,variables,context){
+        if(context?.previousDocState){
+            queryClient.setQueryData(["document",variables.docId],context.previousDocState)
+            queryClient.invalidateQueries({queryKey:["documents"]})
+        }
+    },
+    onSettled:(doc,err,{docId,data},context)=>{
+          queryClient.invalidateQueries({queryKey:["document",docId]})
+          queryClient.invalidateQueries({queryKey:["documents"]})
+    }
+})

@@ -26,7 +26,7 @@ export const useCreateDocuments = () => useMutation({
             icon: ""
         }
 
-        queryClient.setQueryData(["documents"], (oldDocs: DocNode[] | undefined) => {
+        queryClient.setQueryData(["documents"], (oldDocs: DocNode[] =[]) => {
             return [initialDoc, ...(oldDocs || [])]
         })
 
@@ -42,9 +42,9 @@ export const useCreateDocuments = () => useMutation({
     },
     onSuccess: (newDoc) => {
         toast.success("Page created");
-        queryClient.setQueryData(["documents"], (oldDocs: DocNode[] | undefined) => {
+        queryClient.setQueryData(["documents"], (oldDocs: DocNode[] =[]) => {
 
-            if (!oldDocs) return [newDoc]
+            if (oldDocs.length==0) return [newDoc]
             return oldDocs.map(doc => doc.id.startsWith('temp-') ? newDoc : doc)
         })
     },

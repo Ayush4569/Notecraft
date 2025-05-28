@@ -43,8 +43,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             })
 
         }
-        console.log('document.parent?.isTrashed',document.parent?.isTrashed);
-        
         if(document.parent?.isTrashed){
             return NextResponse.json({
                 success: false,

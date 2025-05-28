@@ -2,36 +2,53 @@ import { NextRequest, NextResponse } from "next/server";
 import client from "@/db/index"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-export async function GET(req: NextRequest) {
+import { Params } from "@/types/params-promise";
+import { docIdSchema } from "@/schemas";
+
+export async function PATCH(req: NextRequest, { params }: Params) {
+    const docId = (await (params)).docId
+    const data = await req.json()
     const session = await getServerSession(authOptions)
-    if (!session || !session.user.id) {
-        return NextResponse.json({
-            success: false,
-            message: 'Unauthorized'
-        }, {
-            status: 403
-        })
+    const result = docIdSchema.safeParse(docId)
+    if (!session || !session.user) {
+        return NextResponse.json({ success: false, message: "unauthorized" }, { status: 401 })
+    }
+    const userId = session.user.id
+    if (!docId || !result.success) {
+        return NextResponse.json({ success: false, message: "Invalid document id" }, { status: 400 })
     }
     try {
-        const userNotes = await client.document.findMany({
-            where:{
-                userId:session.user.id,
-                isTrashed:false,
+        const doc = await client.document.findFirst({
+            where: {
+                id: docId,
+                userId,
+                isTrashed: false,
             },
-            select:{
-                id:true,
-                title:true,
-                parentId:true,
-                icon:true,
+            select: {
+                id: true,
+            }
+        })
+        if (!doc) {
+            return NextResponse.json({
+                success: false,
+                message: 'Document not found'
+            }, {
+                status: 404
+            })
+        }
+        const updatedDocument = await client.document.update({
+            where: {
+                id: docId,
+                userId,
             },
-            orderBy:{
-                createdAt:'desc'
-            },
+            data: {
+                ...data
+            }
         })
         return NextResponse.json({
             success: true,
             message: 'Notes fetched',
-            notes: userNotes
+            doc: updatedDocument
         }, {
             status: 200
         })

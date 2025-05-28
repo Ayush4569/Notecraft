@@ -69,14 +69,18 @@ export function TrashBox() {
                 <div
                   role="button"
                   onClick={(e) => handleRestore(e, doc.id)}
-                  className="rounded-sm cursor-pointer p-2 hover:bg-neutral-200"
+                  className="rounded-sm cursor-pointer p-2 hover:bg-neutral-200
+                   dark:hover:bg-neutral-600
+                  "
                 >
                   <Undo className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <ConfirmModal onConfirm={()=> handleTrash(doc.id)}>
                   <div
                     role="button"
-                    className="rounded-sm cursor-pointer p-2 hover:bg-neutral-200"
+                    className="rounded-sm cursor-pointer p-2 hover:bg-neutral-200
+                    dark:hover:bg-neutral-600
+                    "
                   >
                     <Trash className="h-4 w-4 text-muted-foreground" />
                   </div>

@@ -38,9 +38,10 @@ export const useArchiveDocument = () => useMutation({
   onSuccess: () => {
     toast.success("Page archived");
   },
-  onSettled: () => {
+  onSettled: (doc,err,{id:docId},context) => {
     // Refetch to ensure data is fresh
-    queryClient.invalidateQueries({ queryKey: ['documents'] });
+    queryClient.invalidateQueries({ queryKey: ['document',docId] });
+    queryClient.invalidateQueries({ queryKey: ['document'] });
     queryClient.invalidateQueries({ queryKey: ['documents', 'trashed'] });
   }
 });

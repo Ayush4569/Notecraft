@@ -72,7 +72,7 @@ export function DocumentLists({
                 e.stopPropagation();
                 setIsExpanded(false);
               }}
-              className="h-4 w-4 shrink-0 text-muted-foreground/50"
+              className="h-full w-4 shrink-0 text-muted-foreground/50 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-sm"
             />
           ) : (
             <ChevronRight
@@ -80,7 +80,7 @@ export function DocumentLists({
                 e.stopPropagation();
                 setIsExpanded(true);
               }}
-              className="h-4 w-4 shrink-0 text-muted-foreground/50"
+              className="h-full w-4 shrink-0 text-muted-foreground/50 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-sm"
             />
           )}
 
@@ -108,10 +108,10 @@ export function DocumentLists({
                 />
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-60 " align="start" forceMount>
-              <DropdownMenuItem onClick={(e) => handleTrash(e)}>
+            <DropdownMenuContent className="w-60" align="start" forceMount>
+              <DropdownMenuItem className="cursor-pointer" onClick={(e) => handleTrash(e)}>
                 <Trash className="h-4 w-4 mr-2 " />
-                Archive
+                Move to trash
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <div className="text-xs capitalize text-muted-foreground p-2">

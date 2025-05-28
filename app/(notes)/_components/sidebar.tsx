@@ -13,6 +13,7 @@ import {
 import { useAppSelector } from "@/hooks/redux-hooks";
 import { useSideBarResizable } from "@/hooks/useSidebarResizable";
 import { TrashBox } from "./trash-box";
+import { PageNavbar } from "./page-navbar";
 function Sidebar() {
   const {
     isResetting,
@@ -52,7 +53,7 @@ function Sidebar() {
         </div>
         <div className="mt-4 py-1 px-2 w-full hover:bg-primary/5 text-muted-foreground font-semibold cursor-pointer">
           <Popover>
-            <PopoverTrigger className="flex items-center w-full gap-x-3">
+            <PopoverTrigger className="flex  items-center w-full gap-x-3">
               <Trash className="h-5 w-5 shrink-0 " />
               <p>Trash</p>
             </PopoverTrigger>
@@ -79,6 +80,10 @@ function Sidebar() {
           isMobile && "left-0 w-full"
         )}
       >
+        <PageNavbar
+         isSidebarOpen = {isSidebarOpen}
+         resetSidebar={resetSidebar}
+        />
         <nav className="px-3 py-4 bg-transparent w-full">
           {!isSidebarOpen && isMobile && (
             <MenuIcon
