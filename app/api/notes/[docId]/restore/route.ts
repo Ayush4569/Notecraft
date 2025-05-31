@@ -60,10 +60,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             status: 200
         })
     } catch (error) {
-        console.log('Error archiving page', error);
+        console.log('Error restoring page', error);
         return NextResponse.json({
             success: false,
-            message: 'Error archiving page'
+            message: 'Error restoring page'
         }, {
             status: 500
         })

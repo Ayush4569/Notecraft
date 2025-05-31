@@ -47,16 +47,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         })
         return NextResponse.json({
             success: true,
-            message: 'Notes fetched',
+            message: 'Page updated',
             doc: updatedDocument
         }, {
             status: 200
         })
     } catch (error) {
-        console.log('Error fetching user notes', error);
+        console.log('Error updating note', error);
         return NextResponse.json({
             success: false,
-            message: 'Error fetching user notes'
+            message: 'Error updating note'
         }, {
             status: 500
         })

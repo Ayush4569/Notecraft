@@ -5,12 +5,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useDeleteTrashDocuments } from "@/hooks/useDeleteTrashDocuments";
+import { useArchiveDocument } from "@/hooks/useArchiveDocument";
 import { MoreHorizontal, Trash } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 export function Menu({ docId }: { docId: string }) {
-  const { mutate: DeleteDoc } = useDeleteTrashDocuments();
-  const handleTrash = () => DeleteDoc(docId);
+  const router = useRouter();
+  const { mutate: ArchiveDoc } = useArchiveDocument();
+  const handleTrash = () => {
+    router.replace('/documents');
+    ArchiveDoc({ docId, payload: {} });
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ChevronsRight, MenuIcon, Trash } from "lucide-react";
+import { MenuIcon, Trash } from "lucide-react";
 import React, { useEffect } from "react";
 import { SidebarHeader } from "./sidebar-header";
 import { SideBarDocuments } from "./sidebar-documents";
@@ -14,7 +14,9 @@ import { useAppSelector } from "@/hooks/redux-hooks";
 import { useSideBarResizable } from "@/hooks/useSidebarResizable";
 import { TrashBox } from "./trash-box";
 import { PageNavbar } from "./page-navbar";
+import { useParams } from "next/navigation";
 function Sidebar() {
+  const params = useParams();
   const {
     isResetting,
     isMobile,
@@ -80,26 +82,22 @@ function Sidebar() {
           isMobile && "left-0 w-full"
         )}
       >
-        <PageNavbar
-         isSidebarOpen = {isSidebarOpen}
-         resetSidebar={resetSidebar}
-        />
-        <nav className="px-3 py-4 bg-transparent w-full">
-          {!isSidebarOpen && isMobile && (
-            <MenuIcon
-              onClick={resetSidebar}
-              role="button"
-              className="h-6 w-6 text-muted-foreground cursor-pointer"
-            />
-          )}
-          {!isSidebarOpen && !isMobile && (
-            <ChevronsRight
-              onClick={resetSidebar}
-              role="button"
-              className="h-6 w-6 text-muted-foreground cursor-pointer"
-            />
-          )}
-        </nav>
+        {!!params.id ? (
+          <PageNavbar
+            isSidebarOpen={isSidebarOpen}
+            resetSidebar={resetSidebar}
+          />
+        ) : (
+          <nav className="px-3 py-4 bg-transparent w-full">
+            {!isSidebarOpen && (
+              <MenuIcon
+                onClick={resetSidebar}
+                role="button"
+                className="h-6 w-6 text-muted-foreground cursor-pointer"
+              />
+            )}
+          </nav>
+        )}
       </div>
     </>
   );

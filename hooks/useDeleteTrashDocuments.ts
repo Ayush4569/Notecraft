@@ -26,7 +26,9 @@ export const useDeleteTrashDocuments = () => useMutation({
     onError: (error, docId, context) => {
         queryClient.setQueryData(["documents", "trashed"], context?.previousData);
     },
-    onSettled: () => {
+    onSettled: (data,err,docId,context) => {
         queryClient.invalidateQueries({ queryKey: ["documents", "trashed"] });
+        queryClient.invalidateQueries({ queryKey: ["documents"] });
+        queryClient.invalidateQueries({ queryKey: ["document",docId] });
     }
 })

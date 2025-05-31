@@ -52,7 +52,7 @@ export function DocumentLists({
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     e.stopPropagation();
-    archiveDocument(doc);
+    archiveDocument({docId: doc.id, payload: {}});
   };
 
   return (
@@ -65,7 +65,7 @@ export function DocumentLists({
           isActive && "bg-primary/5 text-primary"
         )}
       >
-        <div className="flex items-center gap-x-0.5 truncate max-w-[calc(100% - 40px)] md:max-w-[calc(100%-50px)]">
+        <div className="flex items-center gap-x-0.5  max-w-[calc(100% - 40px)] md:max-w-[calc(100%-50px)]">
           {isExpanded ? (
             <ChevronDown
               onClick={(e) => {
@@ -89,7 +89,7 @@ export function DocumentLists({
           ) : (
             <File className="text-muted-foreground shrink-0 h-[18px]" />
           )}
-          <span className="truncate">{doc.title}</span>
+          <span className="w-[70%] md:w-full truncate">{doc.title}</span>
         </div>
 
         <div

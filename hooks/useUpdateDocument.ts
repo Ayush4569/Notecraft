@@ -8,7 +8,7 @@ interface docPayload {
     title:string;
     content:string
     coverImage:string;
-    icon:string;
+    icon:string | null;
     isPublished:boolean
 }
 
@@ -18,6 +18,7 @@ type mutationProps = {
 }
 
 export const useEditDocument  =()=> useMutation({
+   
     mutationFn:async({docId,data}:mutationProps)=>{
        try {
         const res = await axios.patch(`/api/notes/${docId}/update`,data);
@@ -42,7 +43,6 @@ export const useEditDocument  =()=> useMutation({
         })
         queryClient.setQueryData(["documents"],(oldDoc:DocNode[]=[])=>{
            return oldDoc.map(doc=>doc.id === docId ? {...doc,...data} : doc);
-
         })
 
         return {previousDocState}
