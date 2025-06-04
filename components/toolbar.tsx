@@ -74,7 +74,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
             className="text-muted-foreground text-xs rounded-full opacity-0 group-hover/icon:opacity-100 transition-all"
             onClick={() => handleRemoveIcon(doc.id, null)}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3" />
           </Button>
         </div>
       )}
@@ -83,8 +83,8 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
           <p className="text-6xl pt-6">{doc.icon}</p>
         </div>
       )}
-      <div className="opacity-0 group-hover:opacity-100 transition-all flex items-center gap-x-1 my-1">
-        {!preview && (
+      <div className="opacity-0 group-hover:opacity-100 transition-all flex items-center gap-x-1 my-2">
+        {!doc.icon &&!preview && (
           <IconPicker onChange={handleIconChange} asChild>
             <Button
               variant="outline"
@@ -96,7 +96,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
             </Button>
           </IconPicker>
         )}
-        {!preview && (
+        {!doc.coverImage &&!preview && (
           <Button
             variant="outline"
             size="sm"

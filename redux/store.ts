@@ -5,6 +5,7 @@ import { persistStore, persistReducer } from "redux-persist"
 import storage from "redux-persist/lib/storage"
 import { combineReducers } from "redux"
 import searchmenuReducer from "./slices/searchmenu"
+import imagemodal from "./slices/imagemodal"
 const persistConfig = {
   key: "root",
   storage
@@ -13,7 +14,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
   page: pageReducer,
-  search:searchmenuReducer
+  search:searchmenuReducer,
+  imageModal:imagemodal
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
