@@ -32,6 +32,7 @@ export function DocumentLists({
   parentId,
   children = [],
 }: DocumentListsProps) {
+  
   const pathname = usePathname();
   const { data } = useSession();
   const router = useRouter();

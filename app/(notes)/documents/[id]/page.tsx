@@ -10,7 +10,7 @@ export default function () {
   if (!document) return;
   return (
     <div className="pb-40">
-     <CoverImage imageUrl={document.coverImage ?? "/cover.avif"}/>
+     <CoverImage docId = {document.id} imageUrl={document.imageUrl}/>
       <div className="md:max-w-3xl lg:max-w-4xl mt-4">
         <Toolbar doc={document!}/>
       </div>

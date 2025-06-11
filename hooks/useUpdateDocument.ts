@@ -7,7 +7,7 @@ import { toast } from "sonner"
 interface docPayload {
     title:string;
     content:string
-    coverImage:string;
+    coverImage:string | null;
     icon:string | null;
     isPublished:boolean
 }
@@ -22,7 +22,7 @@ export const useEditDocument  =()=> useMutation({
     mutationFn:async({docId,data}:mutationProps)=>{
        try {
         const res = await axios.patch(`/api/notes/${docId}/update`,data);
-        return res.data.note
+        return res.data.doc
        } catch (error) {
         console.error("Error updating doc", error)
         toast.error(

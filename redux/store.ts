@@ -13,7 +13,6 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
-  page: pageReducer,
   search:searchmenuReducer,
   imageModal:imagemodal
 })

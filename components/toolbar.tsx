@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
 import { useDebounce } from "@/hooks/useDebounce";
 import { queryClient } from "@/helpers/tanstack";
+import { CoverImageModal } from "./cover-image-modal";
 interface ToolbarProps {
   doc: Document;
   preview?: boolean;

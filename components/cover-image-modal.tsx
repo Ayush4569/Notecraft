@@ -1,43 +1,127 @@
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux-hooks";
-import { onClose } from "@/redux/slices/imagemodal";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { Button } from "./ui/button";
-import axios from "axios";
-import { useRef } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { FileRejection, useDropzone } from "react-dropzone";
+import React, { useCallback, useState } from "react";
+import { Card, CardContent } from "./ui/card";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux-hooks";
+import { onClose, onOpen } from "@/redux/slices/imagemodal";
+import { useEditDocument } from "@/hooks/useUpdateDocument";
 
-export function CoverImageModal() {
-  const { isOpen } = useAppSelector((state) => state.imageModal);
-  const dispatch = useAppDispatch();
-  const fileRef = useRef<HTMLInputElement>(null);
-  const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData();
-    if (fileRef.current?.files?.[0]) {
+interface CoverImageModalProps {
+  docId: string;
+  setCoverImage: (image: string) => void;
+  children: React.ReactNode;
+}
+
+export function CoverImageModal({
+  children,
+  docId,
+  setCoverImage,
+}: CoverImageModalProps) {
+  const { mutate } = useEditDocument();
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const onDrop = useCallback(async (files: File[]) => {
+    const uploadedFile = files[0];
+    if (!uploadedFile) {
+      toast.error("No file selected");
       return;
     }
-    formData.append("file", fileRef.current?.files?.[0] !);
-    const response = await axios.post("/api/upload", formData)
-    const result = response.data
-    console.log(result);
-  }
-  return (
-    <Dialog open={isOpen} onOpenChange={() => dispatch(onClose())}>
-      <DialogContent>
-        <DialogTitle>
-          <DialogHeader>
-            <h2 className="text-center text-lg font-bold">Cover Image</h2>
-          </DialogHeader>
-        </DialogTitle>
+    const imageUrl = URL.createObjectURL(uploadedFile);
+    setCoverImage(imageUrl);
+    try {
+      setIsUploading(true);
+      const getSignedUrlWithKey = await axios.post("/api/upload", {
+        fileName: uploadedFile.name,
+        fileType: uploadedFile.type,
+        docId,
+      });
+      if (getSignedUrlWithKey.data.success) {
+        const { url, key } = getSignedUrlWithKey.data;
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-y-4">
-              <label className="flex flex-col ">
-                <span>Upload a file</span>
-                <input ref={fileRef} type="file" name="file" />
-              </label>
-              <Button  type="submit">Submit</Button>
-            </form>
+        await axios.put(url, uploadedFile);
+        mutate({ docId, data: {coverImage:key} });
+        toast.success("Image uploaded");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to upload image");
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
+  const onDropRejected = useCallback((rejectedFiles: FileRejection[]) => {
+    if (rejectedFiles.length > 0) {
+      const file = rejectedFiles[0];
+      if (file.errors[0].code === "too-many-files") {
+        toast.error("Only one cover image is allowed");
+      }
+      if (file.errors[0].code === "file-too-large") {
+        toast.error("File size must not exceed 15MB");
+      }
+    }
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    onDropRejected,
+    maxFiles: 1,
+    maxSize: 1024 * 1024 * 15,
+    accept: {
+      "image/*": [],
+    },
+  });
+  return (
+    <Dialog>
+      <DialogTrigger  asChild>{children}</DialogTrigger>
+      <DialogContent className="md:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Upload cover image</DialogTitle>
+          <DialogDescription>
+            Upload cover image for you document
+          </DialogDescription>
+          <Card
+            className={cn(
+              "relative border-2 border-dashed transition-colors duration-200 ease-in-out w-full md:h-52",
+              isDragActive
+                ? "border-primary bg-primary/10 border-solid"
+                : "border-border hover:border-primary"
+            )}
+            {...getRootProps()}
+          >
+            <CardContent className="flex flex-col items-center justify-center h-full w-full">
+              {isUploading ? (
+                <Loader2
+                  className="animate-spin text-purple-600 dark:text-fuchsia-400"
+                  size={50}
+                />
+              ) : (
+                <>
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <p className="text-center">Drop the files here</p>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full w-full gap-y-3">
+                      <p>
+                        Drag 'n' drop some files here, or click to select files
+                      </p>
+                      <Button disabled={isUploading}>Select files</Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );

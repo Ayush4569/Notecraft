@@ -3,6 +3,7 @@ import client from "@/db/index"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { docIdSchema } from "@/schemas";
+import { generateSignedUrl } from "@/helpers/aws.service";
 interface Params {
     params: Promise<{ docId: string }>
 }
@@ -32,10 +33,24 @@ export async function GET(req: NextRequest, { params }: Params) {
                 status: 500
             })
         }
+        let coverUrl: string | null = null;
+        if (document.coverImage) {
+            coverUrl = await generateSignedUrl(document.coverImage);
+            return NextResponse.json({
+                success: true,
+                message: 'Page fetched',
+                note: {
+                    ...document,
+                    imageUrl: coverUrl
+                }
+            }, {
+                status: 200
+            })
+        }
         return NextResponse.json({
             success: true,
             message: 'Page fetched',
-            note: document
+            note: document,
         }, {
             status: 200
         })
