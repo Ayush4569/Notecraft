@@ -1,15 +1,17 @@
 import { queryClient } from "@/helpers/tanstack"
 import { DocNode, Document } from "@/types/document"
+import { PartialBlock } from "@blocknote/core"
 import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
 import { toast } from "sonner"
 
 interface docPayload {
     title:string;
-    content:string
+    content:string | {version:string,blocks:PartialBlock[]};
     coverImage:string | null;
     icon:string | null;
     isPublished:boolean
+    version:string;
 }
 
 type mutationProps = {

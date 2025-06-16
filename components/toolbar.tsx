@@ -48,7 +48,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
   };
   useEffect(() => {
     if (!isEditing) return;
-    mutate({ docId: doc.id, data: { title: debouncedTitle } });
+    mutate({ docId: doc.id, data: { title: debouncedTitle as string } });
   }, [debouncedTitle]);
 
   const onkeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -98,21 +98,22 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
           </IconPicker>
         )}
         {!doc.coverImage &&!preview && (
-          <Button
+          <CoverImageModal docId={doc.id}>
+            <Button
             variant="outline"
             size="sm"
             className="text-muted-foreground text-xs"
-            onClick={() => {}}
           >
             <ImageIcon className="h-4 w-4 mr-2" />
             Add Cover
           </Button>
+          </CoverImageModal>
         )}
       </div>
       {isEditing && !preview ? (
         <textarea
           ref={textAreaRef}
-          value={title}
+          value={doc.title}
           autoFocus
           onChange={handleTitleChange}
           onBlur={disableEditing}

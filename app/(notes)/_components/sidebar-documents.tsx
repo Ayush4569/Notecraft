@@ -7,7 +7,7 @@ import { DocNode } from "@/types/document";
 export function SideBarDocuments() {
   const { data: documents, isLoading } = getDocs();
 
-  let fallbackSkeletion = documents?.length || 16;
+  let fallbackSkeletion = documents?.length || 10;
 
   if (isLoading) {
     return (

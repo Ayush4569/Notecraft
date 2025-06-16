@@ -37,7 +37,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
                 status: 404
             })
         }
-        // await deleteObject(doc.c)
         const updatedDocument = await client.document.update({
             where: {
                 id: docId,

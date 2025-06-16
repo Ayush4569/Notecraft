@@ -14,23 +14,23 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux-hooks";
-import { onClose, onOpen } from "@/redux/slices/imagemodal";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
+import { useAppDispatch } from "@/hooks/redux-hooks";
+import { setImage } from "@/redux/slices/coverimage";
 
 interface CoverImageModalProps {
   docId: string;
-  setCoverImage: (image: string) => void;
   children: React.ReactNode;
 }
 
 export function CoverImageModal({
   children,
   docId,
-  setCoverImage,
 }: CoverImageModalProps) {
   const { mutate } = useEditDocument();
+  const dispatch = useAppDispatch()
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const onDrop = useCallback(async (files: File[]) => {
     const uploadedFile = files[0];
     if (!uploadedFile) {
@@ -38,7 +38,7 @@ export function CoverImageModal({
       return;
     }
     const imageUrl = URL.createObjectURL(uploadedFile);
-    setCoverImage(imageUrl);
+    dispatch(setImage(imageUrl));
     try {
       setIsUploading(true);
       const getSignedUrlWithKey = await axios.post("/api/upload", {
@@ -48,15 +48,16 @@ export function CoverImageModal({
       });
       if (getSignedUrlWithKey.data.success) {
         const { url, key } = getSignedUrlWithKey.data;
-
         await axios.put(url, uploadedFile);
-        mutate({ docId, data: {coverImage:key} });
+        mutate({ docId, data: { coverImage: key } });
         toast.success("Image uploaded");
       }
     } catch (error) {
       console.log(error);
       toast.error("Failed to upload image");
     } finally {
+      setIsOpen(false);
+      dispatch(setImage(null));
       setIsUploading(false);
     }
   }, []);
@@ -81,8 +82,13 @@ export function CoverImageModal({
     },
   });
   return (
-    <Dialog>
-      <DialogTrigger  asChild>{children}</DialogTrigger>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+      }}
+    >
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="md:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Upload cover image</DialogTitle>
@@ -100,10 +106,14 @@ export function CoverImageModal({
           >
             <CardContent className="flex flex-col items-center justify-center h-full w-full">
               {isUploading ? (
+                <>
                 <Loader2
                   className="animate-spin text-purple-600 dark:text-fuchsia-400"
                   size={50}
                 />
+                <p className="text-muted-foreground">Uploading..</p>
+                </>
+                
               ) : (
                 <>
                   <input {...getInputProps()} />
@@ -112,7 +122,7 @@ export function CoverImageModal({
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full w-full gap-y-3">
                       <p>
-                        Drag 'n' drop some files here, or click to select files
+                        Drag n drop some files here, or click to select files
                       </p>
                       <Button disabled={isUploading}>Select files</Button>
                     </div>

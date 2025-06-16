@@ -1,7 +1,8 @@
+import { PartialBlock } from "@blocknote/core";
 import { useEffect, useState } from "react";
 
-export const useDebounce = (value:string,delay:number)=>{
-    const [debouncedValue, setDebouncedValue] = useState<string>(value);
+export const useDebounce = (value:string | PartialBlock[],delay:number)=>{
+    const [debouncedValue, setDebouncedValue] = useState<string | PartialBlock[]>(value);
     useEffect(() => {
       const interval = setTimeout(()=>{
         setDebouncedValue(value);

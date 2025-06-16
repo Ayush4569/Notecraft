@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ImageIcon, X } from "lucide-react";
 import { useState } from "react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
+import { useAppSelector } from "@/hooks/redux-hooks";
 export function CoverImage({
   imageUrl,
   preview,
@@ -14,25 +15,28 @@ export function CoverImage({
   preview?: boolean;
   docId: string;
 }) {
-  const [image, setImage] = useState<string>(imageUrl);
+  const {imageurl : image} = useAppSelector((state) => state.coverimage);
+  const coverImage = imageUrl as string || image as string;
   const {mutate} = useEditDocument()
   const deleteCoverImage = async()=>{
     mutate({docId,data:{coverImage:null}})
   }
+  
+  
   return (
     <div
       className={cn(
         "relative w-full h-[38vh] group",
-        !imageUrl && "h-[12vh]",
-        imageUrl && "bg-muted"
+        !coverImage && "h-[12vh]",
+        coverImage && "bg-muted"
       )}
     >
-      {imageUrl && (
-        <Image fill src={image} alt="cover-image" className="object-cover" priority />
+      {coverImage && (
+        <Image fill src={coverImage ?? null} alt="cover-image" className="object-cover" priority />
       )}
       {imageUrl && (
         <div className="flex items-center gap-x-2 absolute bottom-5 right-5 opacity-0 group-hover:opacity-100 transition-all">
-          <CoverImageModal docId={docId} setCoverImage={setImage}>
+          <CoverImageModal docId={docId}>
             <Button className="flex items-center cursor-pointer gap-x-0.5">
               <ImageIcon className="h-4 w-4" />
               Replace image
