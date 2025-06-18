@@ -127,3 +127,6 @@ html,body,:root{
 button {
   cursor: pointer;
 }
+[data-floating-ui-focusable] {
+  z-index: 99999 !important;
+}

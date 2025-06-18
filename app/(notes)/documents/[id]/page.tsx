@@ -17,6 +17,7 @@ export default function () {
         <Toolbar doc={document} />
         <Editor
           docId={document.id}
+          editable
           initialContent={document.content?.blocks || null}
         />
       </div>

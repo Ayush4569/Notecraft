@@ -19,3 +19,7 @@ export const verifySchema = z.object({
 });
 
 export const docIdSchema = z.string().cuid();
+
+export const promptSchema = z.object({
+    selectedText: z.string().min(1, "Text cannot be empty").max(1000, "Too long")
+  });

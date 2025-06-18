@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import {toast} from "sonner";
+import { useRouter } from "next/navigation";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const form = useForm<FormData>({
@@ -26,6 +27,7 @@ const LoginForm = () => {
     },
   });
   const { isSubmitting, isValidating } = form.formState;
+  const router = useRouter()
   const onSubmit = async (value: FormData) => {
     const result = loginSchema.safeParse(value);
     if (!result.success) {
@@ -48,7 +50,7 @@ const LoginForm = () => {
       }
     }
     if (res?.ok) {
-      window.location.href = '/';
+      router.replace('/documents')
       toast.success("Login successful");
     }
   };
