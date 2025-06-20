@@ -1,6 +1,7 @@
 "use client";
 import "@/app/globals.css"
 import React, { useEffect, useState } from "react";
+import isEqual from "fast-deep-equal"
 import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
@@ -18,7 +19,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import { AIButton } from "./custom-ai-button";
-import { type PartialBlock } from "@blocknote/core";
+import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { Loader } from "lucide-react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
 import { useTheme } from "next-themes";
@@ -30,24 +31,18 @@ interface EditorProps {
   editable?: boolean;
 }
 
-const Editor: React.FC<EditorProps> = ({ docId, initialContent, editable }) => {
+const Editor = ({ docId, initialContent, editable }:EditorProps) => {
   const [loading, setLoading] = useState(true);
   const { resolvedTheme } = useTheme();
 
   const { mutate: updateDocument } = useEditDocument();
   const [content, setContent] = useState<PartialBlock[]>(initialContent || []);
-  const debouncedValue = useDebounce(content, 5000);
+  const debouncedValue:string | PartialBlock[] = useDebounce(content, 5000);
 
   useEffect(() => {
-    if (debouncedValue.length === 0) return;
-    console.log('debouncedValue',debouncedValue);
-    console.log('initialContent',initialContent);
-    
-    
-    if (JSON.stringify(debouncedValue) === JSON.stringify(initialContent))
+    if (debouncedValue.length === 0) return;  
+    if (isEqual(debouncedValue,initialContent))
    {
-    console.log('value does not changes');
-    
     return;
    }
     updateDocument({
@@ -56,7 +51,7 @@ const Editor: React.FC<EditorProps> = ({ docId, initialContent, editable }) => {
     });
   }, [debouncedValue]);
 
-  const editor = useCreateBlockNote({
+  const editor:BlockNoteEditor = useCreateBlockNote({
     initialContent: initialContent ? initialContent : undefined,
   });
 

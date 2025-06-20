@@ -1,47 +1,99 @@
 "use client";
 
-import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
+import {
+  Block,
+  BlockNoteEditor,
+  PartialBlock,
+} from "@blocknote/core";
+import { Components, useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import axios from "axios";
 import { Sparkles, Loader } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export function AIButton() {
-  const editor = useBlockNoteEditor();
-  const Components = useComponentsContext()!;
-  const [isLoading, setIsLoading] = useState(false);
+  const editor:BlockNoteEditor = useBlockNoteEditor();
+  const Components:Components = useComponentsContext()!;
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleAIResponse = async (content: string) => {
-    const blocks = editor.getSelection()?.blocks ?? []; //Grabs the currently selected blocks (a block is a paragraph, heading, list item, etc.).
+  const handleAIResponse = async ():Promise<void> => {
+    const blocks: Block[] = editor.getSelection()?.blocks ?? [];
+    
+    const formattedBlocks: PartialBlock[] = await Promise.all(
+      blocks.map(async (block): Promise<PartialBlock> => {
+        setIsLoading(true);
+        if (
+          !block.content ||
+          !Array.isArray(block.content) ||
+          block.content.length === 0
+        ) {
+          return block;
+        }
+        const blockContent = block.content[0];
+        let selectedText: string;
+        if (blockContent.type === "text") {
+          if (typeof blockContent.text !== "string" || blockContent.text === "")
+            return block;
+          selectedText = blockContent.text as string;
+        } else if (blockContent.type === "link") {
+          if (
+            !Array.isArray(blockContent.content) ||
+            blockContent.content.length === 0 ||
+            typeof blockContent.content[0].text !== "string" ||
+            blockContent.content[0].text === ""
+          ) {
+            return block;
+          }
+          selectedText = blockContent.content[0].text as string;
+        } else return block;
 
-    const blocksFromMarkdown = await editor.tryParseMarkdownToBlocks(content); //Takes the AI-formatted string (in markdown), converts it into BlockNote-compatible block objects.
+        try {
+          const response = await axios.post("/api/ai/format-text", {
+            selectedText,
+          });
+          const formattedText = response.data.message;
+          if (blockContent.type == "text") {
+            return {
+              ...block,
+              content: [
+                {
+                  ...blockContent,
+                  text: formattedText,
+                },
+              ],
+            } as PartialBlock;
+          } else {
+            return {
+              ...block,
+              content: [
+                {
+                  ...blockContent,
+                  content: [
+                    {
+                      ...blockContent.content[0],
+                      text: formattedText,
+                    },
+                  ],
+                },
+              ],
+            } as PartialBlock;
+          }
+        } catch (error) {
+          console.error("Error formatting text:", error);
+          return block;
+        } finally {
+          setIsLoading(false);
+        }
+      })
+    );
 
-    editor.replaceBlocks(blocks, blocksFromMarkdown); // Replaces the old selected blocks with new blocks (AI-improved content)
-  };
-
-  const callAI = async () => {
-    setIsLoading(true);
-    const selectedText = editor.getSelectedText();
-    if (!selectedText?.trim()) return;
-    try {
-      const response = await axios.post("/api/ai/format-text", {
-       selectedText
-      });
-      const data = response.data.message;
-      handleAIResponse(data);
-    } catch (error) {
-      toast.error("Error formatting text");
-      console.error("Error fetching AI response:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    editor.replaceBlocks(blocks, formattedBlocks);
   };
 
   return (
     <>
       <Components.FormattingToolbar.Button
         mainTooltip={"Format with AI"}
-        onClick={callAI}
+        onClick={handleAIResponse}
         isDisabled={isLoading}
       >
         {isLoading ? (

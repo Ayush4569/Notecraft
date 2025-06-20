@@ -13,6 +13,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }
 
     const body = await req.json();
+    
     const parsed = promptSchema.safeParse(body);
     if (!parsed.success) {
         return NextResponse.json({ success: false, message: "Invalid prompt" }, { status: 400 });
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
             temperature: 0.2
         })
         const formattedText = aiResponse.choices[0]?.message?.content || ""
+        // const formattedText = 'great job generating content'
         return NextResponse.json({ success: true, message: formattedText }, { status: 200 });
 
     } catch (error) {
