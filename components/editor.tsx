@@ -1,7 +1,7 @@
 "use client";
-import "@/app/globals.css"
+import "@/app/globals.css";
 import React, { useEffect, useState } from "react";
-import isEqual from "fast-deep-equal"
+import isEqual from "fast-deep-equal";
 import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
@@ -19,11 +19,13 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import { AIButton } from "./custom-ai-button";
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import { Block, BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { Loader } from "lucide-react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
 import { useTheme } from "next-themes";
 import { useDebounce } from "@/hooks/useDebounce";
+import axios from "axios";
+import { toast } from "sonner";
 
 interface EditorProps {
   docId: string;
@@ -31,28 +33,50 @@ interface EditorProps {
   editable?: boolean;
 }
 
-const Editor = ({ docId, initialContent, editable }:EditorProps) => {
+const Editor = ({ docId, initialContent, editable }: EditorProps) => {
   const [loading, setLoading] = useState(true);
   const { resolvedTheme } = useTheme();
-
+  const [previousImages, setPreviousImages] = useState<Set<string>>(new Set());
   const { mutate: updateDocument } = useEditDocument();
   const [content, setContent] = useState<PartialBlock[]>(initialContent || []);
-  const debouncedValue:string | PartialBlock[] = useDebounce(content, 5000);
+  const debouncedValue: string | PartialBlock[] = useDebounce(content, 5000);
 
+  const uploadFile = async (file: File): Promise<string> => {
+    try {
+      const { data } = await axios.post("/api/upload/document-image", {
+        fileName: file.name,
+        fileType: file.type,
+        docId,
+      });
+      if (data.success) {
+        const { uploadUrl, key } = data;
+        await axios.put(uploadUrl, file, {
+          headers: { "Content-Type": file.type },
+        });
+
+        return `/api/view-file?key=${key}`;
+      }
+    } catch (error) {
+      console.log("Error uploading file", error);
+      toast.error("Error uploading file");
+      return "";
+    }
+    return "";
+  };
   useEffect(() => {
-    if (debouncedValue.length === 0) return;  
-    if (isEqual(debouncedValue,initialContent))
-   {
-    return;
-   }
-    updateDocument({
-      docId,
-      data: { content: { version: "0.31.2", blocks: content } },
-    });
+    if (debouncedValue.length === 0) return;
+    if (isEqual(debouncedValue, initialContent)) {
+      return;
+    }
+    // updateDocument({
+    //   docId,
+    //   data: { content: { version: "0.31.2", blocks: content } },
+    // });
   }, [debouncedValue]);
 
-  const editor:BlockNoteEditor = useCreateBlockNote({
+  const editor: BlockNoteEditor = useCreateBlockNote({
     initialContent: initialContent ? initialContent : undefined,
+    uploadFile,
   });
 
   useEffect(() => {
@@ -79,7 +103,41 @@ const Editor = ({ docId, initialContent, editable }:EditorProps) => {
             theme={resolvedTheme === "dark" ? "dark" : "light"}
             editable={editable}
             onChange={() => {
-              setContent(editor.document);
+              const currentBlocks: Block[] = editor.document;
+              console.log("currentBlocks", currentBlocks);
+              const extractImageUrls = (blocks: PartialBlock[]): Set<string> => {
+                const urls = new Set<string>();
+              
+                for (const block of blocks) {
+                  if (
+                    block.type === "image" &&
+                    block.props &&
+                    typeof block.props === "object" &&
+                    "url" in block.props &&
+                    typeof block.props.url === "string"
+                  ) {
+                    urls.add(block.props.url);
+                  }
+                }
+              
+                return urls;
+              };
+              const currentImages:Set<string> = extractImageUrls(currentBlocks);
+
+              const removedImages: string[] = [...previousImages].filter(
+                (image) => !currentImages.has(image)
+              );
+              removedImages.forEach(async (url) => {
+                try {
+                  await axios.delete(
+                    `/api/delete-file?url=${encodeURIComponent(url)}`
+                  );
+                } catch (err) {
+                  console.error("Failed to delete image:", url, err);
+                }
+              });
+              setPreviousImages(currentImages);
+              setContent(currentBlocks);
             }}
           >
             <FormattingToolbarController

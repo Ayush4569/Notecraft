@@ -28,7 +28,7 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!isEditing) return;
-    EditDocument({ docId:docId as string, data: { title: debouncedTitle } });
+    EditDocument({ docId:docId as string, data: { title: debouncedTitle as string } });
   }, [debouncedTitle]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);

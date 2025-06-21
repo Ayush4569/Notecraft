@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import client from "@/db/index"
 import { docIdSchema } from "@/schemas";
-import { applyOperationRecursively } from "@/helpers/parent-with-child";
+import { applyOperationRecursively } from "@/helpers/recursive-delete";
 interface Params {
     params: Promise<{ docId: string }>
 }

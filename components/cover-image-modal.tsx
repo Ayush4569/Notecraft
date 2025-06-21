@@ -41,7 +41,7 @@ export function CoverImageModal({
     dispatch(setImage(imageUrl));
     try {
       setIsUploading(true);
-      const getSignedUrlWithKey = await axios.post("/api/upload", {
+      const getSignedUrlWithKey = await axios.post("/api/upload/cover-image", {
         fileName: uploadedFile.name,
         fileType: uploadedFile.type,
         docId,

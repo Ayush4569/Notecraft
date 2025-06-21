@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner"
 
-const s3 = new S3Client({
+const s3:S3Client = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
@@ -10,7 +10,7 @@ const s3 = new S3Client({
 });
 
 export const uploadToS3 = async (userId: string, docId:string ,fileName: string, fileType: string
-) => {
+):Promise<{url:string,Key:string} | null> => {
   try {
     const Key =  `uploads/${userId}/${docId}/${fileName}`
     const command = new PutObjectCommand({
@@ -18,7 +18,7 @@ export const uploadToS3 = async (userId: string, docId:string ,fileName: string,
       Key,
       ContentType: fileType,
     })
-    const url = await getSignedUrl(s3,command,{expiresIn:1800})
+    const url = await getSignedUrl(s3,command,{expiresIn:360})
     return {url,Key}
   } catch (error) {
     console.error("Error uploading to S3:", error);
@@ -26,13 +26,13 @@ export const uploadToS3 = async (userId: string, docId:string ,fileName: string,
   }
 };
 
-export const generateSignedUrl = async (key:string)=>{
+export const generateSignedUrl = async (key:string,expiry?:number):Promise<string|null>=>{
   try {
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME as string,
       Key: key,
     })
-    const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+    const url = await getSignedUrl(s3, command, { expiresIn: expiry ?? 360 });
     return url;
   } catch (error) {
     console.error("Error generating signed URL:", error);
@@ -40,7 +40,7 @@ export const generateSignedUrl = async (key:string)=>{
   }
 }
 
-export const deleteObject = async(key:string)=>{
+export const deleteObject = async(key:string):Promise<boolean>=>{
   const command = new DeleteObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME as string,
     Key: key,
