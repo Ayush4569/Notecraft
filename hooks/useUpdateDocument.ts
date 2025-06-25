@@ -46,7 +46,7 @@ export const useEditDocument  =()=> useMutation({
         queryClient.setQueryData(["documents"],(oldDoc:DocNode[]=[])=>{
            return oldDoc.map(doc=>doc.id === docId ? {...doc,...data} : doc);
         })
-
+        
         return {previousDocState}
     },
     onError(error,variables,context){

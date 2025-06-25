@@ -1,8 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-html,body,:root{
+html,
+body,
+:root {
   height: 100%;
+  
+}
+::-webkit-scrollbar{
+  display:none;
 }
 @custom-variant dark (&:is(.dark *));
 
@@ -129,4 +135,26 @@ button {
 }
 [data-floating-ui-focusable] {
   z-index: 99999 !important;
+}
+
+@media (max-width:390px){
+  .max400 {
+    margin-right: 0rem;
+  }
+}
+@media (max-width: 475px) {
+  .max475 {
+    margin-right: 0.2rem;
+  }
+  .bn-editor.bn-default-styles {
+    padding: 1rem ;
+  } 
+  [data-floating-ui-focusable] {
+    right: 0.5rem !important;
+    left: auto !important; 
+    top: 0% !important;
+  }
+  .bn-panel,.bn-mantine {
+    width:82vw !important
+  }
 }

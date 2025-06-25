@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import GoogleProvider from "next-auth/providers/google"
 import client from "@/db/index"
 import bcrypt from "bcrypt"
 export const authOptions: NextAuthOptions = {
@@ -39,6 +40,10 @@ export const authOptions: NextAuthOptions = {
                     throw new Error(error.message);
                 }
             }
+        }),
+        GoogleProvider({
+            clientId:process.env.AUTH_GOOGLE_ID as string,
+            clientSecret:process.env.AUTH_GOOGLE_SECRET as string
         })
     ],
     secret: process.env.NEXTAUTH_SECRET,

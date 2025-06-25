@@ -34,7 +34,6 @@ interface EditorProps {
 }
 
 const Editor = ({ docId, initialContent, editable }: EditorProps) => {
-  const [loading, setLoading] = useState(true);
   const { resolvedTheme } = useTheme();
   const [previousImages, setPreviousImages] = useState<Set<string>>(new Set());
   const { mutate: updateDocument } = useEditDocument();
@@ -63,6 +62,42 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
     }
     return "";
   };
+  const onChange = ():void=>{
+    const currentBlocks: Block[] = editor.document;
+    const extractImageUrls = (blocks: PartialBlock[]): Set<string> => {
+      const urls = new Set<string>();
+    
+      for (const block of blocks) {
+        if (
+          block.type === "image" &&
+          block.props &&
+          typeof block.props === "object" &&
+          "url" in block.props &&
+          typeof block.props.url === "string"
+        ) {
+          urls.add(block.props.url);
+        }
+      }
+    
+      return urls;
+    };
+    const currentImages:Set<string> = extractImageUrls(currentBlocks);
+
+    const removedImages: string[] = [...previousImages].filter(
+      (image) => !currentImages.has(image)
+    );
+    removedImages.forEach(async (url):Promise<void> => {
+      try {
+        await axios.delete(
+          `/api/delete-file?url=${encodeURIComponent(url)}`
+        );
+      } catch (err) {
+        console.error("Failed to delete image:", url, err);
+      }
+    });
+    setPreviousImages(currentImages);
+    setContent(currentBlocks);
+  }
   useEffect(() => {
     if (debouncedValue.length === 0) return;
     if (isEqual(debouncedValue, initialContent)) {
@@ -79,66 +114,15 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
     uploadFile,
   });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
-
   return (
     <div className="flex-grow overflow-y-auto">
-      {loading ? (
-        <div className="flex items-center justify-center py-32">
-          <Loader size={32} className="animate-spin" />
-        </div>
-      ) : (
-        <article className="mx-auto py-8">
+        <article className="pt-8 md:py-8">
           <BlockNoteView
             formattingToolbar={false}
             editor={editor}
             theme={resolvedTheme === "dark" ? "dark" : "light"}
             editable={editable}
-            onChange={() => {
-              const currentBlocks: Block[] = editor.document;
-              console.log("currentBlocks", currentBlocks);
-              const extractImageUrls = (blocks: PartialBlock[]): Set<string> => {
-                const urls = new Set<string>();
-              
-                for (const block of blocks) {
-                  if (
-                    block.type === "image" &&
-                    block.props &&
-                    typeof block.props === "object" &&
-                    "url" in block.props &&
-                    typeof block.props.url === "string"
-                  ) {
-                    urls.add(block.props.url);
-                  }
-                }
-              
-                return urls;
-              };
-              const currentImages:Set<string> = extractImageUrls(currentBlocks);
-
-              const removedImages: string[] = [...previousImages].filter(
-                (image) => !currentImages.has(image)
-              );
-              removedImages.forEach(async (url) => {
-                try {
-                  await axios.delete(
-                    `/api/delete-file?url=${encodeURIComponent(url)}`
-                  );
-                } catch (err) {
-                  console.error("Failed to delete image:", url, err);
-                }
-              });
-              setPreviousImages(currentImages);
-              setContent(currentBlocks);
-            }}
+            onChange={onChange}
           >
             <FormattingToolbarController
               formattingToolbar={() => (
@@ -188,7 +172,6 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
             />
           </BlockNoteView>
         </article>
-      )}
     </div>
   );
 };

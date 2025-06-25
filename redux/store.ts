@@ -4,7 +4,6 @@ import { persistStore, persistReducer } from "redux-persist"
 import storage from "redux-persist/lib/storage"
 import { combineReducers } from "redux"
 import searchmenuReducer from "./slices/searchmenu"
-import coverimage from "./slices/coverimage"
 const persistConfig = {
   key: "root",
   storage,
@@ -14,7 +13,6 @@ const persistConfig = {
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
   search:searchmenuReducer,
-  coverimage
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

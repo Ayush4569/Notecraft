@@ -3,10 +3,10 @@ import {  useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 
-async function getDocbyId(docId: string){
+async function getDocbyId(docId: string):Promise<Document | null>{
     try {
         const res = await axios.get(`/api/notes/${docId}`);
-        return res.data.note 
+        return res.data.note as Document
      } catch (error) {
          console.log('Error fetching pagee', error);
          toast.error("Error fetching page")
@@ -22,6 +22,6 @@ export const usePage = (docId: string) => {
       enabled: !!docId ,
       refetchOnWindowFocus: false,
       staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchInterval: 1000 * 60 * 6, // 5 minutes
+      refetchInterval: 1000 * 60 * 5, // 5 minutes
     })
   }

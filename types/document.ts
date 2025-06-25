@@ -1,9 +1,12 @@
+import { PartialBlock } from "@blocknote/core";
 import {Comment} from "./comments"
 
 export interface Document {
     id: string;
     title: string;
-    content?: JSON | string;
+    content?: {
+        blocks:PartialBlock[]
+    },
     createdAt: Date;
     updatedAt?: Date | null;
     userId: string;
@@ -12,6 +15,7 @@ export interface Document {
     coverImage?: string;
     icon?:string;
     isTrashed: boolean;
+    tempImageUrl?:string;
     comments?: Comment[] | null ;
     children?: Document[];
 }

@@ -11,6 +11,7 @@ import { Menu } from "./menu";
 import { queryClient } from "@/helpers/tanstack";
 import { DocNode } from "@/types/document";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Publish } from "./publish";
 
 interface NavbarProps {
   isSidebarOpen: boolean;
@@ -28,7 +29,10 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!isEditing) return;
-    EditDocument({ docId:docId as string, data: { title: debouncedTitle as string } });
+    EditDocument({
+      docId: docId as string,
+      data: { title: debouncedTitle as string },
+    });
   }, [debouncedTitle]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -79,17 +83,17 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
   return (
     <>
       {page.isTrashed && <Banner docId={docId as string} />}
-      <nav className="bg-background dark:bg-[#1f1f1f] px-3 py-2 w-full flex items-center gap-x-4">
+      <nav className="bg-background dark:bg-[#1f1f1f] px-3 py-2 flex items-center justify-between gap-x-4 overflow-hidden w-full">
         {!isSidebarOpen && (
           <MenuIcon
             onClick={resetSidebar}
             role="button"
-            className="h-6 w-6 text-muted-foreground cursor-pointer"
+            className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground cursor-pointer shrink-0"
           />
         )}
         <div className="w-full flex items-center justify-between">
-          <div className="flex items-center gap-x-1">
-            {page?.icon && <p>{page.icon}</p>}
+          <div className="flex items-center gap-x-1 max-w-1/3 overflow-hidden">
+            {page?.icon && <p className="shrink-0">{page.icon}</p>}
             {isEditing ? (
               <Input
                 autoFocus
@@ -100,20 +104,22 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
                 onKeyDown={onKeyDown}
                 value={title}
                 onChange={handleChange}
-                className="h-7 px-2 focus-visible:ring-transparent"
+                className="h-7 px-2 focus-visible:ring-transparent w-full truncate"
               />
             ) : (
               <Button
                 onClick={enableInput}
                 variant="ghost"
                 size="sm"
-                className="font-normal h-auto p-1"
+                className="font-normal p-1  line-clamp-1"
               >
                 {page.title}
               </Button>
             )}
           </div>
+
           <div className="flex items-center gap-x-2">
+            <Publish isPublished={page.isPublished} pageId={page.id} />
             <Menu docId={page.id} />
           </div>
         </div>

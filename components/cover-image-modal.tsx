@@ -38,7 +38,7 @@ export function CoverImageModal({
       return;
     }
     const imageUrl = URL.createObjectURL(uploadedFile);
-    dispatch(setImage(imageUrl));
+    // dispatch(setImage(imageUrl));
     try {
       setIsUploading(true);
       const getSignedUrlWithKey = await axios.post("/api/upload/cover-image", {
@@ -57,7 +57,7 @@ export function CoverImageModal({
       toast.error("Failed to upload image");
     } finally {
       setIsOpen(false);
-      dispatch(setImage(null));
+      // dispatch(setImage(null));
       setIsUploading(false);
     }
   }, []);

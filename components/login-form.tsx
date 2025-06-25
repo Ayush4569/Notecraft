@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import {toast} from "sonner";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
@@ -27,7 +27,7 @@ const LoginForm = () => {
     },
   });
   const { isSubmitting, isValidating } = form.formState;
-  const router = useRouter()
+  const router = useRouter();
   const onSubmit = async (value: FormData) => {
     const result = loginSchema.safeParse(value);
     if (!result.success) {
@@ -50,7 +50,7 @@ const LoginForm = () => {
       }
     }
     if (res?.ok) {
-      router.replace('/documents')
+      router.replace("/documents");
       toast.success("Login successful");
     }
   };
@@ -65,7 +65,10 @@ const LoginForm = () => {
           <p className="mb-4">Sign in to continue using our app</p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 dark:invert">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 dark:invert"
+          >
             <FormField
               name="identifier"
               control={form.control}
@@ -101,6 +104,12 @@ const LoginForm = () => {
             </Button>
           </form>
         </Form>
+        <Button 
+        onClick={() => signIn("google")}
+        >
+          <img src="/google.svg" alt="Google" className="w-6 h-6" />
+          Sign in with Google
+        </Button>
         <div className="text-center mt-4 dark:invert">
           <p>
             Not a member yet?{" "}

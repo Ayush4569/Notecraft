@@ -4,9 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { docIdSchema } from "@/schemas";
 import { generateSignedUrl } from "@/helpers/aws.service";
-interface Params {
-    params: Promise<{ docId: string }>
-}
+import { Params } from "@/types/params-promise";
+
 export async function GET(req: NextRequest, { params }: Params) {
     const docId = (await (params)).docId
     const session = await getServerSession(authOptions)
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest, { params }: Params) {
                 message: 'Page fetched',
                 note: {
                     ...document,
-                    imageUrl: coverUrl
+                    tempImageUrl: coverUrl
                 }
             }, {
                 status: 200

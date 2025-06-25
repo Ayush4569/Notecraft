@@ -19,7 +19,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
   const [title, setTitle] = useState<string>(doc.title || "");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const debouncedTitle = useDebounce(title, 1000);
-  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>):void => {
     setTitle(e.target.value);
     queryClient.setQueryData(
       ["document", doc.id],
@@ -41,8 +41,8 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
       }
     );
   };
-  const disableEditing = () => setIsEditing(false);
-  const enableEditing = () => {
+  const disableEditing = ():void => setIsEditing(false);
+  const enableEditing = ():void => {
     if (preview) return;
     setIsEditing(true);
   };
@@ -51,16 +51,16 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
     mutate({ docId: doc.id, data: { title: debouncedTitle as string } });
   }, [debouncedTitle]);
 
-  const onkeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onkeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>):void => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       disableEditing();
     }
   };
 
-  const handleRemoveIcon = (docId: string, icon: null) =>
+  const handleRemoveIcon = (docId: string, icon: null):void =>
     mutate({ docId, data: { icon } });
-  const handleIconChange = (icon: string | null) => {
+  const handleIconChange = (icon: string | null):void => {
     if (!icon) return;
     mutate({ docId: doc.id, data: { icon } });
   };
@@ -72,7 +72,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
           <Button
             variant="outline"
             size="icon"
-            className="text-muted-foreground text-xs rounded-full opacity-0 group-hover/icon:opacity-100 transition-all"
+            className="text-muted-foreground text-xs rounded-full md:opacity-0 md:group-hover/icon:opacity-100 transition-all"
             onClick={() => handleRemoveIcon(doc.id, null)}
           >
             <X className="h-3 w-3" />
@@ -84,7 +84,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
           <p className="text-6xl pt-6">{doc.icon}</p>
         </div>
       )}
-      <div className="opacity-0 group-hover:opacity-100 transition-all flex items-center gap-x-1 my-2">
+      <div className="md:opacity-0 md:group-hover:opacity-100 transition-all flex items-center gap-x-1 my-2">
         {!doc.icon &&!preview && (
           <IconPicker onChange={handleIconChange} asChild>
             <Button

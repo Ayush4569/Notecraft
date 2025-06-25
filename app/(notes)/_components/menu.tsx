@@ -17,13 +17,13 @@ export function Menu({ docId }: { docId: string }) {
   }
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
+      <DropdownMenuTrigger className=" max400 md:mr-0" asChild>
+        <Button variant="ghost" className="" size="sm">
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-60"
+        className="w-auto mt-1 md:w-60"
         align="end"
         alignOffset={8}
         forceMount
