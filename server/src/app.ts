@@ -7,6 +7,7 @@ import uploadRoute from "./routes/upload.routes";
 import fileRoute from "./routes/file.routes";
 import aiRoute from "./routes/ai.routes";
 import userRoute from "./routes/user.routes";
+import paymentsRoute from "./routes/payment.routes";
 import cookieParser from "cookie-parser";
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/document", documentRoute);
 app.use("/file",fileRoute)
 app.use("/upload",uploadRoute)
 app.use("/ai",aiRoute)
+app.use("/payment",paymentsRoute)
 app.listen(port, () => {
     console.log(`server running on port ${port}`);
 });

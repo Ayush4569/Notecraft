@@ -19,6 +19,8 @@ model User{
   refreshToken String? 
   isVerified Boolean @default(false)
   documents Document[]
+  isPro Boolean @default(false)
+  subscription Subscription?
   freeAiTrials Int @default(10)
 }
 model Document {
@@ -37,4 +39,20 @@ model Document {
   coverImage String?
   isTrashed Boolean @default(false)
   @@index([userId])
+}
+model Subscription {
+  subscriptionId String @id
+  userId String @unique
+  user User @relation(fields: [userId],references: [id])
+  status subscriptionStatus 
+  createdAt DateTime @default(now())
+  expiryDate DateTime? 
+  nextBillingDate DateTime?
+}
+
+enum subscriptionStatus {
+  active
+  cancelled
+  pending
+  expired
 }

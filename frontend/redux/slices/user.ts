@@ -5,6 +5,7 @@ interface InitialState {
     name: string;
     email: string;
     profileImage: string;
+    isPro: boolean;
     status: 'loading' | 'authenticated' | 'unauthenticated'
 }
 const initialState: InitialState = {
@@ -12,6 +13,7 @@ const initialState: InitialState = {
     name: "",
     email: "",
     profileImage: "",
+    isPro: false,
     status: 'unauthenticated'
 }
 const userSlice = createSlice({
@@ -23,6 +25,7 @@ const userSlice = createSlice({
             state.name = action.payload.name;
             state.email = action.payload.email;
             state.profileImage = action.payload.profileImage;
+            state.isPro = action.payload.isPro ;
             state.status = action.payload.status || 'authenticated';
         },
         clearUser: (state) => {
@@ -30,6 +33,7 @@ const userSlice = createSlice({
             state.name = "";
             state.email = "";
             state.profileImage = "";
+            state.isPro = false;
             state.status ='unauthenticated';
         },
         setLoading: (state) => {

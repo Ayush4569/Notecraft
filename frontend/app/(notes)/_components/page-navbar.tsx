@@ -91,9 +91,9 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
             className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground cursor-pointer shrink-0"
           />
         )}
-        <div className="w-full flex items-center justify-around">
-          <div className="flex items-center gap-x-1 max-w-1/4 truncate relative right-8">
-            {page?.icon && <p className="shrink-0">{page.icon}</p>}
+        <div className="w-full flex items-center justify-between">
+          <div className="flex items-center gap-x-1 max-w-1/3 overflow-hidden">
+            {page?.icon && <p className="shrink-0 text-xl">{page.icon}</p>}
             {isEditing ? (
               <Input
                 autoFocus
@@ -111,14 +111,14 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
                 onClick={enableInput}
                 variant="ghost"
                 size="sm"
-                className="w-fit"
+                className="font-normal p-1  line-clamp-1"
               >
                 {page.title}
               </Button>
             )}
           </div>
 
-          <div className="flex items-center gap-x-2 relative left-2">
+          <div className="flex items-center gap-x-2">
             <Publish isPublished={page.isPublished} pageId={page.id} />
             <Menu docId={page.id} />
           </div>
