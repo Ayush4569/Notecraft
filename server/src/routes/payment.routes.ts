@@ -1,8 +1,9 @@
-import { Router } from "express";
+import { Router,raw } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { createSubscription } from "../controllers/payments.controller";
+import { createSubscription,cancelSubscription, webhook } from "../controllers/payments.controller";
 
 const router:Router = Router()
+// router.post("/subscriptions/webhook", raw({ type: "application/json" }), webhook);
 router.post("/subscriptions/create",authMiddleware,createSubscription)
-// router.delete("/delete",authMiddleware)
+router.post("/subscriptions/cancel",authMiddleware,cancelSubscription)
 export default router

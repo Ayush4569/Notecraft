@@ -55,7 +55,8 @@ const LoginForm = () => {
           name: res.data.user.name,
           email: res.data.user.email,
           profileImage: res.data.user.profileImage ?? "",
-          status:'authenticated'
+          status:'authenticated',
+          isPro: res.data.user.isPro,
         })
       );
       router.replace("/documents");
@@ -63,9 +64,7 @@ const LoginForm = () => {
     }
    } catch (error) {
       console.error("Error during login:", error);
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else if (error instanceof AxiosError) {
+     if (error instanceof AxiosError) {
         toast.error(error.response?.data.message);
       } else {
         toast.error("unexpected error ");

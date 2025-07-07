@@ -1,8 +1,8 @@
 "use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Crown, User2Icon } from "lucide-react";
-import {  useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const loadRazorpayScript = () => {
@@ -20,49 +20,61 @@ export default function SubscriptionPage() {
 
   const handleSubscribe = async () => {
     setLoading(true);
-   try {
-    const isLoaded = await loadRazorpayScript();
-    if (!isLoaded) {
-      toast.error("Failed to load Razorpay SDK");
-      setLoading(false);
-      return;
-    }
-
-    const { data } = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/create`,
-      null,
-      {
-        withCredentials: true,
+    try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast.error("Failed to load Razorpay SDK");
+        setLoading(false);
+        return;
       }
-    );
 
-    const options = {
-      key: data.keyId,
-      subscription_id: data.subscriptionId,
-      name: "Notecraft Pro",
-      description: "Unlock unlimited AI formatting",
-      image: "/document.svg",
-      theme: { color: "#6366F1" },
-      handler: function () {
-        toast.success("Subscription successful!");
-        window.location.href = "/";
-      },
-      prefill: {
-        email: data.email,
-      },
-    };
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/create`,
+        null,
+        {
+          withCredentials: true,
+        }
+      );
 
-    const razorpay = new (window as any).Razorpay(options);
-    razorpay.open();
-   } catch (error) {
+      const options = {
+        key: data.keyId,
+        subscription_id: data.subscriptionId,
+        name: "Notecraft Pro",
+        description: "Unlock unlimited AI formatting",
+        image: "/document.svg",
+        theme: { color: "#6366F1" },
+        handler: function () {
+          toast.success("Subscription successful!");
+          window.location.href = "/";
+        },
+        modal: {
+          ondismiss: async function () {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/cancel`, {
+              subscriptionId: data.subscriptionId,
+            }, {
+              withCredentials: true,
+            });
+          },
+        },
+        prefill: {
+          email: data.email,
+        },
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (error) {
       console.error("Error subscribing:", error);
-      toast.error("Failed to create subscription. Please try again.");
-    } finally{
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("unexpected error ");
+      }
+    } finally {
       setLoading(false);
     }
-    
-   }
-  
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 ">
@@ -89,9 +101,9 @@ export default function SubscriptionPage() {
 
         {/* Pro Plan */}
         <div className="bg-white outline outline-blue-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
-        
+
           <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 mb-2">
-          <Crown className="h-8 w-8" /> Pro
+            <Crown className="h-8 w-8" /> Pro
           </h2>
           <p className="text-gray-600 mb-1">For power users & writers</p>
           <p className="text-2xl font-bold text-gray-800 mb-2">₹399/month</p>

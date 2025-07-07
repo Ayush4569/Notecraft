@@ -9,6 +9,7 @@ import aiRoute from "./routes/ai.routes";
 import userRoute from "./routes/user.routes";
 import paymentsRoute from "./routes/payment.routes";
 import cookieParser from "cookie-parser";
+import { webhook } from "./controllers/payments.controller";
 dotenv.config();
 
 const app: Express = express();
@@ -25,7 +26,7 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true
 }))
-
+app.use("/payments/subscriptions/webhook", express.raw({ type: "application/json" }),webhook)
 app.use(express.json());
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: false, limit: '20kb' }))

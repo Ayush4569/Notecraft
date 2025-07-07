@@ -61,7 +61,7 @@ const navbar = ({ isSubscriptionPage }: { isSubscriptionPage?: boolean }) => {
 
           <div className="flex items-center gap-x-3">
             <Button variant="outline">
-              <span className="text-gray-700">{user.email}</span>
+              <span className="text-gray-700 dark:invert">{user.email}</span>
             </Button>
             <Image
               src={user.profileImage || "/avatar.png"}

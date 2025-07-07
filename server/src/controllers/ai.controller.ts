@@ -16,9 +16,10 @@ const formatTextWithAi = async (req: Request, res: Response) => {
         },
         select: {
             freeAiTrials: true,
+            isPro:true
         }
     })
-    if (userFreeTrials && userFreeTrials.freeAiTrials <= 0) {
+    if ((userFreeTrials && userFreeTrials.freeAiTrials <= 0) || !userFreeTrials?.isPro) {
         res.status(403).json({ success: false, message: "You have no free trials left" });
         return
     }

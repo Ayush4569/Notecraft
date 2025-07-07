@@ -38,7 +38,8 @@ export default function AppInit({hasAccessToken}: { hasAccessToken: boolean }) {
         dispatch(
           setUser({
             id: query.data.id,
-            name: query.data.name,
+            isPro: query.data.isPro,
+            name: query.data.username,
             email: query.data.email,
             profileImage: (query.data.profileImage as string) ?? "",
             status: "authenticated",

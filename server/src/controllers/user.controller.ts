@@ -12,15 +12,21 @@ const getUser = async (req: Request, res: Response) => {
         return;
     };
     try {
-        const user = req.user;
+        const user = await prisma.user.findUnique({
+            where: {
+                id: req.user.id as string
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                profileImage: true,
+                isPro: true
+            }
+        })
         res.status(200).json({
             success: true,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                profileImage: user.profileImage,
-            },
+            user,
             message: "User fetched successfully",
         });
         return;
@@ -227,7 +233,7 @@ const logoutUser = async (req: Request, res: Response) => {
 }
 const refreshAccessToken = async (req: Request, res: Response) => {
     const incomingRefreshToken = req.cookies?.refreshToken;
-    
+
     if (!incomingRefreshToken) {
         res.status(401).json({
             success: false,

@@ -26,3 +26,8 @@ export async function sendVerificationEmail(email: string, username: string, ver
         return { success: false, message: "Error sending verification email" }
     }
 }
+
+export function generateSafeEmail(email:string){
+    const [name,domain] = email.split('@');
+    return `${name}+${Date.now()}@${domain}`;
+}

@@ -14,7 +14,8 @@ export interface User {
 
 export interface UserState {
     id: string;
-    name: string;
+    username: string;
     email: string;
     profileImage?: string;
+    isPro:true
 }
