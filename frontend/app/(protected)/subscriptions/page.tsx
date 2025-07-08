@@ -1,7 +1,8 @@
 "use client";
 
+import { useAppSelector } from "@/hooks/redux-hooks";
 import axios, { AxiosError } from "axios";
-import { Crown, User2Icon } from "lucide-react";
+import { Crown, User2Icon, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,7 +18,7 @@ const loadRazorpayScript = () => {
 
 export default function SubscriptionPage() {
   const [loading, setLoading] = useState(false);
-
+  const user = useAppSelector((state) => state.user);
   const handleSubscribe = async () => {
     setLoading(true);
     try {
@@ -44,7 +45,7 @@ export default function SubscriptionPage() {
         image: "/document.svg",
         theme: { color: "#6366F1" },
         handler: function () {
-          toast.success("Subscription successful!");
+          toast.success("Subscription successfull!");
           window.location.href = "/";
         },
         modal: {
@@ -77,47 +78,50 @@ export default function SubscriptionPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 ">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full flex flex-col md:flex-row gap-6 mt-16 md:mt-0">
-        {/* Free Plan */}
-        <div className="bg-white outline outline-blue-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
-          <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 mb-2">
-            <User2Icon className="h-8 w-8 " />
+        <div className="bg-white dark:bg-gray-800 outline outline-emerald-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
+          <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 dark:text-gray-200 mb-2">
+            <User2Icon className="h-8 w-8" />
             Free
           </h2>
-          <p className="text-gray-600 mb-1">Perfect for getting started</p>
-          <p className="text-2xl font-bold text-gray-800 mb-2">₹0</p>
-          <p className="text-gray-500 mb-4">Always free</p>
-          <ul className="space-y-2 text-gray-800 ">
-            <li className="flex items-center">✅ 10 AI formatting credits</li>
-            <li className="flex items-center">✅ Create unlimited documents</li>
-            <li className="flex items-center">✅ Public document sharing</li>
-            <li className="flex items-center">✅ Light mode & Dark mode</li>
+          <p className="text-gray-600 dark:text-gray-400 mb-1">Perfect for getting started</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">₹0</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Always free</p>
+          <ul className="space-y-2 text-gray-800 dark:text-gray-200">
+            <li className="flex items-center"><CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> 10 AI formatting credits</li>
+            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Create unlimited documents</li>
+            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Public document sharing</li>
           </ul>
-          <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full mt-4">
-            Current Plan
-          </span>
         </div>
 
-        {/* Pro Plan */}
-        <div className="bg-white outline outline-blue-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
 
-          <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 mb-2">
+        <div className="bg-white dark:bg-gray-800 outline outline-emerald-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
+          <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 dark:text-gray-200 mb-2">
             <Crown className="h-8 w-8" /> Pro
           </h2>
-          <p className="text-gray-600 mb-1">For power users & writers</p>
-          <p className="text-2xl font-bold text-gray-800 mb-2">₹399/month</p>
-          <p className="text-gray-500 mb-4">Billed monthly</p>
-          <ul className="space-y-2 text-gray-800 ">
-            <li className="flex items-center">✅ 100+ AI formatting credits</li>
-            <li className="flex items-center">
-              ✅ Early access to new features
-            </li>
-            <li className="flex items-center">✅ Priority support</li>
+          <p className="text-gray-600 dark:text-gray-400 mb-1">For power users & writers</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">₹399/month</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Billed monthly</p>
+          <ul className="space-y-2 text-gray-800 dark:text-gray-200">
+            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> 100+ AI formatting credits</li>
+            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Early access to new features</li>
+            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Priority support</li>
           </ul>
-          <button onClick={handleSubscribe} disabled={loading} className="mt-6 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
-            Upgrade to Pro
-          </button>
+          {user.isPro ? (
+            <div className="mt-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg">
+              <p className="text-lg font-semibold">You are currently on the Pro plan!</p>
+              <p className="text-sm">Thank you for your support!</p>
+            </div>
+          ) : (
+            <button
+              onClick={handleSubscribe}
+              disabled={loading}
+              className="mt-6 w-full bg-indigo-600 dark:bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-400 transition"
+            >
+              Upgrade to Pro
+            </button>
+          )}
         </div>
       </div>
     </div>

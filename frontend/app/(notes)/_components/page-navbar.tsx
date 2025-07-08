@@ -91,7 +91,7 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
             className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground cursor-pointer shrink-0"
           />
         )}
-        <div className="w-full flex items-center justify-between">
+        <div className="w-full flex items-center relative md:static md:justify-between">
           <div className="flex items-center gap-x-1 max-w-1/3 overflow-hidden">
             {page?.icon && <p className="shrink-0 text-xl">{page.icon}</p>}
             {isEditing ? (
@@ -107,18 +107,18 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
                 className="h-7 px-2 focus-visible:ring-transparent w-full truncate"
               />
             ) : (
-              <Button
+              <button
                 onClick={enableInput}
-                variant="ghost"
-                size="sm"
-                className="font-normal p-1  line-clamp-1"
+                // variant="ghost"
+                // size="sm"
+                className="font-normal p-1 truncate"
               >
                 {page.title}
-              </Button>
+              </button>
             )}
           </div>
 
-          <div className="flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2 absolute right-0 md:right-0">
             <Publish isPublished={page.isPublished} pageId={page.id} />
             <Menu docId={page.id} />
           </div>

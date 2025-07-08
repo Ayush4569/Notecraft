@@ -26,7 +26,7 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true
 }))
-app.use("/payments/subscriptions/webhook", express.raw({ type: "application/json" }),webhook)
+app.use("/payment", paymentsRoute.webhookRouter)
 app.use(express.json());
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: false, limit: '20kb' }))
@@ -39,10 +39,10 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/user", userRoute);
 app.use("/document", documentRoute);
-app.use("/file",fileRoute)
-app.use("/upload",uploadRoute)
-app.use("/ai",aiRoute)
-app.use("/payment",paymentsRoute)
+app.use("/file", fileRoute)
+app.use("/upload", uploadRoute)
+app.use("/ai", aiRoute)
+app.use("/payment", paymentsRoute.router)
 app.listen(port, () => {
     console.log(`server running on port ${port}`);
 });

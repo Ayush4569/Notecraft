@@ -97,7 +97,8 @@ const navbar = ({ isSubscriptionPage }: { isSubscriptionPage?: boolean }) => {
                   user.isPro ? (
                     <Button
                       variant="outline"
-                      className="hover:underline"
+                      className="hover:underline cursor-pointer"
+                      onClick={() => router.push("/subscriptions")}
                     >
                       <Crown className="h-4 w-4" />
                      Pro User

@@ -7,13 +7,13 @@ import { Settings } from "lucide-react";
 export function SettingsDialog() {
   return (
     <Dialog>
-      <DialogTrigger >
+      <DialogTrigger asChild>
       <div className="group min-h-[27px] text-sm py-1 px-2 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold gap-x-2 cursor-pointer">
         <Settings className="h-[18px] shrink-0 text-muted-foreground" />
         <span className="truncate">Settings</span>
         </div>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent autoFocus>
         <DialogTitle>
         <DialogHeader className="border-b pb-3">
           <h2 className="text-lg font-medium">My settings</h2>

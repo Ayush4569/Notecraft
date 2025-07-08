@@ -95,7 +95,7 @@ export const cancelSubscription = async (req: Request, res: Response) => {
     }
     try {
         const subscription = await razorpay.subscriptions.fetch(subscriptionId);
-        if (subscription.status == 'created') {
+        if (subscription.status == 'created' || subscription.status == 'pending') {
             await razorpay.subscriptions.cancel(subscriptionId);
             await prisma.subscription.update({
                 where: {
@@ -159,7 +159,7 @@ export const webhook = async (req: Request, res: Response) => {
                 data: {
                     status: "active",
                     expiryDate: new Date(subscription.current_end * 1000),
-                    nextBillingDate: new Date(subscription.current_start * 1000),
+                    nextBillingDate: new Date(subscription.current_end * 1000),
                 },
             });
 

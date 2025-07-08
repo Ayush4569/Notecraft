@@ -37,44 +37,45 @@ const LoginForm = () => {
       toast.error(result.error.format()._errors.toString());
       return;
     }
-   try {
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`,
-      {
-        identifier: value.identifier,
-        password: value.password,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-    if (res.data.success || res.status === 200) {
-      dispatch(
-        setUser({
-          id: res.data.user.id,
-          name: res.data.user.name,
-          email: res.data.user.email,
-          profileImage: res.data.user.profileImage ?? "",
-          status:'authenticated',
-          isPro: res.data.user.isPro,
-        })
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`,
+        {
+          identifier: value.identifier,
+          password: value.password,
+        },
+        {
+          withCredentials: true,
+        }
       );
-      router.replace("/documents");
-      toast.success("Login successful");
-    }
-   } catch (error) {
+      if (res.data.success || res.status === 200) {
+        dispatch(
+          setUser({
+            id: res.data.user.id,
+            name: res.data.user.name,
+            email: res.data.user.email,
+            profileImage: res.data.user.profileImage ?? "",
+            status: 'authenticated',
+            isPro: res.data.user.isPro,
+          })
+        );
+        form.reset()
+        router.replace("/documents");
+        toast.success("Login successful");
+      }
+    } catch (error) {
       console.error("Error during login:", error);
-     if (error instanceof AxiosError) {
+      if (error instanceof AxiosError) {
         toast.error(error.response?.data.message);
       } else {
         toast.error("unexpected error ");
       }
       return;
-   }
+    }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen ">
+    <div className="flex justify-center items-center min-h-screen">
       <div className="w-full max-w-md p-8 space-y-8 rounded-lg md:shadow-md dark:invert">
         <div className="text-center dark:invert">
           <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
@@ -114,9 +115,8 @@ const LoginForm = () => {
               )}
             />
             <Button
-              className={`cursor-pointer w-full hover:bg-white hover:text-black transition-all ${
-                isSubmitting || (isValidating && "cursor-not-allowed")
-              }`}
+              className={`cursor-pointer w-full hover:bg-white hover:text-black transition-all ${isSubmitting || (isValidating && "cursor-not-allowed")
+                }`}
               type="submit"
               disabled={isSubmitting || isValidating}
             >

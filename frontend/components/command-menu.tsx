@@ -31,7 +31,7 @@ export function CommandMenu() {
   }, []);
   const filteredDocs = useMemo(() => {
     return documents?.filter((doc) =>
-      doc.title.toLowerCase().includes(searchQuery.toLowerCase())
+      doc.title.toLowerCase().startsWith(searchQuery.toLowerCase())
     );
   }, [searchQuery, documents]);
   const onSelect = (docId:string)=> router.push(`/documents/${docId}`);

@@ -2,18 +2,19 @@ import { configureStore } from "@reduxjs/toolkit"
 import sidebarReducer from "./slices/sidebar"
 import userReducer from "./slices/user"
 import { persistStore, persistReducer } from "redux-persist"
-import storage from "redux-persist/lib/storage"
+import  storage from "./custom-storage"
 import { combineReducers } from "redux"
 import searchmenuReducer from "./slices/searchmenu"
+
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["sidebar", "search","user"],
+  whitelist: ["sidebar", "search", "user"],
 }
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
-  search:searchmenuReducer,
+  search: searchmenuReducer,
   user: userReducer,
 })
 

@@ -52,11 +52,12 @@ const SignupForm = () => {
         email,
         password,
       });
+      form.reset()
       toast.success(response.data.message || "user registered");
       router.replace(`/verifycode/${username}`);
     } catch (error) {
       console.error("Error during sign-up:", error);
-        if (error instanceof AxiosError) {
+      if (error instanceof AxiosError) {
         toast.error(error.response?.data.message);
       } else {
         toast.error("unexpected error ");
@@ -65,92 +66,94 @@ const SignupForm = () => {
   };
 
   return (
-    <Card className="w-full h-full md:w-[400px] md:h-auto ">
-      <CardHeader>
-        <CardTitle className="text-xl text-center">Register</CardTitle>
-        <CardDescription className="text-xl text-center">
-          Welcome to Notecraft
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xl ">Username</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="placeholder:text-xl p-4"
-                        placeholder="Enter your username"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+    <div className="flex justify-center items-center min-h-screen">
+      <Card className="w-full h-full md:w-[400px] md:h-auto">
+        <CardHeader>
+          <CardTitle className="text-xl text-center">Register</CardTitle>
+          <CardDescription className="text-xl text-center">
+            Welcome to Notecraft
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xl ">Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="placeholder:text-xl p-4"
+                          placeholder="Enter your username"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xl ">Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="placeholder:text-xl p-4"
+                          placeholder="Enter your email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xl">Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="placeholder:text-xl p-4"
+                          {...field}
+                          placeholder="Enter password"
+                          type="password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              </div>
+              <Button
+                type="submit"
+                className={cn(
+                  "cursor-pointer w-full hover:bg-white hover:text-black transition-all",
+                  (isSubmitting || isValidating && "cursor-not-allowed")
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xl ">Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="placeholder:text-xl p-4"
-                        placeholder="Enter your email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xl">Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="placeholder:text-xl p-4"
-                        {...field}
-                        placeholder="Enter password"
-                        type="password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-             
-            </div>
-            <Button
-              type="submit"
-              className={cn(
-                "cursor-pointer w-full hover:bg-white hover:text-black transition-all",
-                (isSubmitting || isValidating && "cursor-not-allowed")
-              )}
-              disabled={
-                isSubmitting || isValidating
-              }
-            >
-              Register
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter className="flex justify-between flex-col">
-        <Link className="text-lg underline hover:text-blue-600" href="/login">
-          Already have an account ?
-        </Link>
-      </CardFooter>
-    </Card>
+                disabled={
+                  isSubmitting || isValidating
+                }
+              >
+                Register
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+        <CardFooter className="flex justify-between flex-col">
+          <Link className="text-lg underline hover:text-blue-600" href="/login">
+            Already have an account ?
+          </Link>
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 

@@ -19,6 +19,8 @@ const formatTextWithAi = async (req: Request, res: Response) => {
             isPro:true
         }
     })
+    console.log("User free trials", userFreeTrials);
+    
     if ((userFreeTrials && userFreeTrials.freeAiTrials <= 0) || !userFreeTrials?.isPro) {
         res.status(403).json({ success: false, message: "You have no free trials left" });
         return
