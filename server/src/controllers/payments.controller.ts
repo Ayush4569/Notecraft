@@ -116,14 +116,11 @@ export const cancelSubscription = async (req: Request, res: Response) => {
 }
 
 export const webhook = async (req: Request, res: Response) => {
-    console.log('inside webhook');
 
     
     const rawBody = req.body;
-    console.log('rawBody', rawBody);
     
     const signature = req.headers["x-razorpay-signature"] as string;
-    console.log('signature', signature);
     
     const expectedSignature = crypto
         .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET as string)
@@ -137,13 +134,10 @@ export const webhook = async (req: Request, res: Response) => {
 
     try {
         const parsedBody = JSON.parse(rawBody.toString());
-        console.log('parsedBody', parsedBody);
-
         const event = parsedBody.event;
         const subscription = parsedBody.payload.subscription.entity;
-        console.log('event', event);
-        console.log('subscription', subscription);
-
+        console.log('event',event);
+        
         if (event === "subscription.activated") {
             if (!subscription.notes?.userId) {
                 console.error("Missing userId in subscription notes");
@@ -158,6 +152,7 @@ export const webhook = async (req: Request, res: Response) => {
                 },
                 data: {
                     status: "active",
+                    aiCreditsLeft:100,
                     expiryDate: new Date(subscription.current_end * 1000),
                     nextBillingDate: new Date(subscription.current_end * 1000),
                 },

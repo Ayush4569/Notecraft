@@ -75,7 +75,7 @@ const createUser = async (req: Request, res: Response) => {
             if (existingUserByEmail.isVerified) {
                 res.status(500).json({
                     success: false,
-                    message: "User already verified"
+                    message: "Email already taken"
                 });
                 return
             }

@@ -35,7 +35,6 @@ const SignupForm = () => {
       username: "",
       email: "",
       password: "",
-      profileImage: "",
     },
   });
   const { isSubmitting, isValidating } = form.formState;
@@ -52,7 +51,12 @@ const SignupForm = () => {
         email,
         password,
       });
-      form.reset()
+      form.reset({
+        email:"",
+        username: "",
+        password: "",
+
+      })
       toast.success(response.data.message || "user registered");
       router.replace(`/verifycode/${username}`);
     } catch (error) {

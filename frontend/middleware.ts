@@ -15,8 +15,6 @@ export default async function (req: NextRequest) {
       return NextResponse.redirect(new URL('/', req.url));
    }
    if(pathname.startsWith("/subscriptions") && !token){
-      console.log("Redirecting to login from subscriptions route");
-      
       return NextResponse.redirect(new URL('/login', req.url));
    }
    if (isDocumentRoute && !token) {

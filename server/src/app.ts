@@ -1,3 +1,4 @@
+import "./cron/reset-ai-limits"
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -9,7 +10,6 @@ import aiRoute from "./routes/ai.routes";
 import userRoute from "./routes/user.routes";
 import paymentsRoute from "./routes/payment.routes";
 import cookieParser from "cookie-parser";
-import { webhook } from "./controllers/payments.controller";
 dotenv.config();
 
 const app: Express = express();

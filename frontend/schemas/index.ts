@@ -12,7 +12,6 @@ export const registerSchema = z.object({
     ,
     email: z.string().email(),
     password: z.string().min(6, { message: "Password must be 6 characters" }),
-    profileImage: z.string().optional()
 })
 export const verifySchema = z.object({
     code: z.string().length(6, 'Verification code must be 6 digits'),

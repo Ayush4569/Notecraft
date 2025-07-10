@@ -10,7 +10,7 @@ export default function Home() {
   const user = useAppSelector((state) => state.user);
   const pathname = usePathname()
   useEffect(() => {
-    if (!user.isPro && pathname.startsWith("/subscriptions")) {
+    if (!user.isPro) {
       const interval = setInterval(() => {
         queryClient.refetchQueries({ queryKey: ["user"] });
       }, 3000)

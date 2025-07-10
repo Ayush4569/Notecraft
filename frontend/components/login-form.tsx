@@ -59,7 +59,10 @@ const LoginForm = () => {
             isPro: res.data.user.isPro,
           })
         );
-        form.reset()
+        form.reset({
+          identifier:"",
+          password:""
+        })
         router.replace("/documents");
         toast.success("Login successful");
       }

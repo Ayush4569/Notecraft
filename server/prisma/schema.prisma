@@ -45,7 +45,7 @@ model Subscription {
   userId String @unique
   user User @relation(fields: [userId],references: [id])
   status subscriptionStatus 
-  aiCreditsLeft Int 
+  aiCreditsLeft Int @default(0)
   createdAt DateTime @default(now())
   expiryDate DateTime? 
   nextBillingDate DateTime?
