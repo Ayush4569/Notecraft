@@ -27,3 +27,7 @@ export const promptSchema = z.object({
     fileName: z.string(),
     docId:docIdSchema
 })
+export const passwordChangeSchema = z.object({
+    password:z.string().min(6,"Password must be 6 characters"),
+    confirmPassword:z.string().min(6,"Password must be 6 characters")
+})

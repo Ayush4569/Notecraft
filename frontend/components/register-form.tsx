@@ -51,12 +51,7 @@ const SignupForm = () => {
         email,
         password,
       });
-      form.reset({
-        email:"",
-        username: "",
-        password: "",
-
-      })
+      
       toast.success(response.data.message || "user registered");
       router.replace(`/verifycode/${username}`);
     } catch (error) {
@@ -66,6 +61,13 @@ const SignupForm = () => {
       } else {
         toast.error("unexpected error ");
       }
+    }
+    finally {
+      form.reset({
+        email:"",
+        username: "",
+        password: "",
+      })
     }
   };
 

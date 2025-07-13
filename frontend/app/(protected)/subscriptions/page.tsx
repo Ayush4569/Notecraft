@@ -46,7 +46,7 @@ export default function SubscriptionPage() {
         theme: { color: "#6366F1" },
         handler: function () {
           toast.success("Subscription successfull!");
-          window.location.href = "/";
+          window.location.href = "/?subscribed=true";
         },
         modal: {
           ondismiss: async function () {

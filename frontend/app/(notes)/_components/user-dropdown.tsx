@@ -10,19 +10,20 @@ import {
 import { useAppDispatch, useAppSelector } from "@/hooks/redux-hooks";
 import { clearUser } from "@/redux/slices/user";
 import axios, { AxiosError } from "axios";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Crown, Pencil } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-export function UserDropDown() {
+export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const router = useRouter()
-  const handleLogOut = async()=>{
+  const handleLogOut = async () => {
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/logout`,null,{
-        withCredentials:true
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/logout`, null, {
+        withCredentials: true
       });
-      if(res.data.success) {
+      if (res.data.success) {
         dispatch(clearUser())
 
         toast.success("Logged out successfully.");
@@ -30,7 +31,7 @@ export function UserDropDown() {
       }
     } catch (error) {
       console.error("Failed to logout:", error);
-       if (error instanceof AxiosError) {
+      if (error instanceof AxiosError) {
         toast.error(error.response?.data.message);
       } else {
         toast.error("unexpected error ");
@@ -43,15 +44,28 @@ export function UserDropDown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
-        <ChevronDown className="text-muted-foreground h-5 w-5 cursor-pointer hover:bg-primary/5 rounded-sm" />
+        {
+          isHomePage ? (
+            <Image
+              src={user.profileImage || "/avatar.png"}
+              className="h-10 w-10 rounded-full"
+              alt="avatar"
+              height={40}
+              width={40}
+            />
+          ) : (
+            <ChevronDown className="text-muted-foreground h-5 w-5 cursor-pointer hover:bg-primary/5 rounded-sm" />
+          )
+        }
+
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80"
+        className="w-80 mr-4"
         align="start"
         alignOffset={11}
         forceMount
       >
-        <div className="flex flex-col space-y-4 p-4">
+        <div className="flex flex-col space-y-2 p-3">
           <p className="font-medium text-muted-foreground leading-none">
             {user?.email}
           </p>
@@ -73,6 +87,37 @@ export function UserDropDown() {
                 {user?.name}&apos;s workspace
               </p>
             </div>
+          </div>
+          <div className="flex flex-col gap-y-2">
+            {
+              user.isPro ? (
+                <Button
+                  variant="outline"
+                  className="hover:underline w-full cursor-pointer"
+                  onClick={() => router.push("/subscriptions")}
+                >
+                  <Crown className="h-4 w-4" />
+                  Pro User
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="hover:underline w-full cursor-pointer"
+                  onClick={() => router.push("/subscriptions")}
+                >
+                  <Crown className="h-4 w-4" />
+                  Get Notecraft Pro
+                </Button>
+              )
+            }
+            <Button
+                  variant="outline"
+                  className="hover:underline w-full cursor-pointer"
+                  onClick={() => router.push("/change-password")}
+                >
+                  <Pencil className="h-4 w-4" />
+                  Change Password
+                </Button>
           </div>
         </div>
         <DropdownMenuSeparator />{" "}

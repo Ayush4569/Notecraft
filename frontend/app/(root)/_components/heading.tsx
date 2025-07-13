@@ -7,9 +7,8 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 const heading = () => {
-  const {status,name} = useAppSelector((state) => state.user);
-  console.log("User name:", name,status);
-  
+  const { status } = useAppSelector((state) => state.user);
+
   return (
     <div className="max-w-3xl space-y-4">
       <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
@@ -22,26 +21,26 @@ const heading = () => {
       </h3>
       {status === "loading" && (
         <div className="flex w-full justify-center">
-           <Skeleton className="h-9 w-44 bg-neutral-200 dark:bg-neutral-700 animate-out rounded-sm" />
+          <Skeleton className="h-9 w-44 bg-neutral-200 dark:bg-neutral-700 animate-out rounded-sm" />
         </div>
       )}
       {status === "authenticated" && (
         <Button asChild className="text-lg">
           <Link href='/documents'>
-          use notecraft
-          <ArrowRight className="h-6 w-6 ml-2" />
+            use notecraft
+            <ArrowRight className="h-6 w-6 ml-2" />
           </Link>
         </Button>
       )}
       {
         status !== 'loading' && status === 'unauthenticated' && (
           <Button asChild className="text-lg">
-          <Link href='/login'>
-          Login to start
-          <ArrowRight className="h-6 w-6 ml-2" />
-          </Link>
-        </Button>
-      )}
+            <Link href='/login'>
+              Login to start
+              <ArrowRight className="h-6 w-6 ml-2" />
+            </Link>
+          </Button>
+        )}
     </div>
   );
 };

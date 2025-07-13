@@ -325,5 +325,28 @@ const verifyCode = async (req: Request, res: Response) => {
 
     }
 }
-
-export { getUser, createUser, loginUser, logoutUser, refreshAccessToken, verifyCode };
+const resetPassword = async (req:Request,res:Response)=>{
+    const user = req.user;
+        if (!user) {
+            res.status(401).json({ success: false, message: "Unauthorized" });
+            return;
+        }
+    const {password}  = req.body as {password:string}
+    try {
+        const hashedPassword = await bcrypt.hash(password,10);
+        await prisma.user.update({
+            where:{
+                id:user.id,
+            }, data:{
+                password:hashedPassword
+            }
+        })
+        res.status(200).json({success:true,message:"Password changed"});
+        return;
+    } catch (error) {
+        console.log('Error resetting password');
+        res.status(500).json({success:false,message:"server error"})
+        return;
+    }
+}
+export { getUser, createUser, loginUser, logoutUser, refreshAccessToken, verifyCode,resetPassword };

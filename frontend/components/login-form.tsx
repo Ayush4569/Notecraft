@@ -59,10 +59,7 @@ const LoginForm = () => {
             isPro: res.data.user.isPro,
           })
         );
-        form.reset({
-          identifier:"",
-          password:""
-        })
+        
         router.replace("/documents");
         toast.success("Login successful");
       }
@@ -74,6 +71,12 @@ const LoginForm = () => {
         toast.error("unexpected error ");
       }
       return;
+    }
+    finally{
+      form.reset({
+        identifier:"",
+        password:""
+      })
     }
   };
 

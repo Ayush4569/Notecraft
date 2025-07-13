@@ -5,7 +5,6 @@ import Sidebar from "./_components/sidebar";
 
 export default function ({ children }: { children: React.ReactNode }) {
   const {status,name} = useAppSelector(state=>state.user);
-  console.log("User Name:", name,status);
   
   if(status === "unauthenticated") {
     return <Loading/>
