@@ -3,13 +3,23 @@ import { applyOperationRecursively } from "../helpers/recursive-delete";
 import { docIdSchema } from "../schemas/index";
 import { prisma } from "../db/db";
 import { Request, Response } from "express";
+import { RedisClient } from "../helpers/redis";
 const getAllDocuments = async (req: Request, res: Response) => {
-    
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
     try {
+        const isUserDocsCached = await RedisClient.get(`user:docs:${req.user.id}`);
+
+        if (isUserDocsCached) {
+            res.status(200).json({
+                success: true,
+                message: 'Notes fetched',
+                notes: JSON.parse(isUserDocsCached)
+            });
+            return
+        }
         const userNotes = await prisma.document.findMany({
             where: {
                 userId: req.user.id as string,
@@ -25,7 +35,7 @@ const getAllDocuments = async (req: Request, res: Response) => {
                 createdAt: 'desc'
             },
         })
-
+        await RedisClient.setex(`user:docs:${req.user.id}`, 300, JSON.stringify(userNotes))
         res.status(200).json({
             success: true,
             message: 'Notes fetched',
@@ -50,7 +60,16 @@ const getDocumentById = async (req: Request, res: Response) => {
         return
     }
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return
+    }
+    const isCached = await RedisClient.get(`user:doc:${docId}`);
+    if (isCached) {
+        res.status(200).json({
+            success: true,
+            message: 'Page fetched',
+            note: JSON.parse(isCached),
+        });
         return
     }
     try {
@@ -70,6 +89,7 @@ const getDocumentById = async (req: Request, res: Response) => {
         let coverUrl: string | null = null;
         if (document.coverImage) {
             coverUrl = await generateSignedUrl(document.coverImage);
+            await RedisClient.setex(`user:doc:${docId}`, 300, JSON.stringify({ ...document, tempImageUrl: coverUrl }))
             res.status(200).json({
                 success: true,
                 message: 'Page fetched',
@@ -80,6 +100,7 @@ const getDocumentById = async (req: Request, res: Response) => {
             });
             return
         }
+        await RedisClient.setex(`user:doc:${docId}`, 300, JSON.stringify(document))
         res.status(200).json({
             success: true,
             message: 'Page fetched',
@@ -97,13 +118,21 @@ const getDocumentById = async (req: Request, res: Response) => {
     }
 }
 const getTrashedDocuments = async (req: Request, res: Response) => {
-    
+
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
-
     try {
+        const isCached = await RedisClient.get(`docs:trashed:${req.user.id}`);
+        if (isCached) {
+            res.status(200).json({
+                success: true,
+                message: 'Notes fetched',
+                notes: JSON.parse(isCached)
+            });
+            return
+        }
         const trashedNotes = await prisma.document.findMany({
             where: {
                 userId: req.user.id as string,
@@ -119,6 +148,7 @@ const getTrashedDocuments = async (req: Request, res: Response) => {
                 createdAt: 'desc'
             },
         })
+        await RedisClient.setex(`docs:trashed:${req.user.id}`, 300, JSON.stringify(trashedNotes))
         res.status(200).json({
             success: true,
             message: 'Notes fetched',
@@ -136,7 +166,7 @@ const getTrashedDocuments = async (req: Request, res: Response) => {
 }
 const createDocument = async (req: Request, res: Response) => {
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
     const { title, parentId } = req.body
@@ -150,6 +180,7 @@ const createDocument = async (req: Request, res: Response) => {
                 }
             }
         )
+        await RedisClient.del(`user:docs:${req.user.id}`)
         res.status(200).json({
             success: true,
             message: 'Note created',
@@ -168,7 +199,7 @@ const createDocument = async (req: Request, res: Response) => {
 }
 const updateDocument = async (req: Request, res: Response) => {
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
     const docId = req.params.id;
@@ -214,6 +245,8 @@ const updateDocument = async (req: Request, res: Response) => {
             });
             return
         }
+        await RedisClient.del(`user:doc:${docId}`);
+        await RedisClient.del(`user:docs:${req.user.id}`);
         res.status(200).json({
             success: true,
             message: 'Page updated',
@@ -229,7 +262,7 @@ const updateDocument = async (req: Request, res: Response) => {
 }
 const archiveDocument = async (req: Request, res: Response) => {
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
     const docId = req.params.id;
@@ -257,6 +290,10 @@ const archiveDocument = async (req: Request, res: Response) => {
 
         const archiveDocs = applyOperationRecursively('archive');
         await archiveDocs(docId, req.user.id as string);
+        await RedisClient.del(`user:doc:${docId}`);
+        await RedisClient.del(`user:docs:${req.user.id}`);
+        await RedisClient.del(`docs:trashed:${req.user.id}`);
+
         res.status(200).json({
             success: true,
             message: 'Page archived'
@@ -274,7 +311,7 @@ const archiveDocument = async (req: Request, res: Response) => {
 }
 const restoreDocument = async (req: Request, res: Response) => {
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
     const docId = req.params.id;
@@ -310,6 +347,10 @@ const restoreDocument = async (req: Request, res: Response) => {
         }
         const restoredDocs = applyOperationRecursively('restore');
         await restoredDocs(docId, req.user.id as string);
+        await RedisClient.del(`user:doc:${docId}`);
+        await RedisClient.del(`user:docs:${req.user.id}`);
+        await RedisClient.del(`docs:trashed:${req.user.id}`);
+
         res.status(200).json({
             success: true,
             message: 'Page restored'
@@ -323,7 +364,7 @@ const restoreDocument = async (req: Request, res: Response) => {
 }
 const deleteDocument = async (req: Request, res: Response) => {
     if (!req.user) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
+        res.status(401).json({ success: false, message: "Unauthorized" });
         return
     }
     const docId = req.params.id;
@@ -348,6 +389,10 @@ const deleteDocument = async (req: Request, res: Response) => {
         }
         const deleteDocWithChildren = applyOperationRecursively("delete");
         await deleteDocWithChildren(docId, req.user.id as string);
+        await RedisClient.del(`user:doc:${docId}`);
+        await RedisClient.del(`user:docs:${req.user.id}`);
+        await RedisClient.del(`docs:trashed:${req.user.id}`);
+
         res.status(200).json({
             success: true,
             message: 'Page deleted'

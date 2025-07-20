@@ -32,8 +32,8 @@ import { prisma } from "../db/db";
     
 //  }
 // }
-cron.schedule("* * * * *",()=>{
-    console.log("Running daily credit reset...");
+// cron.schedule("* * * * *",()=>{
+//     console.log("Running daily credit reset...");
 
-    // await resetAiCredits()
-})
+//     // await resetAiCredits()
+// })
