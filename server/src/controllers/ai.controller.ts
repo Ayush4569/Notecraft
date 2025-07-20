@@ -3,7 +3,7 @@ import Groq from "groq-sdk"
 import { prisma } from "../db/db";
 import { promptSchema } from "../schemas/index";
 const groq = new Groq({
-    apiKey: process.env.GROK_API_KEY
+    apiKey: process.env.GROK_API_KEY ?? ""
 })
 const formatTextWithAi = async (req: Request, res: Response) => {
     if (!req.user) {

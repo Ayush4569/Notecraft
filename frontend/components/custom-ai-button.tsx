@@ -6,9 +6,10 @@ import {
   PartialBlock,
 } from "@blocknote/core";
 import { Components, useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Sparkles, Loader } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function AIButton() {
   const editor:BlockNoteEditor = useBlockNoteEditor();
@@ -79,6 +80,11 @@ export function AIButton() {
           }
         } catch (error) {
           console.error("Error formatting text:", error);
+          if (error instanceof AxiosError) {
+            toast.error(error.response?.data.message);
+          } else {
+            toast.error("unexpected error ");
+          }
           return block;
         } finally {
           setIsLoading(false);

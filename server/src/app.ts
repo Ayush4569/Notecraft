@@ -1,6 +1,8 @@
 import "./cron/reset-ai-limits"
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
+import cluster from "cluster";
+import os from "os";
 import dotenv from "dotenv";
 import { dbConnect } from "./db/db";
 import documentRoute from "./routes/documents.routes";
@@ -14,36 +16,53 @@ dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 8000;
+const cpus = os.cpus().length
+const isDev = process.env.NODE_ENV === "development";
+if (cluster.isPrimary && !isDev) {
+    console.log(`Master ${process.pid} is running`);
+    for (let i = 0; i < cpus; i++) {
+        cluster.fork();
+    }
 
-dbConnect()
+    cluster.on("exit", (worker, code, signal) => {
+        console.log(`Worker ${worker.process.pid} died`);
+        cluster.fork()
+    });
+}
+else {
+    dbConnect()
 
-app.use(cors({
-    origin: ["http://localhost:3000"],
-    allowedHeaders: [
-        "Content-Type",
-        "Authorization"
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true
-}))
-app.use("/payment", paymentsRoute.webhookRouter)
-app.use(express.json());
-app.use(cookieParser())
-app.use(express.urlencoded({ extended: false, limit: '20kb' }))
+    app.use(cors({
+        origin: ["http://localhost:3000"],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        credentials: true
+    }))
+    // extra webhook route without express.json()
+    app.use("/payment", paymentsRoute.webhookRouter)
+    app.use(express.json());
+    app.use(cookieParser())
+    app.use(express.urlencoded({ extended: false, limit: '20kb' }))
 
+    // health check route
+    app.get("/", (req: Request, res: Response) => {
 
-app.get("/", (req: Request, res: Response) => {
-    res.status(200).json({ message: "Welcome to the Document Management API" });
-    return;
-});
+        res.status(200).json({ message: "Welcome to the Notecraft Management API" });
+        return;
+    });
 
-app.use("/user", userRoute);
-app.use("/document", documentRoute);
-app.use("/file", fileRoute)
-app.use("/upload", uploadRoute)
-app.use("/ai", aiRoute)
-app.use("/payment", paymentsRoute.router)
-app.listen(port, () => {
-    console.log(`server running on port ${port}`);
-});
+    // other routes
+    app.use("/user", userRoute);
+    app.use("/document", documentRoute);
+    app.use("/file", fileRoute)
+    app.use("/upload", uploadRoute)
+    app.use("/ai", aiRoute)
+    app.use("/payment", paymentsRoute.router)
+    app.listen(port, () => {
+        console.log(`server running on port ${port}`);
+    });
+}
 
