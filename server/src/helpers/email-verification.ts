@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY ?? "");
 export async function sendVerificationEmail(email: string, username: string, verifyCode: string) {
-    
+
     try {
         const html = `
     <div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -10,10 +10,9 @@ export async function sendVerificationEmail(email: string, username: string, ver
       <p>Your verification code is:</p>
       <h3 style="color: #4A90E2;">${verifyCode}</h3>
       <p>If you didn't request this, just ignore this email.</p>
-    </div>
-  `;
+    </div> `;
         await resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: 'notecraft@resend.dev',
             to: email,
             subject: 'Notecraft | Verification code',
             html,
@@ -26,7 +25,7 @@ export async function sendVerificationEmail(email: string, username: string, ver
     }
 }
 
-export function generateSafeEmail(email:string){
-    const [name,domain] = email.split('@');
+export function generateSafeEmail(email: string) {
+    const [name, domain] = email.split('@');
     return `${name}+${Date.now()}@${domain}`;
 }
