@@ -66,8 +66,8 @@ export default function SubscriptionPage() {
           email: data.email,
         },
       };
-      // @ts-ignore
-      const razorpay = new (window as any ).Razorpay(options);
+      // @ts-expect-error
+      const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
       console.error("Error subscribing:", error);
