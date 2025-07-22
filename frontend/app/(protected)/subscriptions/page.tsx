@@ -1,7 +1,7 @@
 "use client";
 declare global {
   interface Window {
-    Razorpay: any; 
+    Razorpay: (options:any)=> any; 
   }
 }
 
@@ -66,8 +66,8 @@ export default function SubscriptionPage() {
           email: data.email,
         },
       };
-
-      const razorpay = new window.Razorpay(options)
+      // @ts-ignore
+      const razorpay = new (window as any ).Razorpay(options);
       razorpay.open();
     } catch (error) {
       console.error("Error subscribing:", error);
