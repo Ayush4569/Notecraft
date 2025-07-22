@@ -20,7 +20,6 @@ import {
 } from "@blocknote/react";
 import { AIButton } from "./custom-ai-button";
 import { Block, BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { Loader } from "lucide-react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
 import { useTheme } from "next-themes";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -111,16 +110,16 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
     setPreviousImages(currentImages);
     setContent(currentBlocks);
   }
-  // useEffect(() => {
-  //   if (debouncedValue.length === 0) return;
-  //   if (isEqual(debouncedValue, initialContent)) {
-  //     return;
-  //   }
-  //   updateDocument({
-  //     docId,
-  //     data: { content: { version: "0.31.2", blocks: content } },
-  //   });
-  // }, [debouncedValue]);
+  useEffect(() => {
+    if (debouncedValue.length === 0) return;
+    if (isEqual(debouncedValue, initialContent)) {
+      return;
+    }
+    updateDocument({
+      docId,
+      data: { content: { version: "0.31.2", blocks: content } },
+    });
+  }, [debouncedValue]);
 
   const editor: BlockNoteEditor = useCreateBlockNote({
     initialContent: initialContent ? initialContent : undefined,

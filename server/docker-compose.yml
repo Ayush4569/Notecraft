@@ -10,12 +10,9 @@ services:
     
   redis : 
     image: redis:7-alpine
-    ports:
-      - 6379:6379
-    command: redis-server --requirepass ayush@0827
     volumes:
       - redis-data:/data
   
 
 volumes:
-  - redis-data:
+   redis-data:
