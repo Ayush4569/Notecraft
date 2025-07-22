@@ -1,7 +1,7 @@
 "use client";
 declare global {
   interface Window {
-    Razorpay: (options:any)=> any; 
+    Razorpay: (options: any) => any;
   }
 }
 
@@ -66,8 +66,9 @@ export default function SubscriptionPage() {
           email: data.email,
         },
       };
-      // @ts-expect-error
+      // @ts-expect-error: Razorpay is loaded via script tag and not typed in window
       const razorpay = new window.Razorpay(options);
+
       razorpay.open();
     } catch (error) {
       console.error("Error subscribing:", error);
