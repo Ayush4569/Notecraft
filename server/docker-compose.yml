@@ -9,7 +9,7 @@ services:
       - redis
     
   redis : 
-    image: redis/redis-stack:latest
+    image: redis:7-alpine
     ports:
       - 6379:6379
     command: redis-server --requirepass ayush@0827
