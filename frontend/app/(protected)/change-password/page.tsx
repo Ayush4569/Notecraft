@@ -6,12 +6,11 @@ import { cn } from "@/lib/utils";
 import { passwordChangeSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
-import { EyeIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 type FormData = z.infer<typeof passwordChangeSchema>
-export default function () {
+export default function ChangePassword() {
   const form = useForm<FormData>({
     resolver: zodResolver(passwordChangeSchema),
     defaultValues: {

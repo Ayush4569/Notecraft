@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { CoverImage } from "@/app/(notes)/_components/cover-image"
 import Editor from "@/components/editor";
 import { PartialBlock } from "@blocknote/core";
-export default function () {
+export default function PreviewPage() {
   const params = useParams();
   const id = params.id as string;
   const { data: document } = usePage(id);

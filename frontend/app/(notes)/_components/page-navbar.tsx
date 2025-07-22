@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePage } from "@/hooks/useGetDocumentById";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
@@ -33,7 +32,7 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
       docId: docId as string,
       data: { title: debouncedTitle as string },
     });
-  }, [debouncedTitle]);
+  }, [debouncedTitle, isEditing, docId, EditDocument]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
     queryClient.setQueryData(

@@ -38,7 +38,7 @@ export function CommandMenu() {
   return (
     <CommandDialog
       open={isOpen}
-      onOpenChange={(open: boolean) => dispatch(onClose())}
+      onOpenChange={() => dispatch(onClose())}
     >
       <CommandInput
         placeholder="Search by title"

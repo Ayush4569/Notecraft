@@ -23,14 +23,12 @@ import { useAppSelector } from "@/hooks/redux-hooks";
 
 interface DocumentListsProps {
   doc: DocNode;
-  parentId?: string;
-  children?: DocNode[];
+  childNodes?: DocNode[];
 }
 
 export function DocumentLists({
   doc,
-  parentId,
-  children = [],
+  childNodes = [],
 }: DocumentListsProps) {
   
   const pathname = usePathname();
@@ -133,18 +131,17 @@ export function DocumentLists({
       <div
         className={cn(
           "hidden text-sm py-[2px] pl-4 text-muted-foreground font-semibold",
-          children.length > 0 && "w-full",
+          childNodes.length > 0 && "w-full",
           isExpanded && "block"
         )}
       >
-        {isExpanded && children.length > 0 ? (
+        {isExpanded && childNodes.length > 0 ? (
           <div className="flex flex-col gap-y-1 w-full">
-            {children.map((child) => (
+            {childNodes.map((child) => (
               <DocumentLists
                 key={child.id}
                 doc={child}
-                children={child.children || []}
-                parentId={doc.id}
+                childNodes={child.children || []}
               />
             ))}
           </div>

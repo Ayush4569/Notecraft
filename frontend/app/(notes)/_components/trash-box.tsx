@@ -1,4 +1,3 @@
-import Loading from "@/app/loading";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { useDeleteTrashDocuments } from "@/hooks/useDeleteTrashDocuments";

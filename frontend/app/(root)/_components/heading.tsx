@@ -6,7 +6,7 @@ import { useAppSelector } from "@/hooks/redux-hooks";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const heading = () => {
+export default function Heading() {
   const { status } = useAppSelector((state) => state.user);
 
   return (
@@ -45,4 +45,3 @@ const heading = () => {
   );
 };
 
-export default heading;

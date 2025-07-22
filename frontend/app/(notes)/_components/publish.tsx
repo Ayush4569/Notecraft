@@ -6,7 +6,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
-import { Document } from "@/types/document";
 import { Check, Copy, Globe } from "lucide-react";
 import { useEffect, useState } from "react";
 

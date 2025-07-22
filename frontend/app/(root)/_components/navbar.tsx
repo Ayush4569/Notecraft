@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import {  useAppSelector } from "@/hooks/redux-hooks";
-import { Crown, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { UserDropDown } from "@/app/(notes)/_components/user-dropdown";
-const navbar = ({ isSubscriptionPage }: { isSubscriptionPage?: boolean }) => {
+export default function Navbar({ isSubscriptionPage }: { isSubscriptionPage?: boolean })  {
   const scrolled = useScroll();
   const router = useRouter();
   const user = useAppSelector((state) => state.user);
@@ -77,4 +77,3 @@ const navbar = ({ isSubscriptionPage }: { isSubscriptionPage?: boolean }) => {
   );
 };
 
-export default navbar;

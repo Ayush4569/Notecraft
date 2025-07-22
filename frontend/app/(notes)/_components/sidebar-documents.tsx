@@ -7,7 +7,7 @@ import { DocNode } from "@/types/document";
 export function SideBarDocuments() {
   const { data: documents, isLoading } = getDocs();
 
-  let fallbackSkeletion = documents?.length || 10;
+  const fallbackSkeletion = documents?.length || 10;
 
   if (isLoading) {
     return (
@@ -52,8 +52,7 @@ export function SideBarDocuments() {
         <DocumentLists
           key={doc.id}
           doc={doc}
-          children={doc.children}
-          parentId={doc.parentId || ""}
+          childNodes={doc.children}
         />
       ))}
     </>

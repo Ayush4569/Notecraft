@@ -1,4 +1,9 @@
 "use client";
+declare global {
+  interface Window {
+    Razorpay: any; 
+  }
+}
 
 import { useAppSelector } from "@/hooks/redux-hooks";
 import axios, { AxiosError } from "axios";
@@ -62,7 +67,7 @@ export default function SubscriptionPage() {
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
+      const razorpay = new window.Razorpay(options)
       razorpay.open();
     } catch (error) {
       console.error("Error subscribing:", error);

@@ -3,8 +3,8 @@ import { useAppSelector } from "@/hooks/redux-hooks";
 import Loading from "../loading";
 import Sidebar from "./_components/sidebar";
 
-export default function ({ children }: { children: React.ReactNode }) {
-  const {status,name} = useAppSelector(state=>state.user);
+export default function DocumnentLayout({ children }: { children: React.ReactNode }) {
+  const {status} = useAppSelector(state=>state.user);
   
   if(status === "unauthenticated") {
     return <Loading/>

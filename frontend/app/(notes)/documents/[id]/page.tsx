@@ -8,7 +8,7 @@ import { useMediaQuery } from "usehooks-ts";
 import { PartialBlock } from "@blocknote/core";
 import { useEffect } from "react";
 import {useSideBarResizable} from "@/hooks/useSidebarResizable"
-export default function () {
+export default function Page() {
   const params = useParams();
   const isMobile = useMediaQuery("(max-width:768px)");
   const {collapseSidebar} = useSideBarResizable()
@@ -18,7 +18,7 @@ export default function () {
     if (isMobile) {
       collapseSidebar();
     }
-  }, [isMobile]);
+  }, [isMobile, collapseSidebar]);
   if (!document) return;
   return (
     <div className="pb-0 md:pb-40">

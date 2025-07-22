@@ -31,12 +31,12 @@ function Sidebar() {
     if (isMobile) {
       collapseSidebar();
     }
-  }, [isMobile]);
+  }, [isMobile, collapseSidebar]);
   useEffect(() => {
     if (!isSidebarOpen) {
       collapseSidebar();
     }
-  }, [isSidebarOpen]);
+  }, [isSidebarOpen, collapseSidebar]);
   return (
     <>
       <aside

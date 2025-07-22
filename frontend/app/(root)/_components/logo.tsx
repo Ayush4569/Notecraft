@@ -6,7 +6,7 @@ const font = Poppins({
   weight: ["400", "600"],
 });
 
-export default function () {
+export default function Logo () {
   return (
     <div className="hidden md:flex items-center gap-x-2">
       <p className={cn("font-semibold",font.className)}>Notecraft</p>

@@ -1,8 +1,7 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { ChevronsLeft, Edit, Home } from "lucide-react";
+import { ChevronsLeft, Home } from "lucide-react";
 import { UserDropDown } from "./user-dropdown";
-import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/hooks/redux-hooks";
 interface SidebarHeaderProps {
