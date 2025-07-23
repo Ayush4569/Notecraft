@@ -33,7 +33,7 @@ else {
     dbConnect()
 
     app.use(cors({
-        origin: ["http://localhost:3000"],
+        origin: ["http://localhost:3000","https://notecraft-mu.vercel.app/"],
         allowedHeaders: [
             "Content-Type",
             "Authorization"
