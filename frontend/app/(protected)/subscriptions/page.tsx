@@ -1,16 +1,10 @@
 "use client";
-declare global {
-  interface Window {
-    Razorpay: (options: any) => any;
-  }
-}
 
 import { useAppSelector } from "@/hooks/redux-hooks";
 import axios, { AxiosError } from "axios";
 import { Crown, User2Icon, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -63,11 +57,12 @@ export default function SubscriptionPage() {
           },
         },
         prefill: {
-          email: data.email,
+          email: user.email,
+          name:user.name
         },
       };
-      // @ts-expect-error: Razorpay is loaded via script tag and not typed in window
-      const razorpay = new window.Razorpay(options);
+
+      const razorpay = new window.Razorpay(options)
 
       razorpay.open();
     } catch (error) {
