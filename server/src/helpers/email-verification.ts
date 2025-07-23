@@ -12,7 +12,7 @@ export async function sendVerificationEmail(email: string, username: string, ver
       <p>If you didn't request this, just ignore this email.</p>
     </div> `;
         await resend.emails.send({
-            from: 'notecraft@resend.dev',
+            from: process.env.FROM_EMAIL || 'default@notecraft.tech',
             to: email,
             subject: 'Notecraft | Verification code',
             html,
