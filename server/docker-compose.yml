@@ -1,6 +1,6 @@
 services:
   nodejs:
-    image: ayush0827/notecraft:v2
+    image: ayush0827/notecraft:final
     ports:
       - 8000:8000
     env_file:
