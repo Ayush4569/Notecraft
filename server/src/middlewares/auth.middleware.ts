@@ -12,7 +12,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
-
         res.status(401).json({ success: false, message: 'No token' });
         return
     }

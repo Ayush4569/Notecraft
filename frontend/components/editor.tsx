@@ -54,7 +54,7 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
           headers: { "Content-Type": file.type },
         });
 
-        return `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/view?key=${key}`;
+        return `${process.env.NEXT_PUBLIC_BACKEND_URL}/file/view?key=${key}`;
       }
     } catch (error) {
       console.log("Error uploading file", error);

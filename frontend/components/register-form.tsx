@@ -13,19 +13,11 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { toast } from 'sonner';
-import { cn } from "@/lib/utils";
 type FormData = z.infer<typeof registerSchema>;
 const SignupForm = () => {
   const router = useRouter();
@@ -73,92 +65,76 @@ const SignupForm = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <Card className="w-full h-full md:w-[400px] md:h-auto">
-        <CardHeader>
-          <CardTitle className="text-xl text-center">Register</CardTitle>
-          <CardDescription className="text-xl text-center">
-            Welcome to Notecraft
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xl ">Username</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="placeholder:text-xl p-4"
-                          placeholder="Enter your username"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xl ">Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="placeholder:text-xl p-4"
-                          placeholder="Enter your email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xl">Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="placeholder:text-xl p-4"
-                          {...field}
-                          placeholder="Enter password"
-                          type="password"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      <div className="w-full max-w-md p-8 space-y-8 rounded-lg md:shadow-md dark:invert">
+        <div className="text-center dark:invert">
+          <h1 className="text-3xl font-extrabold tracking-tight lg:text-5xl mb-6">
+            Register
+          </h1>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 dark:invert"
+          >
+            <FormField
+              name="username"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className={`cursor-pointer w-full hover:bg-white hover:text-black transition-all ${isSubmitting || (isValidating && "cursor-not-allowed")
+                }`}
+              type="submit"
+              disabled={isSubmitting || isValidating}
+            >
+              Register
+            </Button>
+          </form>
+        </Form>
 
-              </div>
-              <Button
-                type="submit"
-                className={cn(
-                  "cursor-pointer w-full hover:bg-white hover:text-black transition-all",
-                  (isSubmitting || isValidating && "cursor-not-allowed")
-                )}
-                disabled={
-                  isSubmitting || isValidating
-                }
-              >
-                Register
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-between flex-col">
-          <Link className="text-lg underline hover:text-blue-600" href="/login">
-            Already have an account ?
-          </Link>
-        </CardFooter>
-      </Card>
+        <div className="text-center mt-4 dark:invert">
+          <p>
+            Already have an account ?{" "}
+            <Link href="/login" className="hover:text-blue-600 underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

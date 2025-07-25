@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { uploadSchema } from "../schemas/index";
 import { prisma } from "../db/db";
 import { deleteObject, uploadToS3 } from "../helpers/aws.service";
+import { RedisClient } from "../helpers/redis";
 
 const uploadCoverImage = async (req: Request, res: Response) => {
     if (!req.user) {
@@ -38,6 +39,7 @@ const uploadCoverImage = async (req: Request, res: Response) => {
             res.status(500).json({ error: "Failed to get presigned URL" });
             return
         }
+        await RedisClient.del(`user:doc:${docId}`);
         res.status(200).json({ success: true, url: presignedUrl.url, key: presignedUrl.Key });
         return;
     } catch (error) {
@@ -70,6 +72,7 @@ const uploadDocumentImage = async (req: Request, res: Response) => {
             res.status(500).json({ error: "Failed to get presigned URL" });
             return
         }
+        await RedisClient.del(`user:doc:${docId}`);
         res.status(200).json({ success: true, uploadUrl: uploadFile.url, key: uploadFile.Key });
         return
     } catch (error) {

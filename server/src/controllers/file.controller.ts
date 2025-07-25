@@ -26,8 +26,11 @@ const getFile = async (req: Request, res: Response) => {
 }
 const deleteFile = async (req: Request, res: Response) => {
     const url = req.query.url as string
+
     let key:string = url as string;
-    if(url.includes("https://notecraft-project.s3.ap-south-1.amazonaws.com/")) {
+   
+    
+    if(url.includes("https://notecraft")) {
          key = url.split("=")[1] as string;
     }
     try {

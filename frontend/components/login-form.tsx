@@ -126,7 +126,7 @@ const LoginForm = () => {
               type="submit"
               disabled={isSubmitting || isValidating}
             >
-              Sign In
+              Login
             </Button>
           </form>
         </Form>

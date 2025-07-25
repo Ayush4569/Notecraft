@@ -158,3 +158,8 @@ button {
     width:82vw !important
   }
 }
+
+.mantine-Button-label {
+  overflow: visible !important;
+}
+

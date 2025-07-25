@@ -105,9 +105,9 @@ export function AIButton() {
         {isLoading ? (
           <Loader className="w-4 h-4 animate-spin" />
         ) : (
-          <>
-            AI <Sparkles className="ml-2 w-4 h-4" />
-          </>
+          <div className="text-xs md:text-base flex flex-col justify-center md:flex-row md:items-center">
+            AI <Sparkles className="ml-2 hidden md:block md:w-4 md:h-4" />
+          </div>
         )}
       </Components.FormattingToolbar.Button>
     </>
