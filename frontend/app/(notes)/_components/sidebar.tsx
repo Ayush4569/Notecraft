@@ -50,13 +50,13 @@ function Sidebar() {
         <SidebarHeader isMobile={isMobile} collapseSideBar={collapseSidebar} />
         <SidebarItems />
 
-        <div className="mt-4">
+        <div className="mt-4 overflow-y-scroll max-h-96">
           <SideBarDocuments />
         </div>
         <div className="mt-4 py-1 px-2 w-full hover:bg-primary/5 text-muted-foreground font-semibold cursor-pointer">
           <Popover>
             <PopoverTrigger className="flex  items-center w-full gap-x-3">
-              <Trash className="h-5 w-5 shrink-0 " />
+              <Trash className="h-6 w-6 md:h-5 md:w-5 shrink-0 " />
               <p>Trash</p>
             </PopoverTrigger>
             <PopoverContent

@@ -59,6 +59,6 @@ export const useEditDocument  =()=> useMutation({
     },
     onSettled:(doc,err,{docId,data},context)=>{
           queryClient.invalidateQueries({queryKey:["document",docId]})
-          queryClient.invalidateQueries({queryKey:["documents"]})
+        //   queryClient.invalidateQueries({queryKey:["documents"]})
     }
 })

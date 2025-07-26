@@ -5,10 +5,14 @@ html,
 body,
 :root {
   height: 100%;
-  
 }
-::-webkit-scrollbar{
-  display:none;
+* {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE10+ */
+}
+::-webkit-scrollbar {
+  display: none;
 }
 @custom-variant dark (&:is(.dark *));
 
@@ -137,7 +141,7 @@ button {
   z-index: 99999 !important;
 }
 
-@media (max-width:390px){
+@media (max-width: 390px) {
   .max400 {
     margin-right: 0rem;
   }
@@ -147,19 +151,19 @@ button {
     margin-right: 0.2rem;
   }
   .bn-editor.bn-default-styles {
-    padding: 1rem ;
-  } 
+    padding: 1rem;
+  }
   [data-floating-ui-focusable] {
     right: 0.5rem !important;
-    left: auto !important; 
+    left: auto !important;
     top: 0% !important;
   }
-  .bn-panel,.bn-mantine {
-    width:82vw !important
+  .bn-panel,
+  .bn-mantine {
+    width: 82vw !important;
   }
 }
 
 .mantine-Button-label {
   overflow: visible !important;
 }
-

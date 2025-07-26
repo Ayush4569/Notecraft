@@ -32,8 +32,9 @@ const resetAiCredits = async()=> {
     
  }
 }
-cron.schedule("* * * * *",async()=>{
+cron.schedule("0 0 * * *",async()=>{
     console.log("Running daily credit reset...");
-
     await resetAiCredits()
+},{
+    timezone:"Asia/Kolkata"
 })

@@ -64,6 +64,8 @@ const getDocumentById = async (req: Request, res: Response) => {
         return
     }
     const isCached = await RedisClient.get(`user:doc:${docId}`);
+    console.log('Checking cache for document', docId, isCached);
+
     if (isCached) {
         res.status(200).json({
             success: true,
@@ -233,6 +235,8 @@ const updateDocument = async (req: Request, res: Response) => {
                 ...data
             }
         })
+        await RedisClient.del(`user:doc:${docId}`);
+
         if (updatedDocument.coverImage) {
             const url = await generateSignedUrl(updatedDocument.coverImage);
             res.status(200).json({
@@ -245,8 +249,7 @@ const updateDocument = async (req: Request, res: Response) => {
             });
             return
         }
-        await RedisClient.del(`user:doc:${docId}`);
-        await RedisClient.del(`user:docs:${req.user.id}`);
+
         res.status(200).json({
             success: true,
             message: 'Page updated',

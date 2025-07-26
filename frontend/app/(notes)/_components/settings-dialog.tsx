@@ -8,8 +8,8 @@ export function SettingsDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-      <div className="group min-h-[27px] text-sm py-1 px-2 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold gap-x-2 cursor-pointer">
-        <Settings className="h-[18px] shrink-0 text-muted-foreground" />
+      <div className="group min-h-[27px] text-lg py-1 px-2 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold gap-x-2 cursor-pointer md:text-sm">
+        <Settings className="h-[22px] md:h-[18px] shrink-0 text-muted-foreground" />
         <span className="truncate">Settings</span>
         </div>
       </DialogTrigger>

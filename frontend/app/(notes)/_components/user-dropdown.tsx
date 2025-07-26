@@ -54,7 +54,7 @@ export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
               width={40}
             />
           ) : (
-            <ChevronDown className="text-muted-foreground h-5 w-5 cursor-pointer hover:bg-primary/5 rounded-sm" />
+            <ChevronDown className="text-muted-foreground h-5 w-5 cursor-pointer hover:bg-primary/5 rounded-sm active:bg-primary/5 active:scale-95" />
           )
         }
 

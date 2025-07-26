@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogClose,
@@ -19,11 +20,12 @@ import { useState } from "react";
 export function DialogComponent() {
   const [title, setTitle] = useState<string>("");
 
-  const {isPending,mutate:createDocument} = useCreateDocuments()
+  const {isPending,mutate:createDocument,data} = useCreateDocuments()
    
    const handleCreate = ()=>{
      createDocument({title});
      setTitle('')
+     
    }
   return (
     <Dialog>

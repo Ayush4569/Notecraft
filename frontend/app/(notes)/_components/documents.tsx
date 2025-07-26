@@ -60,7 +60,7 @@ export function DocumentLists({
         role="button"
         onClick={() => handleRedirect(doc.id)}
         className={cn(
-          "relative group min-h-[22px] text-sm py-[2px] px-2.5 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold cursor-pointer",
+          "relative group min-h-[22px] text-lg py-[2px] px-2.5 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-semibold cursor-pointer md:text-sm",
           isActive && "bg-primary/5 text-primary"
         )}
       >
@@ -71,7 +71,7 @@ export function DocumentLists({
                 e.stopPropagation();
                 setIsExpanded(false);
               }}
-              className="h-full w-4 shrink-0 text-muted-foreground/50 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-sm"
+              className="h-full w-6 md:w-4 shrink-0 text-muted-foreground/50 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-sm"
             />
           ) : (
             <ChevronRight
@@ -79,7 +79,7 @@ export function DocumentLists({
                 e.stopPropagation();
                 setIsExpanded(true);
               }}
-              className="h-full w-4 shrink-0 text-muted-foreground/50 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-sm"
+              className="h-full w-6 md:w-4 shrink-0 text-muted-foreground/50 hover:bg-neutral-300 dark:hover:bg-neutral-600 rounded-sm"
             />
           )}
 
@@ -88,7 +88,7 @@ export function DocumentLists({
           ) : (
             <File className="text-muted-foreground shrink-0 h-[18px]" />
           )}
-          <span className="w-[70%] md:w-full truncate">{doc.title}</span>
+          <span className="w-[60%] md:w-full truncate">{doc.title}</span>
         </div>
 
         <div
@@ -109,7 +109,7 @@ export function DocumentLists({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-60" align="start" forceMount>
               <DropdownMenuItem className="cursor-pointer" onClick={(e) => handleTrash(e)}>
-                <Trash className="h-4 w-4 mr-2 " />
+                <Trash className="h-6 w-6 md:w-4 md:h-4 mr-2 " />
                 Move to trash
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -136,7 +136,7 @@ export function DocumentLists({
         )}
       >
         {isExpanded && childNodes.length > 0 ? (
-          <div className="flex flex-col gap-y-1 w-full">
+          <div className="flex flex-col gap-y-3 md:gap-y-1 w-full">
             {childNodes.map((child) => (
               <DocumentLists
                 key={child.id}
