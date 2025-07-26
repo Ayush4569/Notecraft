@@ -43,11 +43,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker container stop notecraft -f || true
-            docker container stop notecraft-redis -f || true
+            cd /home/ubuntu
+            rm -rf Notecraft
+            git clone https://github.com/Ayush4569/Notecraft.git
+            cd Notecraft
+            rm -rf frontend
+            cd server
+            docker-compose down || true
             docker container prune -f
             docker rmi ${{ secrets.DOCKER_USERNAME }}/notecraft:latest || true
             docker rmi redis:7-alpine || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/notecraft:latest
-            cd /home/ubuntu/
             docker-compose up -d
