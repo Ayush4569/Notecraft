@@ -141,15 +141,9 @@ button {
   z-index: 99999 !important;
 }
 
-@media (max-width: 390px) {
-  .max400 {
-    margin-right: 0rem;
-  }
-}
+
 @media (max-width: 475px) {
-  .max475 {
-    margin-right: 0.2rem;
-  }
+
   .bn-editor.bn-default-styles {
     padding: 1rem;
   }
@@ -163,7 +157,16 @@ button {
     width: 82vw !important;
   }
 }
-
+@media (max-width : 768px) {
+  *::selection{
+    background: transparent;
+  }
+  .no-native-selection {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+  }
+}
 .mantine-Button-label {
   overflow: visible !important;
 }

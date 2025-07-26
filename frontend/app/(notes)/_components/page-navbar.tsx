@@ -108,8 +108,6 @@ export function PageNavbar({ isSidebarOpen, resetSidebar }: NavbarProps) {
             ) : (
               <button
                 onClick={enableInput}
-                // variant="ghost"
-                // size="sm"
                 className="font-normal p-1 truncate"
               >
                 {page.title}

@@ -49,6 +49,8 @@ jobs:
             cd Notecraft
             rm -rf frontend
             cd server
+            echo "${{secrets.ENV_CONTENT }}" > .env
+            chmod 600 .env
             docker-compose down || true
             docker container prune -f
             docker rmi ${{ secrets.DOCKER_USERNAME }}/notecraft:latest || true
