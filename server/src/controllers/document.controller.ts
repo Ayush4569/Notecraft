@@ -64,7 +64,6 @@ const getDocumentById = async (req: Request, res: Response) => {
         return
     }
     const isCached = await RedisClient.get(`user:doc:${docId}`);
-    console.log('Checking cache for document', docId, isCached);
 
     if (isCached) {
         res.status(200).json({

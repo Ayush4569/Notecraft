@@ -44,7 +44,6 @@ export const createSubscription = async (req: Request, res: Response) => {
         process.env.NODE_ENV === 'production'
           ? userEmail
           :generateSafeEmail(userEmail)
-          console.log('customerEmail', customerEmail);
           
         const customer = await razorpay.customers.create({
             email: customerEmail,
@@ -136,7 +135,6 @@ export const webhook = async (req: Request, res: Response) => {
         const parsedBody = JSON.parse(rawBody.toString());
         const event = parsedBody.event;
         const subscription = parsedBody.payload.subscription.entity;
-        console.log('event',event);
         
         if (event === "subscription.activated") {
             if (!subscription.notes?.userId) {
