@@ -8,7 +8,7 @@ webhookRouter.post("/subscriptions/webhook", raw({ type: "application/json" }), 
 
 const router:Router = Router()
 router.post("/subscriptions/create",authMiddleware,rateLimiter("rl:subscription:create",10,300),createSubscription)
-router.post("/subscriptions/cancel",authMiddleware,cancelSubscription)
+router.delete("/subscriptions/cancel",authMiddleware,cancelSubscription)
 
 export default {
     router,

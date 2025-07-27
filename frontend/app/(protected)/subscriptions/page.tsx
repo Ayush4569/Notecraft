@@ -2,7 +2,7 @@
 
 import { useAppSelector } from "@/hooks/redux-hooks";
 import axios, { AxiosError } from "axios";
-import { Crown, User2Icon, CheckCircle } from "lucide-react";
+import { Crown, User2Icon, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 const loadRazorpayScript = () => {
@@ -49,9 +49,7 @@ export default function SubscriptionPage() {
         },
         modal: {
           ondismiss: async function () {
-            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/cancel`, {
-              subscriptionId: data.subscriptionId,
-            }, {
+            await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/cancel`, {
               withCredentials: true,
             });
           },
@@ -76,7 +74,20 @@ export default function SubscriptionPage() {
       setLoading(false);
     }
   }
-
+   
+  if(user?.subscription?.status === 'pending') {
+    return (
+      <div className="min-h-[100vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
+        <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        <h2 className="text-lg font-medium">
+          Your payment is being processed...
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-md">
+          Please wait a few minutes while we confirm your subscription. Do not refresh or retry payment. This page will update automatically once your payment is verified.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
@@ -113,6 +124,12 @@ export default function SubscriptionPage() {
             <div className="mt-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg">
               <p className="text-lg font-semibold">You are currently on the Pro plan!</p>
               <p className="text-sm">Thank you for your support!</p>
+              <button
+              className="mt-6 w-full bg-red-600 dark:bg-red-500 text-white py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-400 transition"
+              // onClick={}
+              >
+                Cancel subscription
+              </button>
             </div>
           ) : (
             <button

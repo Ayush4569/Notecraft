@@ -46,6 +46,9 @@ export default function AppInit({ hasAccessToken }: { hasAccessToken: boolean })
           isPro: query.data.isPro,
           name: query.data.username,
           email: query.data.email,
+          subscription:{
+            status: query.data.subscription ?? null 
+          },
           profileImage: (query.data.profileImage as string) ?? "",
           status: "authenticated",
         })
@@ -63,7 +66,7 @@ export default function AppInit({ hasAccessToken }: { hasAccessToken: boolean })
       if (interval) clearInterval(interval);
     };
   }, [query.data?.isPro, isSubscribed])
-
+ 
 
   return null;
 }

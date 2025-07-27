@@ -54,6 +54,9 @@ const LoginForm = () => {
             id: res.data.user.id,
             name: res.data.user.name,
             email: res.data.user.email,
+            subscription:{
+              status:res.data.user.subscription
+            },
             profileImage: res.data.user.profileImage ?? "",
             status: 'authenticated',
             isPro: res.data.user.isPro,

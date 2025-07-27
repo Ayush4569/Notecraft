@@ -21,6 +21,11 @@ const getUser = async (req: Request, res: Response) => {
                 username: true,
                 email: true,
                 profileImage: true,
+                subscription:{
+                    select:{
+                        status: true,
+                    }
+                },
                 isPro: true
             }
         })
@@ -154,6 +159,13 @@ const loginUser = async (req: Request, res: Response) => {
                     { email: identifier },
                     { username: identifier },
                 ]
+            },
+            include:{
+                subscription: {
+                    select: {
+                        status: true,
+                    }
+                }
             }
         })
         if (!user) {
@@ -186,14 +198,19 @@ const loginUser = async (req: Request, res: Response) => {
             .cookie("refreshToken", refreshToken, refreshTokenOptions)
             .json({
                 success: true,
-                user: {
+                user:{
                     id: user.id,
-                    name: user.username,
+                    username: user.username,
                     email: user.email,
-                    profileImage: user.profileImage,
+                    profileImage: user.profileImage ?? "",
+                    isPro: user.isPro,
+                    subscription: {
+                        status: user.subscription?.status ?? null
+                    }
                 },
                 message: "Login successful",
             })
+        return;
     } catch (error) {
         console.log('Error login', error);
         res.status(500).json({
