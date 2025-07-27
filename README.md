@@ -1,9 +1,11 @@
 # 🧠 Notecraft — AI-Powered Note-Taking App
-👉 [https://app.notecraft.tech](https://app.notecraft.tech)
-   ![Docker](https://img.shields.io/badge/Dockerized-%231572B6.svg?style=for-the-badge&logo=docker&logoColor=white)
-   ![Node.js](https://img.shields.io/badge/Node.js-%23339933.svg?style=for-the-badge&logo=node.js&logoColor=white)
-   ![Next.js](https://img.shields.io/badge/Next.js-%23000000.svg?style=for-the-badge&logo=next.js&logoColor=white)
-   ![Redis](https://img.shields.io/badge/Redis-%23DC382D.svg?style=for-the-badge&logo=redis&logoColor=white)
+👉 [https://app.notecraft.tech](https://app.notecraft.tech)  
+
+![Docker](https://img.shields.io/badge/Dockerized-%231572B6.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-%23339933.svg?style=for-the-badge&logo=node.js&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-%23000000.svg?style=for-the-badge&logo=next.js&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-%23DC382D.svg?style=for-the-badge&logo=redis&logoColor=white)
+
 
 
 **Notecraft** is a modern, minimal, and AI-assisted note-taking platform inspired by Notion — designed with a full product mindset, not just as a CRUD project. It offers real-time document management, AI-powered formatting, secure file uploads, subscription billing, and production-grade system architecture.
