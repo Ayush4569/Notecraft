@@ -28,7 +28,15 @@ export const createSubscription = async (req: Request, res: Response) => {
 
         if (user?.subscription && ["pending", "created"].includes(user.subscription.status)) {
             try {
-                await razorpay.subscriptions.cancel(user.subscription.subscriptionId, true);
+                await razorpay.subscriptions.cancel(user.subscription.subscriptionId,true);
+                await prisma.user.update({
+                    where:{
+                        id: userId,
+                    },
+                    data:{
+                        isPro:false,
+                    }
+                })
                 await prisma.subscription.delete({
                     where: {
                         subscriptionId: user.subscription.subscriptionId,
