@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../db/db';
 import crypto from "crypto"
 import { generateSafeEmail } from "../helpers/email-verification";
-import { RedisClient } from "helpers/redis";
+import { RedisClient } from "../helpers/redis";
 export const createSubscription = async (req: Request, res: Response) => {
     if (!req.user || !req.user.id || !req.user.email) {
         res.status(401).json({ message: "Unauthorized" });
