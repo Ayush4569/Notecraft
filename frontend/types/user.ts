@@ -18,5 +18,5 @@ export interface UserState {
     email: string;
     profileImage?: string;
     isPro:true
-    subscription: string | null;
+    subscriptionStatus: string | null;
 }

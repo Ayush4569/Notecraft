@@ -5,13 +5,31 @@ import { sendVerificationEmail } from "../helpers/email-verification";
 import { prisma } from "../db/db";
 import { decodeRefreshToken, generateAccessToken, generateRefreshToken } from "../helpers/generateToken";
 import { accessTokenOptions, refreshTokenOptions } from "../helpers/cookie-options";
-
+import { hashPassword, updateUserPassword } from "../helpers/user.service";
+import { RedisClient } from "../helpers/redis";
+import { nanoid } from "nanoid";
 const getUser = async (req: Request, res: Response) => {
     if (!req.user) {
         res.status(401).json({ message: "Unauthorized" });
         return;
     };
     try {
+        const cachedUser = await RedisClient.get(`user:${req.user.id}`);
+        
+        if(cachedUser) {
+            const userObject = JSON.parse(cachedUser)
+            res
+            .status(200)
+            .json({
+                success: true,
+                user: {
+                    ...userObject,
+                    subscriptionStatus: userObject.subscription?.status ?? null
+                },
+                message: "User fetched successfully",
+            });
+            return;
+        }
         const user = await prisma.user.findUnique({
             where: {
                 id: req.user.id as string
@@ -21,17 +39,32 @@ const getUser = async (req: Request, res: Response) => {
                 username: true,
                 email: true,
                 profileImage: true,
-                subscription:{
-                    select:{
+                subscription: {
+                    select: {
                         status: true,
                     }
                 },
                 isPro: true
             }
-        })
-        res.status(200).json({
+        });
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        await RedisClient.setex(`user:${req.user.id}`,1800,JSON.stringify(user))
+        res
+        .status(200)
+        .json({
             success: true,
-            user,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                profileImage: user.profileImage ?? "",
+                isPro: user.isPro,
+                subscriptionStatus: user.subscription?.status ?? null
+            },
             message: "User fetched successfully",
         });
         return;
@@ -84,7 +117,7 @@ const createUser = async (req: Request, res: Response) => {
                 });
                 return
             }
-            const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await hashPassword(password)
             await prisma.user.update({
                 where: {
                     email
@@ -96,7 +129,7 @@ const createUser = async (req: Request, res: Response) => {
                 }
             })
         } else {
-            const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await hashPassword(password)
             await prisma.user.create({
                 data: {
                     username,
@@ -107,7 +140,7 @@ const createUser = async (req: Request, res: Response) => {
                 }
             })
         }
-        const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+        const emailResponse = await sendVerificationEmail(email, username, verifyCode, 'register');
         if (!emailResponse.success) {
             res.status(500).json(
                 {
@@ -160,7 +193,7 @@ const loginUser = async (req: Request, res: Response) => {
                     { username: identifier },
                 ]
             },
-            include:{
+            include: {
                 subscription: {
                     select: {
                         status: true,
@@ -198,15 +231,13 @@ const loginUser = async (req: Request, res: Response) => {
             .cookie("refreshToken", refreshToken, refreshTokenOptions)
             .json({
                 success: true,
-                user:{
+                user: {
                     id: user.id,
                     username: user.username,
                     email: user.email,
                     profileImage: user.profileImage ?? "",
                     isPro: user.isPro,
-                    subscription: {
-                        status: user.subscription?.status ?? null
-                    }
+                    subscriptionStatus: user.subscription?.status ?? null
                 },
                 message: "Login successful",
             })
@@ -233,6 +264,7 @@ const logoutUser = async (req: Request, res: Response) => {
                 refreshToken: null,
             }
         });
+        await RedisClient.del(`user:${user.id}`)
         res
             .status(200)
             .clearCookie("accessToken", accessTokenOptions)
@@ -260,29 +292,34 @@ const refreshAccessToken = async (req: Request, res: Response) => {
     }
     const decodedUser = decodeRefreshToken(incomingRefreshToken);
     if (!decodedUser) {
-        res.status(401).json({
+        res.status(401).clearCookie("refreshToken", incomingRefreshToken).json({
             success: false,
             message: "Invalid refresh token",
         })
         return;
     }
+
     const user = await prisma.user.findUnique({
         where: {
             id: decodedUser.id
         }
-    })
+    });
+
     if (!user) {
-        res.status(401).json({
+        res.status(401).clearCookie("refreshToken", incomingRefreshToken).json({
             success: false,
             message: "User not found",
         })
         return;
     }
     if (incomingRefreshToken !== user.refreshToken) {
-        res.status(401).json({
-            success: false,
-            message: "Token mismatch, please login again",
-        })
+        res.
+            status(401).
+            clearCookie("refreshToken", incomingRefreshToken).
+            json({
+                success: false,
+                message: "Token mismatch, please login again",
+            })
         return;
     }
 
@@ -299,71 +336,179 @@ const refreshAccessToken = async (req: Request, res: Response) => {
     return;
 }
 const verifyCode = async (req: Request, res: Response) => {
-    const { username, code } = req.body
-    try {
-        const user = await prisma.user.findFirst({ where: { username, isVerified: false } });
-        if (!user) {
-            res.status(40).json({
-                success: false,
-                message: 'No such user'
-            });
-            return;
-        }
-        const isCodeCorrect = user.verifyCode === code;
-        const isCodeValid = new Date(user.verifyCodeExpiry) > new Date();
-        if (isCodeCorrect && isCodeValid) {
-            await prisma.user.update({ where: { username }, data: { isVerified: true } })
-            res.status(200).json({
-                success: true,
-                message: 'code verified successfully'
-            });
-            return;
-        } else if (!isCodeCorrect) {
-            res.status(400).json({
-                success: false,
-                message: 'Incorrect code'
-            });
-            return;
-        }
-        else {
-            res.status(400).json({
-                success: false,
-                message: 'code expired pls signup again to get new code'
-            });
-            return;
-        }
-    } catch (error) {
-        console.log('Error verifying code', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error verifying code'
-        });
-        return;
+    const { key } = req.query as { key: "register" | "forgot" };
+    switch (key) {
+        case 'register':
+            const { username, code } = req.body as { username: string, code: string }
+            try {
+                const user = await prisma.user.findFirst({ where: { username, isVerified: false } });
+                if (!user) {
+                    res.status(400).json({
+                        success: false,
+                        message: 'No such user'
+                    });
+                    return;
+                }
+                const isCodeCorrect = user.verifyCode === code;
+                const isCodeValid = new Date(user.verifyCodeExpiry) > new Date();
+                if (isCodeCorrect && isCodeValid) {
+                    await prisma.user.update({ where: { username }, data: { isVerified: true } });
+                    res.status(200).json({
+                        success: true,
+                        message: 'code verified successfully'
+                    });
+                    return;
+                } else if (!isCodeCorrect) {
+                    res.status(400).json({
+                        success: false,
+                        message: 'Incorrect code'
+                    });
+                    return;
+                }
+                else {
+                    res.status(400).json({
+                        success: false,
+                        message: 'code expired pls signup again to get new code'
+                    });
+                    return;
+                }
+            } catch (error) {
+                console.log('Error verifying code', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Error verifying code'
+                });
+                return;
 
+            }
+
+        case 'forgot':
+            const { otp, email } = req.body as { otp: string, email: string };
+            try {
+                const redisOtp = await RedisClient.get(`${email}:otp`);
+                if (!redisOtp) {
+                    res.status(400).json({ sucess: false, message: "Otp expired" });
+                    return;
+                }
+
+                if (otp !== redisOtp) {
+                    res.status(400).json({ sucess: false, message: "Otp is wrong" });
+                    return;
+                }
+                await RedisClient.del(`${email}:otp`)
+                const resetToken = nanoid()
+                await RedisClient.setex(`reset-token:${resetToken}`, 600, email)
+                res.status(200).json({ success: true, message: 'Otp verified', resetToken });
+                return;
+            } catch (error) {
+                console.log("Error verifying otp", error);
+                res.status(500).json({ success: false, message: 'Error verifying otp' });
+                return;
+            }
     }
+
 }
-const resetPassword = async (req:Request,res:Response)=>{
-    const user = req.user;
-        if (!user) {
-            res.status(401).json({ success: false, message: "Unauthorized" });
+const changePassword = async (req: Request, res: Response) => {
+    const { password } = req.body as { password: string }
+    try {
+        const hashedPassword = await hashPassword(password)
+        const user = req.user;
+        if (!user || !user.id) {
+            res.status(400).json({
+                success: false,
+                message: "Login to reset"
+            });
             return;
         }
-    const {password}  = req.body as {password:string}
-    try {
-        const hashedPassword = await bcrypt.hash(password,10);
-        await prisma.user.update({
-            where:{
-                id:user.id,
-            }, data:{
-                password:hashedPassword
-            }
-        })
-        res.status(200).json({success:true,message:"Password changed"});
+        await updateUserPassword({ id: user.id }, hashedPassword)
+        res.status(200).json({ success: true, message: "Password changed" });
         return;
     } catch (error) {
         console.log('Error resetting password');
-        res.status(500).json({success:false,message:"server error"})
+        res.status(500).json({ success: false, message: "server error" })
         return;
     }
 }
-export { getUser, createUser, loginUser, logoutUser, refreshAccessToken, verifyCode,resetPassword };
+const resetPasswordOtp = async (req: Request, res: Response) => {
+    const { email } = req.body as { email: string };
+    if (!email) {
+        res.status(400).json({ success: false, message: "Valid email is required" });
+        return;
+    }
+    try {
+        const userWithValidEmail = await prisma.user.findUnique({
+            where: {
+                email
+            }
+        });
+        if (!userWithValidEmail) {
+            res.status(400).json({ success: false, message: "No user with given email" });
+            return;
+        }
+        let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const emailResponse = await sendVerificationEmail(email, email, verifyCode, "forgotpassword");
+        if (!emailResponse.success) {
+            res.status(500).json(
+                {
+                    success: false,
+                    message: emailResponse.message,
+                }
+            );
+            return
+        }
+        await RedisClient.setex(`${email}:otp`, 300, verifyCode);
+        res.status(200).json(
+            {
+                success: true,
+                message: "Otp sent!!",
+            }
+        );
+        return
+    } catch (error) {
+        console.log('error in forget password', error);
+        res.status(500).json(
+            {
+                success: false,
+                message: "Error resetting password",
+            }
+        );
+        return
+    }
+}
+const forgotPassword = async (req: Request, res: Response) => {
+    const { newPassword, resetToken } = req.body as { newPassword: string, resetToken: string; }
+
+    try {
+        const redisResetToken = await RedisClient.get(`reset-token:${resetToken}`);
+
+        if (!redisResetToken) {
+            res.status(401).json({ success: false, message: "otp is not verified" });
+            return;
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+        await updateUserPassword({ email: redisResetToken }, hashedPassword);
+        await RedisClient.del(`reset-token:${resetToken}`)
+        res.status(200).json({
+            success: true,
+            message: "Password changed"
+        })
+        return;
+
+    } catch (error) {
+        console.log('Error in forgot password', error);
+        res.status(500).json({ success: false, message: "server error" })
+        return;
+    }
+}
+export {
+    getUser,
+    createUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    verifyCode,
+    resetPasswordOtp,
+    changePassword,
+    forgotPassword
+};

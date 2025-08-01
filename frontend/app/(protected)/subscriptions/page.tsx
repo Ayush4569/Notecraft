@@ -5,6 +5,7 @@ import axios, { AxiosError } from "axios";
 import { Crown, User2Icon, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { queryClient } from "@/helpers/tanstack";
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -74,8 +75,24 @@ export default function SubscriptionPage() {
       setLoading(false);
     }
   }
+  const cancelSubscription = async()=>{
+    try {
+       await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/cancel`,{
+        withCredentials:true
+      })
+      toast.success("Subscription cancelled")
+      queryClient.invalidateQueries({queryKey:['user']})
+    } catch (error) {
+      console.error("Error unsubscribing:", error);
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("unexpected error ");
+      }
+    }
+  }
    
-  if(user?.subscription?.status === 'pending') {
+  if(user.subscriptionStatus === 'pending') {
     return (
       <div className="min-h-[100vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
         <Loader2 className="animate-spin h-8 w-8 text-primary" />
@@ -126,7 +143,7 @@ export default function SubscriptionPage() {
               <p className="text-sm">Thank you for your support!</p>
               <button
               className="mt-6 w-full bg-red-600 dark:bg-red-500 text-white py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-400 transition"
-              // onClick={}
+              onClick={cancelSubscription}
               >
                 Cancel subscription
               </button>

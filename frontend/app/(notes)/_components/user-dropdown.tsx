@@ -1,3 +1,4 @@
+import Loading from "@/app/loading";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,9 +39,10 @@ export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
       }
     }
   }
-  if (user.status === "unauthenticated") {
-    return null;
+  if (user.status === "loading") {
+    return <Loading/>;
   }
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -84,7 +86,7 @@ export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
             </div>
             <div className="space-y-1">
               <p className="capitalize line-clamp-1">
-                {user?.name}&apos;s workspace
+                {user.name}&apos;s workspace
               </p>
             </div>
           </div>

@@ -1,13 +1,16 @@
+'use client'
 import { useQuery } from "@tanstack/react-query";
 import { useAppDispatch } from "@/hooks/redux-hooks";
 import { clearUser, setLoading, setUser } from "@/redux/slices/user";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { UserState } from "@/types/user";
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams,useRouter } from "next/navigation";
 import { queryClient } from "@/helpers/tanstack";
-export default function AppInit({ hasAccessToken }: { hasAccessToken: boolean }) {
+import { toast } from "sonner";
+export default function AppInit({ hasAccessToken,hasRefreshToken }: { hasAccessToken: boolean,hasRefreshToken:boolean }) {
   const dispatch = useAppDispatch();
+  const router = useRouter()
   const params = useSearchParams()
   const isSubscribed = params.get("subscribed") === "true";
   const query = useQuery<UserState, Error>({
@@ -38,7 +41,6 @@ export default function AppInit({ hasAccessToken }: { hasAccessToken: boolean })
     }
   }, [query.isError]);
   useEffect(() => {
-
     if (query.data) {
       dispatch(
         setUser({
@@ -46,9 +48,7 @@ export default function AppInit({ hasAccessToken }: { hasAccessToken: boolean })
           isPro: query.data.isPro,
           name: query.data.username,
           email: query.data.email,
-          subscription:{
-            status: query.data.subscription ?? null 
-          },
+          subscriptionStatus: query.data.subscriptionStatus,
           profileImage: (query.data.profileImage as string) ?? "",
           status: "authenticated",
         })
@@ -62,11 +62,37 @@ export default function AppInit({ hasAccessToken }: { hasAccessToken: boolean })
         queryClient.refetchQueries({ queryKey: ["user"] });
       }, 4000)
     }
+    else if(isSubscribed && query.data?.isPro) {
+      router.replace('/')
+    }
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [query.data?.isPro, isSubscribed])
- 
+  useEffect(() => {
+    if(!hasAccessToken && !hasRefreshToken) {
+      dispatch(clearUser());
+      return;
+    }
+    if (!hasAccessToken && hasRefreshToken) {
+      axios
+        .post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/refresh-token`,
+          null,
+          { withCredentials: true }
+        )
+        .catch((error) => {
+          console.error("Refresh failed:", error);
+          dispatch(clearUser())
+          if (error instanceof AxiosError) {
+            toast.error(error.response?.data.message);
+          } else {
+            toast.error("unexpected error ");
+          }
+        });
+    }
+  }, [hasAccessToken, hasRefreshToken]);
+
 
   return null;
 }

@@ -30,12 +30,12 @@ export default function VerfifyCode() {
   const { isSubmitting, isValidating } = form.formState;
   async function onSubmit(formData: z.infer<typeof verifySchema>) {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/verify-code`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/verify-code?key=register`, {
         username,
         code: formData.code,
       });
       toast.success(response.data.message || "user verified");
-      router.replace("/login");
+      router.replace("/documents");
     } catch (error) {
       console.log("Error verifying code:", error);
       if (error instanceof AxiosError) {

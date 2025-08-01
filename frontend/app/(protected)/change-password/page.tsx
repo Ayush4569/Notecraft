@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { passwordChangeSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -18,6 +19,7 @@ export default function ChangePassword() {
       confirmPassword: ""
     }
   })
+  const router = useRouter()
   const { isValidating, isSubmitting } = form.formState
   const handleSubmit = async (data: FormData) => {
     const { password, confirmPassword } = data
@@ -31,13 +33,14 @@ export default function ChangePassword() {
       return;
     }
     try {
-      const { data } = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/change-password`,{
+      const { data } = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/changePassword`,{
       password,
       },{
         withCredentials: true
       });
       if (data.success) {
-        toast.success("Password changed successfully")
+        toast.success("Password changed successfully");
+        router.replace("/")
       }
     } catch (error) {
       console.log('Error resetting password');
@@ -59,7 +62,7 @@ export default function ChangePassword() {
       <main className="w-full max-w-md p-6 md:outline-1 md:rounded-lg">
 
         <h1 className="text-2xl font-bold text-center mb-4">Create new password</h1>
-        <p className="text-center text-gray-600 mb-6">Your new password must be different from previous used passwords.</p>
+        <p className="text-center text-gray-600 mb-6 dark:invert">Your new password must be different from previous used passwords.</p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div className="space-y-4">
@@ -68,7 +71,7 @@ export default function ChangePassword() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700">Password</FormLabel>
+                    <FormLabel className="block text-sm font-medium text-gray-700 dark:invert">Password</FormLabel>
                     <FormControl>
                       <Input
                       type="password"
@@ -77,7 +80,7 @@ export default function ChangePassword() {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-sm text-gray-500 mt-1">Must be at least 8 characters.</FormMessage>
+                    <FormMessage className="text-sm text-gray-500 mt-1 dark:invert">Must be at least 8 characters.</FormMessage>
                   </FormItem>
                 )}
               />
@@ -86,7 +89,7 @@ export default function ChangePassword() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="block text-sm font-medium text-gray-700">Confirm Password</FormLabel>
+                    <FormLabel className="block text-sm font-medium text-gray-700 dark:invert">Confirm Password</FormLabel>
                     <FormControl>
                       <Input
                       type="password"
@@ -95,7 +98,7 @@ export default function ChangePassword() {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-sm text-gray-500 mt-1">Both passwords must match.</FormMessage>
+                    <FormMessage className="text-sm text-gray-500 mt-1 dark:invert">Both passwords must match.</FormMessage>
                   </FormItem>
                 )}
               />

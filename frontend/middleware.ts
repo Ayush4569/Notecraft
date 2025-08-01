@@ -2,19 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 const authRoutes = [/^\/login$/, /^\/signup$/, /^\/verifycode\/[^/]+$/]
 export default async function (req: NextRequest) {
 
-   const token = req.cookies.get('refreshToken')?.value;
-   const pathname = req.nextUrl.pathname;
-   const isDocumentRoute = pathname.startsWith('/documents')
-   const isVerifyCodeRoute = pathname.startsWith('/verifycode');
-   const authProtectedRoutes = authRoutes.some(route => route.test(pathname));
+   const token:string | undefined = req.cookies.get('refreshToken')?.value;
+   const pathname:string = req.nextUrl.pathname;
+   const isDocumentRoute:boolean = pathname.startsWith('/documents')
+   const subscriptionRoute:boolean = pathname.startsWith("/subscriptions")
+   const authProtectedRoutes:boolean = authRoutes.some(route => route.test(pathname));
 
    if (authProtectedRoutes && token) {
       return NextResponse.redirect(new URL('/', req.url))
    }
-   if(isVerifyCodeRoute && token){
-      return NextResponse.redirect(new URL('/', req.url));
-   }
-   if(pathname.startsWith("/subscriptions") && !token){
+   if(subscriptionRoute && !token){
       return NextResponse.redirect(new URL('/login', req.url));
    }
    if (isDocumentRoute && !token) {
@@ -23,5 +20,5 @@ export default async function (req: NextRequest) {
    return NextResponse.next()
 }
 export const config = {
-   matcher: ["/documents/:path*", "/verifycode/:path*", "/login", "/signup","/subscriptions"],
+   matcher: ["/documents/:path*", "/verifycode/:path*", "/signup","/subscriptions"],
 };

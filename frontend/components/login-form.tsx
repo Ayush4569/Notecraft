@@ -52,11 +52,9 @@ const LoginForm = () => {
         dispatch(
           setUser({
             id: res.data.user.id,
-            name: res.data.user.name,
+            name: res.data.user.username,
             email: res.data.user.email,
-            subscription:{
-              status:res.data.user.subscription
-            },
+            subscriptionStatus:res.data.user.subscription,
             profileImage: res.data.user.profileImage ?? "",
             status: 'authenticated',
             isPro: res.data.user.isPro,
@@ -134,11 +132,16 @@ const LoginForm = () => {
           </form>
         </Form>
 
-        <div className="text-center mt-4 dark:invert">
+        <div className="text-center flex flex-col justify-center gap-y-1 mt-4 dark:invert">
           <p>
             Not a member yet?{" "}
             <Link href="/signup" className="hover:text-blue-600 underline">
               Sign up
+            </Link>
+          </p>
+          <p>
+            <Link href="/forgot-password" className="hover:text-blue-600 underline">
+            Forgot password?
             </Link>
           </p>
         </div>

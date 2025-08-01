@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../db/db';
 import crypto from "crypto"
 import { generateSafeEmail } from "../helpers/email-verification";
+import { RedisClient } from "helpers/redis";
 export const createSubscription = async (req: Request, res: Response) => {
     if (!req.user || !req.user.id || !req.user.email) {
         res.status(401).json({ message: "Unauthorized" });
@@ -26,17 +27,18 @@ export const createSubscription = async (req: Request, res: Response) => {
             return;
         }
 
-        if (user?.subscription && ["pending", "created"].includes(user.subscription.status)) {
+        if (user?.subscription && ["pending", "created", "incomplete", "failed"].includes(user.subscription.status)) {
             try {
-                await razorpay.subscriptions.cancel(user.subscription.subscriptionId,true);
+                await razorpay.subscriptions.cancel(user.subscription.subscriptionId, true);
                 await prisma.user.update({
-                    where:{
+                    where: {
                         id: userId,
                     },
-                    data:{
-                        isPro:false,
+                    data: {
+                        isPro: false,
                     }
                 })
+                await RedisClient.del(`user:${req.user.id}`)
                 await prisma.subscription.delete({
                     where: {
                         subscriptionId: user.subscription.subscriptionId,
@@ -48,10 +50,7 @@ export const createSubscription = async (req: Request, res: Response) => {
                 return;
             }
         }
-        const customerEmail =
-            process.env.NODE_ENV === 'production'
-                ? userEmail
-                : generateSafeEmail(userEmail)
+        const customerEmail = generateSafeEmail(userEmail)
 
         const customer = await razorpay.customers.create({
             email: customerEmail,
@@ -103,7 +102,7 @@ export const cancelSubscription = async (req: Request, res: Response) => {
         }
     })
     if (!userSubscriptionId?.subscriptionId) {
-        res.status(400).json({ message: "Subscription ID is required" });
+        res.status(400).json({ message: "No subscriptions found for user" });
         return;
     }
     try {
@@ -112,12 +111,16 @@ export const cancelSubscription = async (req: Request, res: Response) => {
             res.status(404).json({ message: "Subscription not found" });
             return;
         }
-        await razorpay.subscriptions.cancel(userSubscriptionId.subscriptionId);
-        await prisma.subscription.delete({
-            where: {
-                subscriptionId: subscription.id,
+        await razorpay.subscriptions.cancel(userSubscriptionId.subscriptionId,1);
+        await prisma.user.update({
+            where:{
+                id:req.user!.id
+            },
+            data:{
+                isPro:false
             }
         })
+        await RedisClient.del(`user:${req.user!.id}`)
         res.json({ success: true, message: "Subscription cancelled successfully" });
         return;
     } catch (error) {
@@ -148,7 +151,7 @@ export const webhook = async (req: Request, res: Response) => {
         const parsedBody = JSON.parse(rawBody.toString());
         const event = parsedBody.event;
         const subscription = parsedBody.payload.subscription.entity;
-
+        
         if (event === "subscription.activated") {
             if (!subscription.notes?.userId) {
                 console.error("Missing userId in subscription notes");
@@ -177,9 +180,12 @@ export const webhook = async (req: Request, res: Response) => {
                     isPro: true,
                 },
             });
+            await RedisClient.del(`user:${subscription.notes.userId}`)
+
         }
 
         if (event === "subscription.cancelled") {
+            await razorpay.subscriptions.cancel(subscription.id,1)
             await prisma.subscription.delete({
                 where: { subscriptionId: subscription.id }
             });
