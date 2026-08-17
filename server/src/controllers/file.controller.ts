@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { generateSignedUrl, deleteObject } from "../helpers/aws.service";
+import { generateSignedUrl, deleteObject } from "../helpers/uploadthing.service";
 
 const getFile = async (req: Request, res: Response) => {
     

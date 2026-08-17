@@ -1,18 +1,19 @@
 import "./cron/reset-ai-limits"
+import dotenv from "dotenv";
+dotenv.config();
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import cluster from "cluster";
 import os from "os";
-import dotenv from "dotenv";
 import { dbConnect } from "./db/db";
 import documentRoute from "./routes/documents.routes";
-import uploadRoute from "./routes/upload.routes";
+import { createRouteHandler } from "uploadthing/express";
+import { uploadRouter } from "./lib/uploadthing";
 import fileRoute from "./routes/file.routes";
 import aiRoute from "./routes/ai.routes";
 import userRoute from "./routes/user.routes";
 import paymentsRoute from "./routes/payment.routes";
 import cookieParser from "cookie-parser";
-dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 8000;
@@ -62,7 +63,7 @@ else {
     app.use("/user", userRoute);
     app.use("/document", documentRoute);
     app.use("/file", fileRoute)
-    app.use("/upload", uploadRoute)
+    app.use("/uploadthing", createRouteHandler({ router: uploadRouter }));
     app.use("/ai", aiRoute)
     app.use("/payment", paymentsRoute.router)
     app.listen(port, () => {

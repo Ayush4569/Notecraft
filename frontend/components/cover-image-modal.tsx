@@ -12,9 +12,9 @@ import React, { useCallback, useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
+import { uploadFiles } from "@/lib/uploadthing";
 
 interface CoverImageModalProps {
   docId: string;
@@ -36,27 +36,22 @@ export function CoverImageModal({
     }
     try {
       setIsUploading(true);
-      const getSignedUrlWithKey = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload/cover-image`, {
-        fileName: uploadedFile.name,
-        fileType: uploadedFile.type,
-        docId,
-      },{
-        withCredentials:true
+      const res = await uploadFiles("coverImage", {
+        files: [uploadedFile],
       });
-      if (getSignedUrlWithKey.data.success) {
-        const { url, key } = getSignedUrlWithKey.data;
-        await axios.put(url, uploadedFile);
-        mutate({ docId, data: { coverImage: key } });
+      if (res && res[0]) {
+        const { url } = res[0];
+        mutate({ docId, data: { coverImage: url } });
         toast.success("Image uploaded");
       }
     } catch (error) {
       console.log(error);
-      toast.error("Failed to upload image");
+      toast.error(error instanceof Error ? error.message : "Failed to upload image");
     } finally {
       setIsOpen(false);
       setIsUploading(false);
     }
-  }, []);
+  }, [docId, mutate]);
   const onDropRejected = useCallback((rejectedFiles: FileRejection[]) => {
     if (rejectedFiles.length > 0) {
       const file = rejectedFiles[0];
@@ -64,7 +59,7 @@ export function CoverImageModal({
         toast.error("Only one cover image is allowed");
       }
       if (file.errors[0].code === "file-too-large") {
-        toast.error("File size must not exceed 15MB");
+        toast.error("File size must not exceed 10MB");
       }
     }
   }, []);
@@ -72,7 +67,7 @@ export function CoverImageModal({
     onDrop,
     onDropRejected,
     maxFiles: 1,
-    maxSize: 1024 * 1024 * 15,
+    maxSize: 1024 * 1024 * 10,
     accept: {
       "image/*": [],
     },

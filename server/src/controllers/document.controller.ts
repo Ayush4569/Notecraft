@@ -1,4 +1,4 @@
-import { generateSignedUrl } from "../helpers/aws.service";
+import { generateSignedUrl, deleteObject } from "../helpers/uploadthing.service";
 import { applyOperationRecursively } from "../helpers/recursive-delete";
 import { docIdSchema } from "../schemas/index";
 import { prisma } from "../db/db";
@@ -219,11 +219,15 @@ const updateDocument = async (req: Request, res: Response) => {
             },
             select: {
                 id: true,
+                coverImage: true,
             }
         })
         if (!doc) {
             res.status(400).json({ success: false, message: "Document not found" });
             return
+        }
+        if (data.coverImage !== undefined && doc.coverImage && doc.coverImage !== data.coverImage) {
+            await deleteObject(doc.coverImage);
         }
         const updatedDocument = await prisma.document.update({
             where: {

@@ -25,6 +25,7 @@ import { useTheme } from "next-themes";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import { toast } from "sonner";
+import { uploadFiles } from "@/lib/uploadthing";
 
 interface EditorProps {
   docId: string;
@@ -41,20 +42,11 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
 
   const uploadFile = async (file: File): Promise<string> => {
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload/document-image`, {
-        fileName: file.name,
-        fileType: file.type,
-        docId,
-      },{
-        withCredentials:true
+      const res = await uploadFiles("documentImage", {
+        files: [file],
       });
-      if (data.success) {
-        const { uploadUrl, key } = data;
-        await axios.put(uploadUrl, file, {
-          headers: { "Content-Type": file.type },
-        });
-
-        return `${process.env.NEXT_PUBLIC_BACKEND_URL}/file/view?key=${key}`;
+      if (res && res[0]) {
+        return res[0].url;
       }
     } catch (error) {
       console.log("Error uploading file", error);

@@ -1,5 +1,5 @@
-import { Resend } from 'resend';
-const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+import nodemailer from 'nodemailer';
+
 export async function sendVerificationEmail(email: string, username: string, verifyCode: string,route:"register" | "forgotpassword") {
     let html:string| null = null
     try {
@@ -22,11 +22,20 @@ export async function sendVerificationEmail(email: string, username: string, ver
             </div> 
             `
         }
-        await resend.emails.send({
-            from: process.env.FROM_EMAIL || 'NoteCraft <onboarding@resend.dev',
+
+        const transporter = nodemailer.createTransport({
+            service:"gmail",
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASSWORD,
+            },
+        });
+
+        await transporter.sendMail({
+            from: `"NoteCraft" <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'Notecraft | Verification code',
-            html,
+            html: html ?? '',
         });
         return { success: true, message: "verification email sent" }
     } catch (error) {
