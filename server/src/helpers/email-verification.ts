@@ -23,7 +23,7 @@ export async function sendVerificationEmail(email: string, username: string, ver
             `
         }
         await resend.emails.send({
-            from: process.env.FROM_EMAIL || 'default@notecraft.tech',
+            from: process.env.FROM_EMAIL || 'NoteCraft <onboarding@resend.dev',
             to: email,
             subject: 'Notecraft | Verification code',
             html,

@@ -30,8 +30,19 @@ const deleteFile = async (req: Request, res: Response) => {
     let key:string = url as string;
    
     
-    if(url.includes("https://notecraft")) {
-         key = url.split("=")[1] as string;
+    if (url && (url.includes("?key=") || url.includes("&key="))) {
+        try {
+            const parsedUrl = new URL(url);
+            const parsedKey = parsedUrl.searchParams.get("key");
+            if (parsedKey) {
+                key = parsedKey;
+            }
+        } catch (e) {
+            const parts = url.split("key=");
+            if (parts.length > 1) {
+                key = parts[1].split("&")[0];
+            }
+        }
     }
     try {
         const isDeleted = await deleteObject(key as string)

@@ -29,8 +29,8 @@ const formatTextWithAi = async (req: Request, res: Response) => {
         return;
     }
 
-    if (user.isPro) {
-        if (user.isPro && (user.subscription?.aiCreditsLeft ?? 0) <= 0) {
+    if (user.isPro && user.subscription?.aiCreditsLeft) {
+        if ((user.subscription.aiCreditsLeft <= 0) && user.freeAiTrials <=0) {
             res.status(403).json({ success: false, message: "You have no AI credits left" });
             return
         }

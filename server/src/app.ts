@@ -32,8 +32,12 @@ if (cluster.isPrimary && !isDev) {
 else {
     dbConnect()
 
+    const allowedOrigins = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(",")
+        : ["http://localhost:3000", "https://notecraft-mu.vercel.app"];
+
     app.use(cors({
-        origin: ["http://localhost:3000","https://app.notecraft.tech"],
+        origin: allowedOrigins,
         allowedHeaders: [
             "Content-Type",
             "Authorization"
