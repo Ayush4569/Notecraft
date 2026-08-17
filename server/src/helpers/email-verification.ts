@@ -23,8 +23,47 @@ export async function sendVerificationEmail(email: string, username: string, ver
             `
         }
 
+        // If Brevo API Key is present, send email via HTTP API (Port 443) to avoid SMTP port blocking on Render Free Tier
+        if (process.env.BREVO_API_KEY) {
+            const senderEmail = process.env.FROM_EMAIL
+                ? (process.env.FROM_EMAIL.match(/<([^>]+)>/)?.[1] || process.env.FROM_EMAIL)
+                : "notecraft.app@gmail.com";
+
+            const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+                method: "POST",
+                headers: {
+                    "api-key": process.env.BREVO_API_KEY,
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    sender: {
+                        name: "NoteCraft",
+                        email: senderEmail,
+                    },
+                    to: [
+                        {
+                            email: email,
+                            name: username,
+                        },
+                    ],
+                    subject: 'Notecraft | Verification code',
+                    htmlContent: html ?? '',
+                }),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Brevo HTTP API failed: ${response.status} - ${errText}`);
+            }
+
+            return { success: true, message: "verification email sent" };
+        }
+
+        // Fallback: SMTP transporter for local testing
         const transporter = nodemailer.createTransport({
-            service:"gmail",
+            host: process.env.SMTP_HOST || "smtp.gmail.com",
+            port: parseInt(process.env.SMTP_PORT || "587"),
+            secure: process.env.SMTP_SECURE === "true",
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD,
@@ -32,7 +71,7 @@ export async function sendVerificationEmail(email: string, username: string, ver
         });
 
         await transporter.sendMail({
-            from: `"NoteCraft" <${process.env.SMTP_USER}>`,
+            from: process.env.FROM_EMAIL || `"NoteCraft" <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'Notecraft | Verification code',
             html: html ?? '',

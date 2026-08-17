@@ -39,9 +39,9 @@ export default function VerfifyCode() {
     } catch (error) {
       console.log("Error verifying code:", error);
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message || error.message || "Verification failed");
       } else {
-        toast.error("unexpected error");
+        toast.error(error instanceof Error ? error.message : "unexpected error");
       }
     }
   }

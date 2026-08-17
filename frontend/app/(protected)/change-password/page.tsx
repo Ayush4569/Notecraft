@@ -45,9 +45,9 @@ export default function ChangePassword() {
     } catch (error) {
       console.log('Error resetting password');
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message || error.message || "Failed to change password");
       } else {
-        toast.error("unexpected error ");
+        toast.error(error instanceof Error ? error.message : "unexpected error ");
       }
     }
     finally {

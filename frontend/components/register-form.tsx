@@ -49,9 +49,9 @@ const SignupForm = () => {
     } catch (error) {
       console.error("Error during sign-up:", error);
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message || error.message || "Registration failed");
       } else {
-        toast.error("unexpected error ");
+        toast.error(error instanceof Error ? error.message : "unexpected error ");
       }
     }
     finally {

@@ -67,9 +67,9 @@ const LoginForm = () => {
     } catch (error) {
       console.error("Error during login:", error);
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message || error.message || "Login failed");
       } else {
-        toast.error("unexpected error ");
+        toast.error(error instanceof Error ? error.message : "unexpected error ");
       }
       return;
     }
