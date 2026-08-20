@@ -2,9 +2,18 @@
 import { useAppSelector } from "@/hooks/redux-hooks";
 import Loading from "../loading";
 import Sidebar from "./_components/sidebar";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DocumnentLayout({ children }: { children: React.ReactNode }) {
   const {status} = useAppSelector(state=>state.user);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [status, router]);
   
   if(status === "unauthenticated") {
     return <Loading/>

@@ -11,3 +11,5 @@
 # Env files
 *.env
 *test.js
+
+*dist

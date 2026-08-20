@@ -7,7 +7,7 @@ const router:Router = Router();
 router.get("/",authMiddleware,rateLimiter("rl:getDocs",100,600),getAllDocuments)
 router.get("/trashed",authMiddleware,getTrashedDocuments)
 router.post("/create",authMiddleware,rateLimiter("rl:createDoc",10,60),createDocument)
-router.get('/:id',authMiddleware,getDocumentById)
+router.get('/:id',getDocumentById)
 router.patch("/update/:id", authMiddleware,updateDocument)
 router.patch("/archive/:id",authMiddleware,archiveDocument)
 router.patch("/restore/:id",authMiddleware,restoreDocument)

@@ -4,6 +4,7 @@ import { docIdSchema } from "../schemas/index";
 import { prisma } from "../db/db";
 import { Request, Response } from "express";
 import { RedisClient } from "../helpers/redis";
+import jwt from "jsonwebtoken";
 const getAllDocuments = async (req: Request, res: Response) => {
     if (!req.user) {
         res.status(401).json({ success: false, message: "Unauthorized" });
@@ -59,33 +60,56 @@ const getDocumentById = async (req: Request, res: Response) => {
         res.status(400).json({ success: false, message: "Invalid document id" });
         return
     }
-    if (!req.user) {
-        res.status(401).json({ success: false, message: "Unauthorized" });
-        return
+    const token =
+        req.cookies?.accessToken ||
+        req.header("Authorization")?.replace("Bearer ", "");
+    
+    let user: any = null;
+    if (token) {
+        try {
+            const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string);
+            if (decodedToken && typeof decodedToken === 'object' && 'id' in decodedToken) {
+                user = decodedToken;
+            }
+        } catch (error) {
+            // Ignore token verification errors since authentication is optional for published documents
+        }
     }
+
     const isCached = await RedisClient.get(`user:doc:${docId}`);
 
     if (isCached) {
+        const cachedDoc = JSON.parse(isCached);
+        const isOwner = user && cachedDoc.userId === user.id;
+        if (!isOwner && !cachedDoc.isPublished) {
+            res.status(401).json({ success: false, message: "Unauthorized" });
+            return;
+        }
         res.status(200).json({
             success: true,
             message: 'Page fetched',
-            note: JSON.parse(isCached),
+            note: cachedDoc,
         });
         return
     }
     try {
-        const document = await prisma.document.findFirst({
+        const document = await prisma.document.findUnique({
             where: {
                 id: docId,
-                userId: req.user.id as string,
             }
         })
         if (!document) {
-            res.status(500).json({
+            res.status(404).json({
                 success: false,
                 message: 'No such page exist'
             });
             return
+        }
+
+        const isOwner = user && document.userId === user.id;
+        if (!isOwner && !document.isPublished) {
+            res.status(401).json({ success: false, message: "Unauthorized" });
+            return;
         }
         let coverUrl: string | null = null;
         if (document.coverImage) {

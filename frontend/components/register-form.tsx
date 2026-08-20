@@ -18,6 +18,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { toast } from 'sonner';
+import { useEffect } from "react";
+import { useAppSelector } from "@/hooks/redux-hooks";
 type FormData = z.infer<typeof registerSchema>;
 const SignupForm = () => {
   const router = useRouter();
@@ -30,6 +32,14 @@ const SignupForm = () => {
     },
   });
   const { isSubmitting, isValidating } = form.formState;
+  const { status } = useAppSelector((state) => state.user);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/documents");
+    }
+  }, [status, router]);
+
   const onSubmit = async (data: FormData) => {
     const result = registerSchema.safeParse(data);
     if (!result.success) {

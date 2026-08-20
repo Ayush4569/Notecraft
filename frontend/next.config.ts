@@ -15,10 +15,29 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.ufs.sh',
+        port: '',
+        pathname: '/**',
+      },
     ],
    },
   compiler:{
     removeConsole: process.env.NODE_ENV === "production",
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
   },
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_ACTUAL_BACKEND_URL || "http://localhost:8000";

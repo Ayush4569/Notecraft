@@ -4,19 +4,23 @@ import { RedisClient } from "../helpers/redis";
 export const rateLimiter = (route: string, maxRequest: number, windowDuration: number) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         const userRequest = req.ip ?? req.user?.id as string;
-        const redisReq = await RedisClient.incr(`${route}:${userRequest}`)
-        if (redisReq === 1) {
-            await RedisClient.expire(`${route}:${userRequest}`, windowDuration);
-        }
+        try {
+            const redisReq = await RedisClient.incr(`${route}:${userRequest}`)
+            if (redisReq === 1) {
+                await RedisClient.expire(`${route}:${userRequest}`, windowDuration);
+            }
 
-        if (redisReq > maxRequest) {
-            res.status(429).json({
-                success: false,
-                message: "Too many requests. Please try again later."
-            });
-            return;
+            if (redisReq > maxRequest) {
+                res.status(429).json({
+                    success: false,
+                    message: "Too many requests. Please try again later."
+                });
+                return;
+            }
+            res.setHeader("X-RateLimit", redisReq.toString())
+        } catch (error) {
+            console.error("Redis rateLimiter error, skipping limit check:", error);
         }
-        res.setHeader("X-RateLimit", redisReq.toString())
         next()
 
     }

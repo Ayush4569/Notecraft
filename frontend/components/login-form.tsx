@@ -19,6 +19,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { setUser } from "@/redux/slices/user";
+import { useEffect } from "react";
+import { useAppSelector } from "@/hooks/redux-hooks";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const form = useForm<FormData>({
@@ -31,6 +33,13 @@ const LoginForm = () => {
   const dispatch = useAppDispatch();
   const { isSubmitting, isValidating } = form.formState;
   const router = useRouter();
+  const { status } = useAppSelector((state) => state.user);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/documents");
+    }
+  }, [status, router]);
   const onSubmit = async (value: FormData) => {
     const result = loginSchema.safeParse(value);
     if (!result.success) {

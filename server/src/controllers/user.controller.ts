@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { loginSchema, registerSchema } from "../schemas/index";
 import bcrypt from "bcrypt"
 import { sendVerificationEmail } from "../helpers/email-verification";
+import crypto from "crypto";
 import { prisma } from "../db/db";
 import { decodeRefreshToken, generateAccessToken, generateRefreshToken } from "../helpers/generateToken";
 import { accessTokenOptions, refreshTokenOptions } from "../helpers/cookie-options";
@@ -108,7 +109,7 @@ const createUser = async (req: Request, res: Response) => {
                 email
             }
         });
-        let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        let verifyCode = crypto.randomInt(100000, 1000000).toString();
         if (existingUserByEmail) {
             if (existingUserByEmail.isVerified) {
                 res.status(500).json({
@@ -352,11 +353,42 @@ const verifyCode = async (req: Request, res: Response) => {
                 const isCodeCorrect = user.verifyCode === code;
                 const isCodeValid = new Date(user.verifyCodeExpiry) > new Date();
                 if (isCodeCorrect && isCodeValid) {
-                    await prisma.user.update({ where: { username }, data: { isVerified: true } });
-                    res.status(200).json({
-                        success: true,
-                        message: 'code verified successfully'
+                    const updatedUser = await prisma.user.update({
+                        where: { username },
+                        data: { isVerified: true },
+                        include: {
+                            subscription: {
+                                select: {
+                                    status: true,
+                                }
+                            }
+                        }
                     });
+
+                    const accessToken = generateAccessToken(updatedUser);
+                    const refreshToken = generateRefreshToken(updatedUser);
+
+                    await prisma.user.update({
+                        where: { id: updatedUser.id },
+                        data: { refreshToken }
+                    });
+
+                    res
+                        .status(200)
+                        .cookie("accessToken", accessToken, accessTokenOptions)
+                        .cookie("refreshToken", refreshToken, refreshTokenOptions)
+                        .json({
+                            success: true,
+                            user: {
+                                id: updatedUser.id,
+                                username: updatedUser.username,
+                                email: updatedUser.email,
+                                profileImage: updatedUser.profileImage ?? "",
+                                isPro: updatedUser.isPro,
+                                subscriptionStatus: updatedUser.subscription?.status ?? null
+                            },
+                            message: 'code verified successfully and logged in'
+                        });
                     return;
                 } else if (!isCodeCorrect) {
                     res.status(400).json({
@@ -445,7 +477,7 @@ const resetPasswordOtp = async (req: Request, res: Response) => {
             res.status(400).json({ success: false, message: "No user with given email" });
             return;
         }
-        let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        let verifyCode = crypto.randomInt(100000, 1000000).toString();
         const emailResponse = await sendVerificationEmail(email, email, verifyCode, "forgotpassword");
         if (!emailResponse.success) {
             res.status(500).json(

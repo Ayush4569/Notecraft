@@ -46,7 +46,7 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
         files: [file],
       });
       if (res && res[0]) {
-        return res[0].url;
+        return res[0].ufsUrl;
       }
     } catch (error) {
       console.log("Error uploading file", error);

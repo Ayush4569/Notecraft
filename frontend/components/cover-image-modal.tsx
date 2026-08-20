@@ -40,8 +40,8 @@ export function CoverImageModal({
         files: [uploadedFile],
       });
       if (res && res[0]) {
-        const { url } = res[0];
-        mutate({ docId, data: { coverImage: url } });
+        const { ufsUrl } = res[0];
+        mutate({ docId, data: { coverImage: ufsUrl } });
         toast.success("Image uploaded");
       }
     } catch (error) {

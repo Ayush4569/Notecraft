@@ -16,6 +16,9 @@ import { verifySchema } from "@/schemas";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "@/hooks/redux-hooks";
+import { setUser } from "@/redux/slices/user";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 export default function VerfifyCode() {
@@ -28,6 +31,15 @@ export default function VerfifyCode() {
     },
   });
   const { isSubmitting, isValidating } = form.formState;
+  const { status } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/documents");
+    }
+  }, [status, router]);
+
   async function onSubmit(formData: z.infer<typeof verifySchema>) {
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/verify-code?key=register`, {
@@ -35,6 +47,21 @@ export default function VerfifyCode() {
         code: formData.code,
       });
       toast.success(response.data.message || "user verified");
+      
+      if (response.data.user) {
+        dispatch(
+          setUser({
+            id: response.data.user.id,
+            name: response.data.user.username,
+            email: response.data.user.email,
+            subscriptionStatus: response.data.user.subscriptionStatus,
+            profileImage: response.data.user.profileImage ?? "",
+            status: 'authenticated',
+            isPro: response.data.user.isPro,
+          })
+        );
+      }
+      
       router.replace("/documents");
     } catch (error) {
       console.log("Error verifying code:", error);

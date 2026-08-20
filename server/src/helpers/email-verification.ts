@@ -25,6 +25,7 @@ export async function sendVerificationEmail(email: string, username: string, ver
 
         // If Brevo API Key is present, send email via HTTP API (Port 443) to avoid SMTP port blocking on Render Free Tier
         if (process.env.BREVO_API_KEY) {
+            console.log(`[Email Service] BREVO_API_KEY detected. Attempting to send email via Brevo HTTP API to ${email}`);
             const senderEmail = process.env.FROM_EMAIL
                 ? (process.env.FROM_EMAIL.match(/<([^>]+)>/)?.[1] || process.env.FROM_EMAIL)
                 : "notecraft.app@gmail.com";
@@ -53,13 +54,20 @@ export async function sendVerificationEmail(email: string, username: string, ver
 
             if (!response.ok) {
                 const errText = await response.text();
+                console.error(`[Email Service] Brevo HTTP API request failed with status: ${response.status}. Key is likely invalid or lacks sending permissions. Details: ${errText}`);
                 throw new Error(`Brevo HTTP API failed: ${response.status} - ${errText}`);
             }
 
+            console.log(`[Email Service] Email sent successfully via Brevo HTTP API to ${email}`);
             return { success: true, message: "verification email sent" };
         }
 
         // Fallback: SMTP transporter for local testing
+        console.log(`[Email Service] BREVO_API_KEY is not defined. Falling back to Nodemailer SMTP transporter to ${email}`);
+        if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+            console.warn(`[Email Service] Warning: SMTP_USER or SMTP_PASSWORD is not set. Nodemailer SMTP will likely fail.`);
+        }
+
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || "smtp.gmail.com",
             port: parseInt(process.env.SMTP_PORT || "587"),
@@ -76,9 +84,11 @@ export async function sendVerificationEmail(email: string, username: string, ver
             subject: 'Notecraft | Verification code',
             html: html ?? '',
         });
+        
+        console.log(`[Email Service] Email sent successfully via Nodemailer SMTP to ${email}`);
         return { success: true, message: "verification email sent" }
     } catch (error) {
-        console.log('Error sending verification email', error);
+        console.error(`[Email Service] Failed to send verification email to ${email}. Error:`, error);
         return { success: false, message: "Error sending verification email" }
     }
 }

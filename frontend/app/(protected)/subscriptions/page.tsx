@@ -2,8 +2,9 @@
 
 import { useAppSelector } from "@/hooks/redux-hooks";
 import axios, { AxiosError } from "axios";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Crown, User2Icon, CheckCircle, Loader2 } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { queryClient } from "@/helpers/tanstack";
 const loadRazorpayScript = () => {
@@ -19,6 +20,13 @@ const loadRazorpayScript = () => {
 export default function SubscriptionPage() {
   const [loading, setLoading] = useState(false);
   const user = useAppSelector((state) => state.user);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user.status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [user.status, router]);
   const handleSubscribe = async () => {
     setLoading(true);
     try {

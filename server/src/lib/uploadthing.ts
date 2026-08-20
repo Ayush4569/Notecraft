@@ -29,7 +29,7 @@ export const uploadRouter = {
     })
     .onUploadComplete(({ metadata, file }) => {
       console.log("Cover image upload complete for userId:", metadata.userId);
-      console.log("file url:", file.url);
+      console.log("file url:", file.ufsUrl);
     }),
 
   documentImage: f({ image: { maxFileSize: "16MB", maxFileCount: 1 } })
@@ -57,7 +57,7 @@ export const uploadRouter = {
     })
     .onUploadComplete(({ metadata, file }) => {
       console.log("Document image upload complete for userId:", metadata.userId);
-      console.log("file url:", file.url);
+      console.log("file url:", file.ufsUrl);
     }),
 } satisfies FileRouter;
 

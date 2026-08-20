@@ -28,7 +28,7 @@ export default function Providers({
             disableTransitionOnChange
           >
             <CommandMenu />
-            <Toaster position="bottom-center" />
+            <Toaster position="bottom-center" visibleToasts={2} />
             <AppInit hasRefreshToken={tokenStatus.hasRefreshToken} hasAccessToken={tokenStatus.hasAccessToken} />
             {children}
           </ThemeProvider>

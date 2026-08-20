@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useEffect } from "react";
+import { useAppSelector } from "@/hooks/redux-hooks";
 type FormData = z.infer<typeof passwordChangeSchema>
 export default function ChangePassword() {
   const form = useForm<FormData>({
@@ -20,6 +22,14 @@ export default function ChangePassword() {
     }
   })
   const router = useRouter()
+  const { status } = useAppSelector((state) => state.user);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [status, router]);
+
   const { isValidating, isSubmitting } = form.formState
   const handleSubmit = async (data: FormData) => {
     const { password, confirmPassword } = data
