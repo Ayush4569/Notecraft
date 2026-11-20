@@ -75,10 +75,15 @@ export const createSubscription = async (req: Request, res: Response) => {
             },
         });
 
-        res.status(200).json({
+        const subscriptionData = {
             subscriptionId: subscription.id,
             customerId: customer.id,
             keyId: process.env.RAZORPAY_KEY_ID,
+        };
+        res.status(200).json({
+            success: true,
+            message: "Subscription created",
+            data: subscriptionData
         });
         return;
     } catch (error) {

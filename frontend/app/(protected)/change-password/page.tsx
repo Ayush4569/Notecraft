@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { passwordChangeSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
+import { changePasswordApi } from "@/lib/api/auth";
+import { getApiErrorMessage } from "@/lib/api/client";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -43,22 +44,14 @@ export default function ChangePassword() {
       return;
     }
     try {
-      const { data } = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/changePassword`,{
-      password,
-      },{
-        withCredentials: true
-      });
-      if (data.success) {
+      const response = await changePasswordApi({ password });
+      if (response.success) {
         toast.success("Password changed successfully");
-        router.replace("/")
+        router.replace("/");
       }
     } catch (error) {
-      console.log('Error resetting password');
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message || error.message || "Failed to change password");
-      } else {
-        toast.error(error instanceof Error ? error.message : "unexpected error ");
-      }
+      console.log('Error resetting password', error);
+      toast.error(getApiErrorMessage(error));
     }
     finally {
       form.reset({

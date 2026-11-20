@@ -28,7 +28,7 @@ export function CommandMenu() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [dispatch]);
   const filteredDocs = useMemo(() => {
     return documents?.filter((doc) =>
       doc.title.toLowerCase().startsWith(searchQuery.toLowerCase())

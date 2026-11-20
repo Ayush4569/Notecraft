@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc -b",
-    "start": "node dist/index.js"
+    "start": "node dist/app.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.837.0",
@@ -42,5 +42,13 @@
     "@types/nodemailer": "^8.0.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
+  },
+  "allowScripts": {
+    "@prisma/client@6.10.1": true,
+    "@prisma/engines@6.10.1": true,
+    "bcrypt@6.0.0": true,
+    "fsevents@2.3.3": true,
+    "msgpackr-extract@3.0.4": true,
+    "prisma@6.10.1": true
   }
 }

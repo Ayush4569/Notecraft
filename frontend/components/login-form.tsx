@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/schemas";
-import { useAppDispatch } from "@/hooks/redux-hooks";
 import {
   Form,
   FormControl,
@@ -17,10 +16,10 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
-import { setUser } from "@/redux/slices/user";
 import { useEffect } from "react";
 import { useAppSelector } from "@/hooks/redux-hooks";
+import { useAuthContext } from "@/context/auth-context";
+import { getApiErrorMessage } from "@/lib/api/client";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const form = useForm<FormData>({
@@ -30,9 +29,9 @@ const LoginForm = () => {
       password: "",
     },
   });
-  const dispatch = useAppDispatch();
   const { isSubmitting, isValidating } = form.formState;
   const router = useRouter();
+  const { login } = useAuthContext();
   const { status } = useAppSelector((state) => state.user);
 
   useEffect(() => {
@@ -47,39 +46,15 @@ const LoginForm = () => {
       return;
     }
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`,
-        {
-          identifier: value.identifier,
-          password: value.password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      if (res.data.success || res.status === 200) {
-        dispatch(
-          setUser({
-            id: res.data.user.id,
-            name: res.data.user.username,
-            email: res.data.user.email,
-            subscriptionStatus:res.data.user.subscription,
-            profileImage: res.data.user.profileImage ?? "",
-            status: 'authenticated',
-            isPro: res.data.user.isPro,
-          })
-        );
-        
-        router.replace("/documents");
-        toast.success("Login successful");
-      }
+      await login({
+        identifier: value.identifier,
+        password: value.password,
+      });
+      router.replace("/documents");
+      toast.success("Login successful");
     } catch (error) {
       console.error("Error during login:", error);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message || error.message || "Login failed");
-      } else {
-        toast.error(error instanceof Error ? error.message : "unexpected error ");
-      }
+      toast.error(getApiErrorMessage(error));
       return;
     }
     finally{

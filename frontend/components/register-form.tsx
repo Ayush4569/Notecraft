@@ -16,7 +16,8 @@ import { Input } from "@/components/ui/input";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
+import { registerApi } from "@/lib/api/auth";
+import { getApiErrorMessage } from "@/lib/api/client";
 import { toast } from 'sonner';
 import { useEffect } from "react";
 import { useAppSelector } from "@/hooks/redux-hooks";
@@ -48,21 +49,17 @@ const SignupForm = () => {
     }
     const { username, email, password } = data;
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/signup`, {
+      const response = await registerApi({
         username,
         email,
         password,
       });
       
-      toast.success(response.data.message || "user registered");
+      toast.success(response.message || "user registered");
       router.replace(`/verifycode/${username}`);
     } catch (error) {
       console.error("Error during sign-up:", error);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message || error.message || "Registration failed");
-      } else {
-        toast.error(error instanceof Error ? error.message : "unexpected error ");
-      }
+      toast.error(getApiErrorMessage(error));
     }
     finally {
       form.reset({

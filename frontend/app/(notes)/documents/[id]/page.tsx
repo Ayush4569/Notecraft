@@ -19,7 +19,7 @@ export default function Page() {
       collapseSidebar();
     }
   }, [isMobile, collapseSidebar]);
-  if (!document) return;
+  if (!document) return null;
   return (
     <div className="pb-0 md:pb-40">
       <CoverImage docId={document.id} imageKey={document.coverImage} coverImage={document.tempImageUrl ?? ""} />

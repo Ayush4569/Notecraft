@@ -19,15 +19,16 @@ const getUser = async (req: Request, res: Response) => {
         
         if(cachedUser) {
             const userObject = JSON.parse(cachedUser)
+            const userProfile = {
+                ...userObject,
+                subscriptionStatus: userObject.subscription?.status ?? null
+            };
             res
             .status(200)
             .json({
                 success: true,
-                user: {
-                    ...userObject,
-                    subscriptionStatus: userObject.subscription?.status ?? null
-                },
                 message: "User fetched successfully",
+                data: userProfile,
             });
             return;
         }
@@ -54,19 +55,20 @@ const getUser = async (req: Request, res: Response) => {
             return;
         }
         await RedisClient.setex(`user:${req.user.id}`,1800,JSON.stringify(user))
+        const userProfile = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            profileImage: user.profileImage ?? "",
+            isPro: user.isPro,
+            subscriptionStatus: user.subscription?.status ?? null
+        };
         res
         .status(200)
         .json({
             success: true,
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                profileImage: user.profileImage ?? "",
-                isPro: user.isPro,
-                subscriptionStatus: user.subscription?.status ?? null
-            },
             message: "User fetched successfully",
+            data: userProfile,
         });
         return;
     } catch (error) {
@@ -226,21 +228,25 @@ const loginUser = async (req: Request, res: Response) => {
                 refreshToken
             }
         })
+        const userProfile = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            profileImage: user.profileImage ?? "",
+            isPro: user.isPro,
+            subscriptionStatus: user.subscription?.status ?? null
+        };
         res
             .status(200)
             .cookie("accessToken", accessToken, accessTokenOptions)
             .cookie("refreshToken", refreshToken, refreshTokenOptions)
             .json({
                 success: true,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    profileImage: user.profileImage ?? "",
-                    isPro: user.isPro,
-                    subscriptionStatus: user.subscription?.status ?? null
-                },
                 message: "Login successful",
+                data: {
+                    user: userProfile,
+                    accessToken
+                }
             })
         return;
     } catch (error) {
@@ -332,6 +338,9 @@ const refreshAccessToken = async (req: Request, res: Response) => {
             {
                 success: true,
                 message: "Access token refreshed successfully",
+                data: {
+                    accessToken
+                }
             }
         );
     return;
@@ -373,21 +382,26 @@ const verifyCode = async (req: Request, res: Response) => {
                         data: { refreshToken }
                     });
 
+                    const userProfile = {
+                        id: updatedUser.id,
+                        username: updatedUser.username,
+                        email: updatedUser.email,
+                        profileImage: updatedUser.profileImage ?? "",
+                        isPro: updatedUser.isPro,
+                        subscriptionStatus: updatedUser.subscription?.status ?? null
+                    };
+
                     res
                         .status(200)
                         .cookie("accessToken", accessToken, accessTokenOptions)
                         .cookie("refreshToken", refreshToken, refreshTokenOptions)
                         .json({
                             success: true,
-                            user: {
-                                id: updatedUser.id,
-                                username: updatedUser.username,
-                                email: updatedUser.email,
-                                profileImage: updatedUser.profileImage ?? "",
-                                isPro: updatedUser.isPro,
-                                subscriptionStatus: updatedUser.subscription?.status ?? null
-                            },
-                            message: 'code verified successfully and logged in'
+                            message: 'code verified successfully and logged in',
+                            data: {
+                                user: userProfile,
+                                accessToken
+                            }
                         });
                     return;
                 } else if (!isCodeCorrect) {
@@ -430,7 +444,11 @@ const verifyCode = async (req: Request, res: Response) => {
                 await RedisClient.del(`${email}:otp`)
                 const resetToken = nanoid()
                 await RedisClient.setex(`reset-token:${resetToken}`, 600, email)
-                res.status(200).json({ success: true, message: 'Otp verified', resetToken });
+                res.status(200).json({
+                    success: true,
+                    message: 'Otp verified',
+                    data: { resetToken }
+                });
                 return;
             } catch (error) {
                 console.log("Error verifying otp", error);

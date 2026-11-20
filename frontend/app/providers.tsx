@@ -1,4 +1,5 @@
 "use client";
+
 import { persistor, store } from "@/redux/store";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
@@ -7,16 +8,13 @@ import { PersistGate } from "redux-persist/integration/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/helpers/tanstack";
 import { CommandMenu } from "@/components/command-menu";
-import AppInit from "./app-init";
+import { AuthProvider } from "@/context/auth-context";
 
 export default function Providers({
   children,
-  tokenStatus,
 }: {
   children: React.ReactNode;
-  tokenStatus: { hasAccessToken: boolean; hasRefreshToken: boolean };
 }) {
-  
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
@@ -27,14 +25,14 @@ export default function Providers({
             enableSystem
             disableTransitionOnChange
           >
-            <CommandMenu />
-            <Toaster position="bottom-center" visibleToasts={2} />
-            <AppInit hasRefreshToken={tokenStatus.hasRefreshToken} hasAccessToken={tokenStatus.hasAccessToken} />
-            {children}
+            <AuthProvider>
+              <CommandMenu />
+              <Toaster position="bottom-center" visibleToasts={2} />
+              {children}
+            </AuthProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </PersistGate>
     </Provider>
   );
 }
-

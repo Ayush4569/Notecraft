@@ -1,4 +1,3 @@
-import "./cron/reset-ai-limits"
 import dotenv from "dotenv";
 dotenv.config();
 import express, { Express, Request, Response } from "express";
@@ -17,21 +16,30 @@ import cookieParser from "cookie-parser";
 
 const app: Express = express();
 const port = process.env.PORT || 8000;
-const cpus = os.cpus().length
-const isDev = process.env.NODE_ENV === "development";
-if (cluster.isPrimary && !isDev) {
-    console.log(`Master ${process.pid} is running`);
+const cpus = os.cpus().length;
+const isProduction = process.env.NODE_ENV === "production";
+
+if (cluster.isPrimary && isProduction) {
+    console.log(`Master ${process.pid} is running in production with ${cpus} workers`);
+
+    // Cron job runs only once in the primary master process in production
+    import("./cron/reset-ai-limits");
+
     for (let i = 0; i < cpus; i++) {
         cluster.fork();
     }
 
     cluster.on("exit", (worker, code, signal) => {
-        console.log(`Worker ${worker.process.pid} died`);
-        cluster.fork()
+        console.log(`Worker ${worker.process.pid} died. Forking new worker...`);
+        cluster.fork();
     });
-}
-else {
-    dbConnect()
+} else {
+    // In single-process development mode, initialize the cron job here
+    if (!isProduction) {
+        import("./cron/reset-ai-limits");
+    }
+
+    dbConnect();
 
     const allowedOrigins = process.env.ALLOWED_ORIGINS
         ? process.env.ALLOWED_ORIGINS.split(",")

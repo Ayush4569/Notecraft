@@ -8,37 +8,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux-hooks";
-import { clearUser } from "@/redux/slices/user";
-import axios, { AxiosError } from "axios";
+import { useAppSelector } from "@/hooks/redux-hooks";
+import { useAuthContext } from "@/context/auth-context";
 import { ChevronDown, Crown, Pencil } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
   const user = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
-  const router = useRouter()
+  const { logout } = useAuthContext();
+  const router = useRouter();
   const handleLogOut = async () => {
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/logout`, null, {
-        withCredentials: true
-      });
-      if (res.data.success) {
-        dispatch(clearUser())
-
-        toast.success("Logged out successfully.");
-        router.push("/login");
-      }
+      await logout();
+      toast.success("Logged out successfully.");
+      router.push("/login");
     } catch (error) {
       console.error("Failed to logout:", error);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
-      } else {
-        toast.error("unexpected error ");
-      }
+      toast.error("Failed to logout");
     }
-  }
+  };
   if (user.status === "loading") {
     return <Loading/>;
   }

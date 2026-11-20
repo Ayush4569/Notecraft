@@ -49,7 +49,7 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
   useEffect(() => {
     if (!isEditing) return;
     mutate({ docId: doc.id, data: { title: debouncedTitle as string } });
-  }, [debouncedTitle]);
+  }, [debouncedTitle, doc.id, isEditing, mutate]);
 
   const onkeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>):void => {
     if (e.key === "Enter" && !e.shiftKey) {

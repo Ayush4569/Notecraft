@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { passwordChangeSchema } from "@/schemas";
-import axios, {  isAxiosError } from "axios";
+import { resetPasswordOtpApi, verifyForgotCodeApi, forgotPasswordApi } from "@/lib/api/auth";
+import { getApiErrorMessage } from "@/lib/api/client";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -46,9 +47,7 @@ export default function ForgotPassword() {
       return;
     }
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/resetOtp`, {
-        email: emailInput.current.value
-      });
+      const data = await resetPasswordOtpApi(emailInput.current.value);
       if (data.success) {
         setIsCodeSent(true);
         toast.success("OTP sent to your email!");
@@ -57,7 +56,7 @@ export default function ForgotPassword() {
         }, 60000);
       }
     } catch (error) {
-      toast.error(isAxiosError(error) ? error.response?.data.message : "Error sending OTP");
+      toast.error(getApiErrorMessage(error));
     }
   };
 
@@ -67,17 +66,18 @@ export default function ForgotPassword() {
       return;
     }
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/verify-code?key=forgot`, {
-        email: emailInput.current?.value,
-        otp: otpInput.current.value
+      const data = await verifyForgotCodeApi({
+        email: emailInput.current?.value || "",
+        otp: otpInput.current.value,
       });
-      if (data.success && data.resetToken) {
+      const resetTok = data.data?.resetToken;
+      if (data.success && resetTok) {
         setIsCodeVerified(true);
-        setResetToken(data.resetToken);
+        setResetToken(resetTok);
         toast.success("OTP verified successfully!");
       }
     } catch (error) {
-      toast.error(isAxiosError(error) ? error.response?.data.message : "Error verifying OTP");
+      toast.error(getApiErrorMessage(error));
     }
   };
 
@@ -88,16 +88,16 @@ export default function ForgotPassword() {
       return;
     }
     try {
-      const { data } = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/forgotPassword`, {
+      const res = await forgotPasswordApi({
         newPassword: password,
-        resetToken
+        resetToken,
       });
-      if (data.success) {
+      if (res.success) {
         toast.success("Password changed successfully");
         router.replace("/login");
       }
     } catch (error) {
-      toast.error(isAxiosError(error) ? error.response?.data.message : "Unexpected error");
+      toast.error(getApiErrorMessage(error));
     } finally {
       form.reset({
         confirmPassword: "",

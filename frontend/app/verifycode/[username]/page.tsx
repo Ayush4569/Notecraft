@@ -14,7 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { verifySchema } from "@/schemas";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
+import { verifyRegisterCodeApi } from "@/lib/api/auth";
+import { setAccessToken, getApiErrorMessage } from "@/lib/api/client";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux-hooks";
@@ -42,22 +43,26 @@ export default function VerfifyCode() {
 
   async function onSubmit(formData: z.infer<typeof verifySchema>) {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/verify-code?key=register`, {
+      const response = await verifyRegisterCodeApi({
         username,
         code: formData.code,
       });
-      toast.success(response.data.message || "user verified");
+      toast.success(response.message || "user verified");
       
-      if (response.data.user) {
+      const authData = response.data;
+      if (authData?.accessToken) {
+        setAccessToken(authData.accessToken);
+      }
+      if (authData?.user) {
         dispatch(
           setUser({
-            id: response.data.user.id,
-            name: response.data.user.username,
-            email: response.data.user.email,
-            subscriptionStatus: response.data.user.subscriptionStatus,
-            profileImage: response.data.user.profileImage ?? "",
+            id: authData.user.id,
+            name: authData.user.username,
+            email: authData.user.email,
+            subscriptionStatus: authData.user.subscriptionStatus,
+            profileImage: authData.user.profileImage ?? "",
             status: 'authenticated',
-            isPro: response.data.user.isPro,
+            isPro: authData.user.isPro,
           })
         );
       }
@@ -65,11 +70,7 @@ export default function VerfifyCode() {
       router.replace("/documents");
     } catch (error) {
       console.log("Error verifying code:", error);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message || error.message || "Verification failed");
-      } else {
-        toast.error(error instanceof Error ? error.message : "unexpected error");
-      }
+      toast.error(getApiErrorMessage(error));
     }
   }
   return (

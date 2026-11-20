@@ -23,7 +23,7 @@ import { Block, BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
 import { useTheme } from "next-themes";
 import { useDebounce } from "@/hooks/useDebounce";
-import axios from "axios";
+import { deleteFileApi } from "@/lib/api/file";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/uploadthing";
 
@@ -87,13 +87,7 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
       removedImages.forEach(async (url):Promise<void> => {
         if(url === undefined || url === null || url === "") return;
         try {
-         
-          await axios.delete(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/file/delete?url=${encodeURIComponent(url)}`,
-            {
-              withCredentials:true
-            }
-          );
+          await deleteFileApi(url);
         } catch (err) {
           console.error("Failed to delete image:", url, err);
         }
@@ -109,9 +103,9 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
     }
     updateDocument({
       docId,
-      data: { content: { version: "0.31.2", blocks: content } },
+      data: { content: { version: "0.31.2", blocks: debouncedValue as PartialBlock[] } },
     });
-  }, [debouncedValue]);
+  }, [debouncedValue, docId, initialContent, updateDocument]);
 
   const editor: BlockNoteEditor = useCreateBlockNote({
     initialContent: initialContent ? initialContent : undefined,

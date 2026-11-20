@@ -101,7 +101,13 @@ const formatTextWithAi = async (req: Request, res: Response) => {
                 }
             })
         }
-        res.status(200).json({ success: true, message: formattedText });
+        res.status(200).json({
+            success: true,
+            message: formattedText,
+            data: {
+                formattedText
+            }
+        });
         return
     } catch (error) {
         console.log('Error generating ai response', error);

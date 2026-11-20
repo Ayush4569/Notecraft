@@ -4,7 +4,7 @@ import { CoverImageModal } from "@/components/cover-image-modal";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, X } from "lucide-react";
 import { useEditDocument } from "@/hooks/useUpdateDocument";
-import axios from "axios";
+import { deleteFileApi } from "@/lib/api/file";
 import { toast } from "sonner";
 export function CoverImage({
   coverImage,
@@ -21,14 +21,11 @@ export function CoverImage({
   
   const deleteCoverImage = async () => {
     if(!imageKey) return;
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/file/delete?url=${imageKey}`;
     try {
-      const response = await axios.delete(url, {
-        withCredentials: true,
-      });
+      const response = await deleteFileApi(imageKey);
 
-      if (!response.data.success) {
-      toast.error("Failed to delete cover image");
+      if (!response.success) {
+        toast.error("Failed to delete cover image");
       }
       mutate({ docId, data: { coverImage: null } });
     } catch (error) {

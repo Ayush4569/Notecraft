@@ -1,7 +1,8 @@
 "use client";
 
 import { useAppSelector } from "@/hooks/redux-hooks";
-import axios, { AxiosError } from "axios";
+import { createSubscriptionApi, cancelSubscriptionApi } from "@/lib/api/payment";
+import { getApiErrorMessage } from "@/lib/api/client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Crown, User2Icon, CheckCircle, Loader2 } from "lucide-react";
@@ -37,13 +38,11 @@ export default function SubscriptionPage() {
         return;
       }
 
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/create`,
-        null,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await createSubscriptionApi();
+      const data = res.data;
+      if (!data) {
+        throw new Error(res.message || "Failed to create subscription");
+      }
 
       const options = {
         key: data.keyId,
@@ -58,9 +57,7 @@ export default function SubscriptionPage() {
         },
         modal: {
           ondismiss: async function () {
-            await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/cancel`, {
-              withCredentials: true,
-            });
+            await cancelSubscriptionApi();
           },
         },
         prefill: {
@@ -74,31 +71,21 @@ export default function SubscriptionPage() {
       razorpay.open();
     } catch (error) {
       console.error("Error subscribing:", error);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
-      } else {
-        toast.error("unexpected error ");
-      }
+      toast.error(getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }
   }
-  const cancelSubscription = async()=>{
+  const cancelSubscription = async () => {
     try {
-       await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/subscriptions/cancel`,{
-        withCredentials:true
-      })
-      toast.success("Subscription cancelled")
-      queryClient.invalidateQueries({queryKey:['user']})
+      await cancelSubscriptionApi();
+      toast.success("Subscription cancelled");
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     } catch (error) {
       console.error("Error unsubscribing:", error);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
-      } else {
-        toast.error("unexpected error ");
-      }
+      toast.error(getApiErrorMessage(error));
     }
-  }
+  };
    
   if(user.subscriptionStatus === 'pending') {
     return (

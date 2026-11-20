@@ -10,7 +10,7 @@ export default function PreviewPage() {
   const id = params.id as string;
   const { data: document } = usePage(id);
 
-  if (!document || !document.isPublished) return;
+  if (!document || !document.isPublished) return null;
   return (
     <div className="pb-40">
       <CoverImage preview docId={document.id} coverImage={document.tempImageUrl ?? ""} />

@@ -6,7 +6,8 @@ import {
   PartialBlock,
 } from "@blocknote/core";
 import { Components, useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
-import axios, { AxiosError } from "axios";
+import { formatTextApi } from "@/lib/api/ai";
+import { getApiErrorMessage } from "@/lib/api/client";
 import { Sparkles, Loader } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -48,10 +49,8 @@ export function AIButton() {
         } else return block;
 
         try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/ai/format-text`, {
-            selectedText,
-          },{withCredentials:true});
-          const formattedText = response.data.message;
+          const response = await formatTextApi({ selectedText });
+          const formattedText = response.data?.formattedText || "";
           if (blockContent.type == "text") {
             return {
               ...block,
@@ -80,11 +79,7 @@ export function AIButton() {
           }
         } catch (error) {
           console.error("Error formatting text:", error);
-          if (error instanceof AxiosError) {
-            toast.error(error.response?.data.message);
-          } else {
-            toast.error("unexpected error ");
-          }
+          toast.error(getApiErrorMessage(error));
           return block;
         } finally {
           setIsLoading(false);

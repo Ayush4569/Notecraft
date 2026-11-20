@@ -1,22 +1,8 @@
-export interface User {
-    id: string;
-    username: string;
-    email: string;
-    password: string;
-    createdAt: Date;
-    profileImage?: string;
-    verifyCode: string;
-    verifyCodeExpiry: Date;
-    isVerified: boolean;
-    documents: Document[];
-    comments: Comment[];
-}
+import { UserProfile } from "./api";
 
-export interface UserState {
-    id: string;
-    username: string;
-    email: string;
-    profileImage?: string;
-    isPro:true
-    subscriptionStatus: string | null;
+export type UserState = UserProfile;
+
+export interface User extends UserProfile {
+    createdAt?: Date;
+    isVerified?: boolean;
 }

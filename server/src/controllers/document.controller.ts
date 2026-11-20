@@ -14,10 +14,11 @@ const getAllDocuments = async (req: Request, res: Response) => {
         const isUserDocsCached = await RedisClient.get(`user:docs:${req.user.id}`);
 
         if (isUserDocsCached) {
+            const cachedNotes = JSON.parse(isUserDocsCached);
             res.status(200).json({
                 success: true,
                 message: 'Notes fetched',
-                notes: JSON.parse(isUserDocsCached)
+                data: cachedNotes
             });
             return
         }
@@ -40,7 +41,7 @@ const getAllDocuments = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: 'Notes fetched',
-            notes: userNotes
+            data: userNotes
         });
         return
     } catch (error) {
@@ -63,7 +64,7 @@ const getDocumentById = async (req: Request, res: Response) => {
     const token =
         req.cookies?.accessToken ||
         req.header("Authorization")?.replace("Bearer ", "");
-    
+
     let user: any = null;
     if (token) {
         try {
@@ -88,7 +89,7 @@ const getDocumentById = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: 'Page fetched',
-            note: cachedDoc,
+            data: cachedDoc,
         });
         return
     }
@@ -114,14 +115,12 @@ const getDocumentById = async (req: Request, res: Response) => {
         let coverUrl: string | null = null;
         if (document.coverImage) {
             coverUrl = await generateSignedUrl(document.coverImage);
-            await RedisClient.setex(`user:doc:${docId}`, 300, JSON.stringify({ ...document, tempImageUrl: coverUrl }))
+            const docWithCover = { ...document, tempImageUrl: coverUrl };
+            await RedisClient.setex(`user:doc:${docId}`, 300, JSON.stringify(docWithCover))
             res.status(200).json({
                 success: true,
                 message: 'Page fetched',
-                note: {
-                    ...document,
-                    tempImageUrl: coverUrl
-                }
+                data: docWithCover,
             });
             return
         }
@@ -129,7 +128,75 @@ const getDocumentById = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: 'Page fetched',
-            note: document,
+            data: document,
+        });
+        return
+    } catch (error) {
+        console.log('Error fetching page', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching page'
+        });
+        return
+
+    }
+}
+const getPublisedDocument = async (req: Request, res: Response) => {
+    const docId = req.params.id;
+    const result = docIdSchema.safeParse(docId)
+    if (!docId || !result.success) {
+        res.status(400).json({ success: false, message: "Invalid document id" });
+        return
+    }
+    const isCached = await RedisClient.get(`user:docs:${docId}`);
+    if (isCached) {
+        const cachedDoc = JSON.parse(isCached);
+        if (!cachedDoc.isPublished) {
+            res.status(401).json({ success: false, message: "Unauthorized" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Page fetched',
+            data: cachedDoc,
+        });
+        return
+    }
+    try {
+        const document = await prisma.document.findUnique({
+            where: {
+                id: docId,
+            }
+        })
+        if (!document) {
+            res.status(404).json({
+                success: false,
+                message: 'No such page exist'
+            });
+            return
+        }
+
+        if (!document.isPublished) {
+            res.status(401).json({ success: false, message: "Unauthorized" });
+            return;
+        }
+        let coverUrl: string | null = null;
+        if (document.coverImage) {
+            coverUrl = await generateSignedUrl(document.coverImage);
+            const docWithCover = { ...document, tempImageUrl: coverUrl };
+            await RedisClient.setex(`user:doc:${docId}`, 300, JSON.stringify(docWithCover))
+            res.status(200).json({
+                success: true,
+                message: 'Page fetched',
+                data: docWithCover,
+            });
+            return
+        }
+        await RedisClient.setex(`user:doc:${docId}`, 300, JSON.stringify(document))
+        res.status(200).json({
+            success: true,
+            message: 'Page fetched',
+            data: document,
         });
         return
     } catch (error) {
@@ -151,10 +218,11 @@ const getTrashedDocuments = async (req: Request, res: Response) => {
     try {
         const isCached = await RedisClient.get(`docs:trashed:${req.user.id}`);
         if (isCached) {
+            const parsedNotes = JSON.parse(isCached);
             res.status(200).json({
                 success: true,
-                message: 'Notes fetched',
-                notes: JSON.parse(isCached)
+                message: 'Trashed notes fetched',
+                data: parsedNotes,
             });
             return
         }
@@ -176,8 +244,8 @@ const getTrashedDocuments = async (req: Request, res: Response) => {
         await RedisClient.setex(`docs:trashed:${req.user.id}`, 300, JSON.stringify(trashedNotes))
         res.status(200).json({
             success: true,
-            message: 'Notes fetched',
-            notes: trashedNotes
+            message: 'Trashed notes fetched',
+            data: trashedNotes,
         });
         return
     } catch (error) {
@@ -209,7 +277,7 @@ const createDocument = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: 'Note created',
-            note: createdNote
+            data: createdNote,
         })
         return;
     } catch (error) {
@@ -266,13 +334,14 @@ const updateDocument = async (req: Request, res: Response) => {
 
         if (updatedDocument.coverImage) {
             const url = await generateSignedUrl(updatedDocument.coverImage);
+            const docData = {
+                ...updatedDocument,
+                imageUrl: url
+            };
             res.status(200).json({
                 success: true,
                 message: 'Page updated',
-                doc: {
-                    ...updatedDocument,
-                    imageUrl: url
-                }
+                data: docData,
             });
             return
         }
@@ -280,7 +349,7 @@ const updateDocument = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: 'Page updated',
-            doc: updatedDocument
+            data: updatedDocument,
         });
         return
     } catch (error) {
@@ -442,5 +511,6 @@ export {
     updateDocument,
     archiveDocument,
     restoreDocument,
-    deleteDocument
+    deleteDocument,
+    getPublisedDocument
 }
