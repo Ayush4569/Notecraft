@@ -16,7 +16,9 @@ import { Input } from "@/components/ui/input";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { registerApi } from "@/lib/api/auth";
+import { useAuthContext } from "@/context/auth-context";
+import { transferGuestDocumentApi } from "@/lib/api/documents";
+import { hasGuestDocument, getGuestDocument, clearGuestDocument } from "@/lib/guest-session";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { toast } from 'sonner';
 import { useEffect } from "react";
@@ -24,6 +26,7 @@ import { useAppSelector } from "@/hooks/redux-hooks";
 type FormData = z.infer<typeof registerSchema>;
 const SignupForm = () => {
   const router = useRouter();
+  const { register } = useAuthContext();
   const form = useForm<FormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -49,14 +52,39 @@ const SignupForm = () => {
     }
     const { username, email, password } = data;
     try {
-      const response = await registerApi({
+      await register({
         username,
         email,
         password,
       });
       
-      toast.success(response.message || "user registered");
-      router.replace(`/verifycode/${username}`);
+      toast.success("Account created and logged in!");
+
+      // If visitor was working on a guest document, transfer it to their account
+      if (hasGuestDocument()) {
+        const guestDoc = getGuestDocument();
+        if (guestDoc) {
+          try {
+            const transferRes = await transferGuestDocumentApi({
+              title: guestDoc.title,
+              content: guestDoc.content,
+              icon: guestDoc.icon,
+              coverImage: guestDoc.coverImage,
+            });
+            clearGuestDocument();
+            toast.success("Your guest document was saved to your account!");
+            if (transferRes.data?.id) {
+              router.replace(`/documents/${transferRes.data.id}`);
+              return;
+            }
+          } catch (transferErr) {
+            console.error("Failed to transfer guest document:", transferErr);
+            toast.error("Account created, but could not transfer guest document automatically.");
+          }
+        }
+      }
+      
+      router.replace("/documents");
     } catch (error) {
       console.error("Error during sign-up:", error);
       toast.error(getApiErrorMessage(error));

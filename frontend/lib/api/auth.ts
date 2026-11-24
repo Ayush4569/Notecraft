@@ -41,8 +41,8 @@ export const loginApi = async (input: LoginInput): Promise<ApiResponse<AuthData>
     return res.data;
 };
 
-export const registerApi = async (input: RegisterInput): Promise<ApiResponse<void>> => {
-    const res = await apiClient.post<ApiResponse<void>>("/user/signup", input);
+export const registerApi = async (input: RegisterInput): Promise<ApiResponse<AuthData>> => {
+    const res = await apiClient.post<ApiResponse<AuthData>>("/user/signup", input);
     return res.data;
 };
 
@@ -72,7 +72,7 @@ export const changePasswordApi = async (input: ChangePasswordInput): Promise<Api
 };
 
 export const logoutApi = async (): Promise<ApiResponse<void>> => {
-    const res = await apiClient.post<ApiResponse<void>>("/user/logout", null);
+    const res = await apiClient.post<ApiResponse<void>>("/user/logout", {});
     return res.data;
 };
 

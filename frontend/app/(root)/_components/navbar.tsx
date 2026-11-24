@@ -50,10 +50,31 @@ export default function Navbar({ isSubscriptionPage }: { isSubscriptionPage?: bo
       ) : (
         <div
           className={cn(
-            "w-full z-50 bg-background p-4 flex items-center justify-end fixed top-0 dark:bg-[#1f1f1f]",
-            scrolled && "border-b  shadow-xl"
+            "w-full z-50 bg-background/95 backdrop-blur p-4 flex items-center justify-between fixed top-0 dark:bg-[#1f1f1f]/95 transition-all",
+            scrolled && "border-b shadow-sm"
           )}
         >
+          <div className="flex items-center gap-x-6">
+            <Logo />
+            <div className="hidden md:flex items-center gap-x-4 text-sm font-medium text-muted-foreground">
+              <Link href="#features" className="hover:text-foreground transition-colors">
+                Features
+              </Link>
+              <Link href="#demo" className="hover:text-foreground transition-colors">
+                Demo
+              </Link>
+              <Link href="#how-it-works" className="hover:text-foreground transition-colors">
+                How It Works
+              </Link>
+              <Link href="#pricing" className="hover:text-foreground transition-colors">
+                Pricing
+              </Link>
+              <Link href="#faq" className="hover:text-foreground transition-colors">
+                FAQ
+              </Link>
+            </div>
+          </div>
+
           <div className="flex items-center gap-x-3">
             {user.status === "loading" && (
               <div className="flex gap-2 animate-out">
@@ -61,12 +82,25 @@ export default function Navbar({ isSubscriptionPage }: { isSubscriptionPage?: bo
               </div>
             )}
             {user.status !== "loading" && user.status === "unauthenticated" && (
-              <Button asChild className="cursor-pointer">
-                <Link href="/login">Login</Link>
-              </Button>
+              <>
+                <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                  <Link href="/guest">Try Guest Mode</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="cursor-pointer">
+                  <Link href="/login">Sign in</Link>
+                </Button>
+                <Button asChild size="sm" className="cursor-pointer bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                  <Link href="/signup">Get Free</Link>
+                </Button>
+              </>
             )}
             {user.status === "authenticated" && user.id && (
-              <UserDropDown isHomePage />
+              <div className="flex items-center gap-x-2">
+                <Button asChild size="sm" variant="outline">
+                  <Link href="/documents">Dashboard</Link>
+                </Button>
+                <UserDropDown isHomePage />
+              </div>
             )}
 
             <ModeToggle />

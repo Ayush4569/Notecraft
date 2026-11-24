@@ -60,3 +60,16 @@ export const deleteDocumentApi = async (docId: string): Promise<ApiResponse<void
     const res = await apiClient.delete<ApiResponse<void>>(`/document/delete/${docId}`);
     return res.data;
 };
+
+export interface TransferGuestDocumentInput {
+    title: string;
+    content?: { version?: string; blocks?: PartialBlock[] } | PartialBlock[] | string | null;
+    icon?: string | null;
+    coverImage?: string | null;
+}
+
+export const transferGuestDocumentApi = async (input: TransferGuestDocumentInput): Promise<ApiResponse<Document>> => {
+    const res = await apiClient.post<ApiResponse<Document>>("/document/transfer-guest", input);
+    return res.data;
+};
+

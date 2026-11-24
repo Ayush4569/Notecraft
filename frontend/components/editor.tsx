@@ -31,9 +31,11 @@ interface EditorProps {
   docId: string;
   initialContent?: PartialBlock[];
   editable?: boolean;
+  isGuest?: boolean;
+  onSaveGuest?: (blocks: PartialBlock[]) => void;
 }
 
-const Editor = ({ docId, initialContent, editable }: EditorProps) => {
+const Editor = ({ docId, initialContent, editable, isGuest = false, onSaveGuest }: EditorProps) => {
   const { resolvedTheme } = useTheme();
   const [previousImages, setPreviousImages] = useState<Set<string>>(new Set());
   const { mutate: updateDocument } = useEditDocument();
@@ -101,11 +103,15 @@ const Editor = ({ docId, initialContent, editable }: EditorProps) => {
     if (isEqual(debouncedValue, initialContent)) {
       return;
     }
+    if (isGuest) {
+      onSaveGuest?.(debouncedValue as PartialBlock[]);
+      return;
+    }
     updateDocument({
       docId,
       data: { content: { version: "0.31.2", blocks: debouncedValue as PartialBlock[] } },
     });
-  }, [debouncedValue, docId, initialContent, updateDocument]);
+  }, [debouncedValue, docId, initialContent, isGuest, onSaveGuest, updateDocument]);
 
   const editor: BlockNoteEditor = useCreateBlockNote({
     initialContent: initialContent ? initialContent : undefined,

@@ -12,8 +12,10 @@ import { CoverImageModal } from "@/components/cover-image-modal";
 interface ToolbarProps {
   doc: Document;
   preview?: boolean;
+  isGuest?: boolean;
+  onUpdateGuest?: (data: Partial<Document>) => void;
 }
-export function Toolbar({ doc, preview = false }: ToolbarProps) {
+export function Toolbar({ doc, preview = false, isGuest = false, onUpdateGuest }: ToolbarProps) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { mutate } = useEditDocument();
   const [title, setTitle] = useState<string>(doc.title || "");
@@ -21,6 +23,10 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
   const debouncedTitle = useDebounce(title, 1000);
   const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>):void => {
     setTitle(e.target.value);
+    if (isGuest) {
+      onUpdateGuest?.({ title: e.target.value });
+      return;
+    }
     queryClient.setQueryData(
       ["document", doc.id],
       (oldData: Document | undefined) => {
@@ -47,9 +53,9 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
     setIsEditing(true);
   };
   useEffect(() => {
-    if (!isEditing) return;
+    if (!isEditing || isGuest) return;
     mutate({ docId: doc.id, data: { title: debouncedTitle as string } });
-  }, [debouncedTitle, doc.id, isEditing, mutate]);
+  }, [debouncedTitle, doc.id, isEditing, isGuest, mutate]);
 
   const onkeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>):void => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -58,10 +64,19 @@ export function Toolbar({ doc, preview = false }: ToolbarProps) {
     }
   };
 
-  const handleRemoveIcon = (docId: string, icon: null):void =>
+  const handleRemoveIcon = (docId: string, icon: null):void => {
+    if (isGuest) {
+      onUpdateGuest?.({ icon: undefined });
+      return;
+    }
     mutate({ docId, data: { icon } });
+  };
   const handleIconChange = (icon: string | null):void => {
     if (!icon) return;
+    if (isGuest) {
+      onUpdateGuest?.({ icon });
+      return;
+    }
     mutate({ docId: doc.id, data: { icon } });
   };
   return (

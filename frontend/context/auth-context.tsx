@@ -20,6 +20,7 @@ import {
 } from "@/lib/api/auth";
 import { useAppDispatch } from "@/hooks/redux-hooks";
 import { setUser as setReduxUser, clearUser as clearReduxUser, setLoading as setReduxLoading } from "@/redux/slices/user";
+import { queryClient } from "@/helpers/tanstack";
 
 interface AuthContextValue {
     user: UserProfile | null;
@@ -117,17 +118,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const register = async (input: RegisterInput) => {
         const response = await registerApi(input);
-        if (!response.success) {
-            throw new Error(response.message || "Registration failed");
+        const authData = response.data;
+        if (!authData || !authData.user) {
+            throw new Error(response.message || "Registration response is missing authentication data");
         }
+        setAccessToken(authData.accessToken || null);
+        syncUser(authData.user);
     };
 
     const logout = async () => {
         try {
             await logoutApi();
+        } catch (error) {
+            console.error("Logout API failed, continuing client cleanup:", error);
         } finally {
             syncUser(null);
             setAccessToken(null);
+            queryClient.clear();
         }
     };
 

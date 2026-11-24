@@ -62,8 +62,12 @@ if (cluster.isPrimary && isProduction) {
 
     // health check route
     app.get("/", (req: Request, res: Response) => {
-
         res.status(200).json({ message: "Welcome to the Notecraft Management API" });
+        return;
+    });
+
+    app.get("/health", (req: Request, res: Response) => {
+        res.status(200).json({ status: "ok", timestamp: Date.now() });
         return;
     });
 

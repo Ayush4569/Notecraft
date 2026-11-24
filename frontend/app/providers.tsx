@@ -9,6 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/helpers/tanstack";
 import { CommandMenu } from "@/components/command-menu";
 import { AuthProvider } from "@/context/auth-context";
+import { ServerHealthProvider } from "@/context/server-health-context";
 
 export default function Providers({
   children,
@@ -26,9 +27,11 @@ export default function Providers({
             disableTransitionOnChange
           >
             <AuthProvider>
-              <CommandMenu />
-              <Toaster position="bottom-center" visibleToasts={2} />
-              {children}
+              <ServerHealthProvider>
+                <CommandMenu />
+                <Toaster position="bottom-center" visibleToasts={2} />
+                {children}
+              </ServerHealthProvider>
             </AuthProvider>
           </ThemeProvider>
         </QueryClientProvider>

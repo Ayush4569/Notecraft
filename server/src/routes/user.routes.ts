@@ -7,7 +7,7 @@ const router: Router = Router();
 router.get("/", authMiddleware, getUser);
 router.post("/signup", createUser)
 router.post("/login", rateLimiter(`rl:login`, 10, 60), loginUser)
-router.post("/logout", authMiddleware, logoutUser)
+router.post("/logout", logoutUser)
 router.post("/refresh-token", refreshAccessToken)
 router.post("/verify-code", verifyCode)
 router.patch("/changePassword",authMiddleware ,rateLimiter(`rl:changePassword`, 3, 60), changePassword)

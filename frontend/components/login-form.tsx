@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAppSelector } from "@/hooks/redux-hooks";
 import { useAuthContext } from "@/context/auth-context";
+import { transferGuestDocumentApi } from "@/lib/api/documents";
+import { hasGuestDocument, getGuestDocument, clearGuestDocument } from "@/lib/guest-session";
 import { getApiErrorMessage } from "@/lib/api/client";
 type FormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
@@ -50,6 +52,29 @@ const LoginForm = () => {
         identifier: value.identifier,
         password: value.password,
       });
+
+      if (hasGuestDocument()) {
+        const guestDoc = getGuestDocument();
+        if (guestDoc) {
+          try {
+            const transferRes = await transferGuestDocumentApi({
+              title: guestDoc.title,
+              content: guestDoc.content,
+              icon: guestDoc.icon,
+              coverImage: guestDoc.coverImage,
+            });
+            clearGuestDocument();
+            toast.success("Your guest document was saved to your account!");
+            if (transferRes.data?.id) {
+              router.replace(`/documents/${transferRes.data.id}`);
+              return;
+            }
+          } catch (transferErr) {
+            console.error("Failed to transfer guest document on login:", transferErr);
+          }
+        }
+      }
+
       router.replace("/documents");
       toast.success("Login successful");
     } catch (error) {

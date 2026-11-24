@@ -503,6 +503,39 @@ const deleteDocument = async (req: Request, res: Response) => {
         return
     }
 }
+
+const transferGuestDocument = async (req: Request, res: Response) => {
+    if (!req.user) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+    }
+    const { title, content, icon, coverImage } = req.body;
+    try {
+        const newDoc = await prisma.document.create({
+            data: {
+                title: typeof title === "string" && title.trim() ? title.trim() : "Untitled",
+                content: content || null,
+                icon: typeof icon === "string" ? icon : null,
+                coverImage: typeof coverImage === "string" ? coverImage : null,
+                userId: req.user.id,
+            }
+        });
+
+        await RedisClient.del(`user:docs:${req.user.id}`);
+
+        res.status(201).json({
+            success: true,
+            message: "Guest document transferred successfully",
+            data: newDoc
+        });
+        return;
+    } catch (error) {
+        console.error("Error transferring guest document:", error);
+        res.status(500).json({ success: false, message: "Failed to transfer guest document" });
+        return;
+    }
+};
+
 export {
     getAllDocuments,
     getDocumentById,
@@ -512,5 +545,6 @@ export {
     archiveDocument,
     restoreDocument,
     deleteDocument,
-    getPublisedDocument
+    getPublisedDocument,
+    transferGuestDocument
 }

@@ -5,7 +5,8 @@ import { sendVerificationEmail } from "../helpers/email-verification";
 import crypto from "crypto";
 import { prisma } from "../db/db";
 import { decodeRefreshToken, generateAccessToken, generateRefreshToken } from "../helpers/generateToken";
-import { accessTokenOptions, refreshTokenOptions } from "../helpers/cookie-options";
+import { accessTokenOptions, refreshTokenOptions, clearCookieOptions } from "../helpers/cookie-options";
+import jwt from "jsonwebtoken";
 import { hashPassword, updateUserPassword } from "../helpers/user.service";
 import { RedisClient } from "../helpers/redis";
 import { nanoid } from "nanoid";
@@ -112,54 +113,92 @@ const createUser = async (req: Request, res: Response) => {
             }
         });
         let verifyCode = crypto.randomInt(100000, 1000000).toString();
+        const hashedPassword = await hashPassword(password);
+        let user;
         if (existingUserByEmail) {
             if (existingUserByEmail.isVerified) {
-                res.status(500).json({
+                res.status(400).json({
                     success: false,
                     message: "Email already taken"
                 });
-                return
+                return;
             }
-            const hashedPassword = await hashPassword(password)
-            await prisma.user.update({
+            user = await prisma.user.update({
                 where: {
                     email
                 },
                 data: {
+                    username,
                     password: hashedPassword,
                     verifyCode,
-                    verifyCodeExpiry: new Date(Date.now() + 3600000)
+                    verifyCodeExpiry: new Date(Date.now() + 3600000),
+                    isVerified: true,
+                },
+                include: {
+                    subscription: {
+                        select: {
+                            status: true,
+                        }
+                    }
                 }
-            })
+            });
         } else {
-            const hashedPassword = await hashPassword(password)
-            await prisma.user.create({
+            user = await prisma.user.create({
                 data: {
                     username,
                     email,
                     password: hashedPassword,
                     verifyCode,
-                    verifyCodeExpiry: new Date(Date.now() + 3600000)
+                    verifyCodeExpiry: new Date(Date.now() + 3600000),
+                    isVerified: true,
+                },
+                include: {
+                    subscription: {
+                        select: {
+                            status: true,
+                        }
+                    }
                 }
-            })
+            });
         }
-        const emailResponse = await sendVerificationEmail(email, username, verifyCode, 'register');
-        if (!emailResponse.success) {
-            res.status(500).json(
-                {
-                    success: false,
-                    message: emailResponse.message,
-                }
-            );
-            return
-        }
-        res.status(201).json(
-            {
-                success: true,
-                message: 'User registered successfully. Please verify your account.',
+
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                refreshToken
             }
-        );
-        return
+        });
+
+        // Non-blocking async verification email dispatch
+        void sendVerificationEmail(email, username, verifyCode, 'register').catch((err) => {
+            console.warn("Async verification email dispatch error:", err);
+        });
+
+        const userProfile = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            profileImage: user.profileImage ?? "",
+            isPro: user.isPro,
+            subscriptionStatus: user.subscription?.status ?? null
+        };
+
+        res
+            .status(201)
+            .cookie("accessToken", accessToken, accessTokenOptions)
+            .cookie("refreshToken", refreshToken, refreshTokenOptions)
+            .json({
+                success: true,
+                message: "User registered and logged in successfully",
+                data: {
+                    user: userProfile,
+                    accessToken
+                }
+            });
+        return;
     } catch (error) {
         console.error("Error registering user", error);
         res.status(500).json({
@@ -260,22 +299,49 @@ const loginUser = async (req: Request, res: Response) => {
 }
 const logoutUser = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json({ success: false, message: "Unauthorized" });
-            return;
-        }
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                refreshToken: null,
+        let userId: string | null = req.user?.id || null;
+
+        if (!userId) {
+            const token =
+                req.cookies?.accessToken ||
+                req.header("Authorization")?.replace("Bearer ", "");
+            if (token) {
+                try {
+                    const decoded = jwt.decode(token) as { id?: string } | null;
+                    if (decoded?.id) {
+                        userId = decoded.id;
+                    }
+                } catch {
+                    // Ignore decode errors
+                }
             }
-        });
-        await RedisClient.del(`user:${user.id}`)
+        }
+
+        if (!userId && req.cookies?.refreshToken) {
+            const decodedRefresh = decodeRefreshToken(req.cookies.refreshToken);
+            if (decodedRefresh?.id) {
+                userId = decodedRefresh.id;
+            }
+        }
+
+        if (userId) {
+            await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    refreshToken: null,
+                }
+            }).catch((err) => {
+                console.warn("Could not null refreshToken for user during logout:", err);
+            });
+            await RedisClient.del(`user:${userId}`).catch((err) => {
+                console.warn("Could not delete user cache during logout:", err);
+            });
+        }
+
         res
             .status(200)
-            .clearCookie("accessToken", accessTokenOptions)
-            .clearCookie("refreshToken", refreshTokenOptions)
+            .clearCookie("accessToken", clearCookieOptions)
+            .clearCookie("refreshToken", clearCookieOptions)
             .json({
                 success: true,
                 message: "Logout successful",
@@ -283,7 +349,14 @@ const logoutUser = async (req: Request, res: Response) => {
         return;
     } catch (error) {
         console.error("Error logging out:", error);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        res
+            .status(200)
+            .clearCookie("accessToken", clearCookieOptions)
+            .clearCookie("refreshToken", clearCookieOptions)
+            .json({
+                success: true,
+                message: "Logout completed",
+            });
         return;
     }
 }
@@ -299,7 +372,7 @@ const refreshAccessToken = async (req: Request, res: Response) => {
     }
     const decodedUser = decodeRefreshToken(incomingRefreshToken);
     if (!decodedUser) {
-        res.status(401).clearCookie("refreshToken", incomingRefreshToken).json({
+        res.status(401).clearCookie("refreshToken", clearCookieOptions).json({
             success: false,
             message: "Invalid refresh token",
         })
