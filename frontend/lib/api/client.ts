@@ -47,7 +47,7 @@ const notifyStatus = (status: ServerStatus) => {
 export const checkServerHealth = async (): Promise<boolean> => {
     try {
         const res = await axios.get(`${BASE_URL}/health`, {
-            timeout: 5000,
+            timeout: 2500,
             withCredentials: true,
         });
         return res.status === 200;
@@ -85,6 +85,54 @@ export const refreshClient: AxiosInstance = axios.create({
 });
 
 let activePendingSlowRequests = 0;
+
+refreshClient.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+        if (typeof window !== "undefined") {
+            config._slowTimer = setTimeout(() => {
+                activePendingSlowRequests += 1;
+                notifyStatus("waking");
+            }, 2500);
+        }
+        return config;
+    }
+);
+
+refreshClient.interceptors.response.use(
+    (response) => {
+        const config = response.config;
+        if (config._slowTimer) {
+            clearTimeout(config._slowTimer);
+        }
+        if (activePendingSlowRequests > 0) {
+            activePendingSlowRequests = Math.max(0, activePendingSlowRequests - 1);
+            if (activePendingSlowRequests === 0) {
+                notifyStatus("online");
+            }
+        }
+        return response;
+    },
+    (error: AxiosError) => {
+        const config = error.config;
+        if (config?._slowTimer) {
+            clearTimeout(config._slowTimer);
+        }
+        if (activePendingSlowRequests > 0) {
+            activePendingSlowRequests = Math.max(0, activePendingSlowRequests - 1);
+        }
+        const isNetworkOrColdStart =
+            !error.response ||
+            error.code === "ECONNABORTED" ||
+            error.code === "ERR_NETWORK" ||
+            (error.response.status >= 502 && error.response.status <= 504);
+        if (isNetworkOrColdStart) {
+            notifyStatus("offline");
+        } else if (activePendingSlowRequests === 0) {
+            notifyStatus("online");
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Request interceptor
 apiClient.interceptors.request.use(

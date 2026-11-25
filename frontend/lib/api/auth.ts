@@ -31,6 +31,17 @@ export interface ChangePasswordInput {
     password: string;
 }
 
+export interface GuestAuthData {
+    user: UserProfile;
+    accessToken: string;
+    documentId: string;
+}
+
+export const createGuestApi = async (): Promise<ApiResponse<GuestAuthData>> => {
+    const res = await apiClient.post<ApiResponse<GuestAuthData>>("/user/guest", {});
+    return res.data;
+};
+
 export const getProfileApi = async (): Promise<ApiResponse<UserProfile>> => {
     const res = await apiClient.get<ApiResponse<UserProfile>>("/user");
     return res.data;

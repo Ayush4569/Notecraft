@@ -6,6 +6,8 @@ interface InitialState {
     email: string;
     profileImage: string;
     isPro: boolean;
+    isGuest?: boolean;
+    freeAiTrials?: number;
     subscriptionStatus : string | null
     status: 'loading' | 'authenticated' | 'unauthenticated'
 }
@@ -15,6 +17,8 @@ const initialState: InitialState = {
     email: "",
     profileImage: "",
     isPro: false,
+    isGuest: false,
+    freeAiTrials: 0,
     subscriptionStatus: null,
     status: 'unauthenticated'
 }
@@ -28,6 +32,8 @@ const userSlice = createSlice({
             state.email = action.payload.email;
             state.profileImage = action.payload.profileImage;
             state.isPro = action.payload.isPro ;
+            state.isGuest = action.payload.isGuest ?? false;
+            state.freeAiTrials = action.payload.freeAiTrials ?? 0;
             state.status = action.payload.status || 'authenticated';
             state.subscriptionStatus = action.payload.subscriptionStatus || null
         },
@@ -37,6 +43,8 @@ const userSlice = createSlice({
             state.email = "";
             state.profileImage = "";
             state.isPro = false;
+            state.isGuest = false;
+            state.freeAiTrials = 0;
             state.status ='unauthenticated';
             state.subscriptionStatus = null
         },

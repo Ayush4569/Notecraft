@@ -8,7 +8,7 @@ export interface SubscriptionData {
 }
 
 export const createSubscriptionApi = async (): Promise<ApiResponse<SubscriptionData>> => {
-    const res = await apiClient.post<ApiResponse<SubscriptionData>>("/payment/subscriptions/create", null);
+    const res = await apiClient.post<ApiResponse<SubscriptionData>>("/payment/subscriptions/create", {});
     return res.data;
 };
 

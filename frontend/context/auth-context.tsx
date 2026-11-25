@@ -15,6 +15,7 @@ import {
     loginApi,
     logoutApi,
     registerApi,
+    createGuestApi,
     LoginInput,
     RegisterInput,
 } from "@/lib/api/auth";
@@ -28,6 +29,7 @@ interface AuthContextValue {
     isAuthenticated: boolean;
     login: (input: LoginInput) => Promise<void>;
     register: (input: RegisterInput) => Promise<void>;
+    startGuestSession: () => Promise<string>;
     logout: () => Promise<void>;
     refreshProfile: () => Promise<void>;
 }
@@ -49,6 +51,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     email: userData.email,
                     profileImage: userData.profileImage || "",
                     isPro: userData.isPro,
+                    isGuest: userData.isGuest ?? false,
+                    freeAiTrials: userData.freeAiTrials ?? 0,
                     subscriptionStatus: userData.subscriptionStatus || null,
                     status: "authenticated",
                 })
@@ -138,12 +142,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const startGuestSession = useCallback(async (): Promise<string> => {
+        dispatch(setReduxLoading());
+        try {
+            const response = await createGuestApi();
+            const data = response.data;
+            if (!data?.user || !data.accessToken) {
+                throw new Error("Failed to initialize guest session");
+            }
+            setAccessToken(data.accessToken);
+            syncUser(data.user);
+            void queryClient.invalidateQueries();
+            return data.documentId;
+        } catch (error) {
+            syncUser(null);
+            throw error;
+        }
+    }, [dispatch, syncUser]);
+
     const value: AuthContextValue = {
         user,
         loading,
         isAuthenticated: user !== null,
         login,
         register,
+        startGuestSession,
         logout,
         refreshProfile,
     };

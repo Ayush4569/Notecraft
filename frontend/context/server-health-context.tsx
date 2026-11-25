@@ -22,7 +22,9 @@ export const ServerHealthProvider = ({ children }: { children: React.ReactNode }
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const dismissTimerRef = useRef<NodeJS.Timeout | null>(null);
   const attemptsRef = useRef(0);
+  const isWakingUpRef = useRef(false);
 
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
@@ -32,9 +34,36 @@ export const ServerHealthProvider = ({ children }: { children: React.ReactNode }
     attemptsRef.current = 0;
   }, []);
 
+  const clearDismissTimer = useCallback(() => {
+    if (dismissTimerRef.current) {
+      clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+  }, []);
+
+  const markServerOnline = useCallback(() => {
+    stopPolling();
+    if (!isWakingUpRef.current) return;
+
+    clearDismissTimer();
+    setIsOnline(true);
+    setStatusMessage("Server is ready! Resuming your session...");
+    void queryClient.invalidateQueries();
+
+    dismissTimerRef.current = setTimeout(() => {
+      isWakingUpRef.current = false;
+      setIsWakingUp(false);
+      setIsOnline(false);
+      setStatusMessage(null);
+      dismissTimerRef.current = null;
+    }, 2000);
+  }, [stopPolling, clearDismissTimer]);
+
   const triggerWakeUpPolling = useCallback(() => {
     if (pollingRef.current) return; // Already polling
 
+    clearDismissTimer();
+    isWakingUpRef.current = true;
     setIsWakingUp(true);
     setIsOnline(false);
     setStatusMessage("Server is waking up (Render cold start). Please hold on...");
@@ -45,54 +74,58 @@ export const ServerHealthProvider = ({ children }: { children: React.ReactNode }
       const healthy = await checkServerHealth();
 
       if (healthy) {
-        stopPolling();
-        setIsOnline(true);
-        setStatusMessage("Server is ready! Resuming your session...");
-
-        // Re-trigger tanstack queries to automatically fetch fresh data
-        void queryClient.invalidateQueries();
-
-        setTimeout(() => {
-          setIsWakingUp(false);
-          setIsOnline(false);
-          setStatusMessage(null);
-        }, 2000);
-      } else if (attemptsRef.current > 15) {
-        // Stop after ~45-50 seconds
+        markServerOnline();
+      } else if (attemptsRef.current >= 15) {
+        // Stop after ~45 seconds
         stopPolling();
         setStatusMessage("Server is taking longer than expected. Please check your connection.");
-        setTimeout(() => {
+        dismissTimerRef.current = setTimeout(() => {
+          isWakingUpRef.current = false;
           setIsWakingUp(false);
           setStatusMessage(null);
+          dismissTimerRef.current = null;
         }, 5000);
       } else {
         setStatusMessage(`Server is waking up (attempt ${attemptsRef.current}/15)...`);
       }
     }, 3000);
-  }, [stopPolling]);
+  }, [stopPolling, clearDismissTimer, markServerOnline]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Immediate server availability check on application initialization / visit
+    checkServerHealth()
+      .then((healthy) => {
+        if (!isMounted) return;
+        if (!healthy) {
+          triggerWakeUpPolling();
+        } else if (isWakingUpRef.current) {
+          markServerOnline();
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          triggerWakeUpPolling();
+        }
+      });
+
     const unregister = registerServerStatusListener((status) => {
+      if (!isMounted) return;
       if (status === "waking" || status === "offline") {
         triggerWakeUpPolling();
       } else if (status === "online") {
-        if (isWakingUp) {
-          setIsOnline(true);
-          setStatusMessage("Connected!");
-          setTimeout(() => {
-            setIsWakingUp(false);
-            setIsOnline(false);
-            setStatusMessage(null);
-          }, 1500);
-        }
+        markServerOnline();
       }
     });
 
     return () => {
+      isMounted = false;
       unregister();
       stopPolling();
+      clearDismissTimer();
     };
-  }, [triggerWakeUpPolling, stopPolling, isWakingUp]);
+  }, [triggerWakeUpPolling, stopPolling, clearDismissTimer, markServerOnline]);
 
   const retryConnection = async () => {
     triggerWakeUpPolling();
@@ -129,4 +162,3 @@ export const ServerHealthProvider = ({ children }: { children: React.ReactNode }
 };
 
 export const useServerHealth = () => useContext(ServerHealthContext);
-

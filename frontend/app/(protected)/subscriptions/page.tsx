@@ -5,9 +5,13 @@ import { createSubscriptionApi, cancelSubscriptionApi } from "@/lib/api/payment"
 import { getApiErrorMessage } from "@/lib/api/client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, User2Icon, CheckCircle, Loader2 } from "lucide-react";
+import { Sparkles, Check, ArrowRight, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { queryClient } from "@/helpers/tanstack";
+import { PRICING_PLANS } from "@/app/(root)/_components/pricing";
+import Link from "next/link";
+
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -28,6 +32,7 @@ export default function SubscriptionPage() {
       router.replace("/login");
     }
   }, [user.status, router]);
+
   const handleSubscribe = async () => {
     setLoading(true);
     try {
@@ -50,9 +55,9 @@ export default function SubscriptionPage() {
         name: "Notecraft Pro",
         description: "Unlock unlimited AI formatting",
         image: "/document.svg",
-        theme: { color: "#6366F1" },
+        theme: { color: "#10B981" },
         handler: function () {
-          toast.success("Subscription successfull!");
+          toast.success("Subscription successful!");
           window.location.href = "/?subscribed=true";
         },
         modal: {
@@ -62,12 +67,11 @@ export default function SubscriptionPage() {
         },
         prefill: {
           email: user.email,
-          name:user.name
+          name: user.name,
         },
       };
 
-      const razorpay = new window.Razorpay(options)
-
+      const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
       console.error("Error subscribing:", error);
@@ -75,7 +79,8 @@ export default function SubscriptionPage() {
     } finally {
       setLoading(false);
     }
-  }
+  };
+
   const cancelSubscription = async () => {
     try {
       await cancelSubscriptionApi();
@@ -86,72 +91,137 @@ export default function SubscriptionPage() {
       toast.error(getApiErrorMessage(error));
     }
   };
-   
-  if(user.subscriptionStatus === 'pending') {
+
+  if (user.subscriptionStatus === "pending") {
     return (
-      <div className="min-h-[100vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
-        <Loader2 className="animate-spin h-8 w-8 text-primary" />
-        <h2 className="text-lg font-medium">
+      <div className="min-h-screen flex flex-col items-center justify-center text-center space-y-4 px-4 bg-background dark:bg-[#1F1F1F]">
+        <Loader2 className="animate-spin h-8 w-8 text-emerald-500" />
+        <h2 className="text-xl font-bold tracking-tight">
           Your payment is being processed...
         </h2>
         <p className="text-sm text-muted-foreground max-w-md">
-          Please wait a few minutes while we confirm your subscription. Do not refresh or retry payment. This page will update automatically once your payment is verified.
+          Please wait a few moments while we confirm your subscription. Do not refresh or retry payment. This page will update automatically once your payment is verified.
         </p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full flex flex-col md:flex-row gap-6 mt-16 md:mt-0">
-        <div className="bg-white dark:bg-gray-800 outline outline-emerald-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
-          <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 dark:text-gray-200 mb-2">
-            <User2Icon className="h-8 w-8" />
-            Free
+    <div className="min-h-screen bg-background dark:bg-[#1F1F1F] flex flex-col items-center justify-center pt-28 pb-16 px-4">
+      <div className="w-full max-w-5xl mx-auto">
+        <div className="text-center space-y-3 mb-12">
+          <h2 className="text-xs uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold">
+            Subscription Plans
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-1">Perfect for getting started</p>
-          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">₹0</p>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">Always free</p>
-          <ul className="space-y-2 text-gray-800 dark:text-gray-200">
-            <li className="flex items-center"><CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> 10 AI formatting credits</li>
-            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Create unlimited documents</li>
-            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Public document sharing</li>
-          </ul>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            Upgrade Your Notecraft Superpowers
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
+            Transparent pricing designed to power your knowledge base, writing, and AI assistance.
+          </p>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {PRICING_PLANS.map((plan, idx) => {
+            const isProCard = plan.popular;
 
-        <div className="bg-white dark:bg-gray-800 outline outline-emerald-500 p-6 rounded-lg shadow-md w-full md:w-1/2">
-          <h2 className="text-xl font-semibold flex items-center gap-x-2 text-gray-800 dark:text-gray-200 mb-2">
-            <Crown className="h-8 w-8" /> Pro
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-1">For power users & writers</p>
-          <p className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">₹399/month</p>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">Billed monthly</p>
-          <ul className="space-y-2 text-gray-800 dark:text-gray-200">
-            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> 100+ AI formatting credits</li>
-            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Early access to new features</li>
-            <li className="flex items-center"> <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" /> Priority support</li>
-          </ul>
-          {user.isPro ? (
-            <div className="mt-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg">
-              <p className="text-lg font-semibold">You are currently on the Pro plan!</p>
-              <p className="text-sm">Thank you for your support!</p>
-              <button
-              className="mt-6 w-full bg-red-600 dark:bg-red-500 text-white py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-400 transition"
-              onClick={cancelSubscription}
+            return (
+              <div
+                key={idx}
+                className={`relative p-8 rounded-3xl border flex flex-col justify-between transition-all duration-200 ${
+                  isProCard
+                    ? "border-emerald-500/60 bg-gradient-to-b from-emerald-500/5 to-transparent dark:from-emerald-500/10 shadow-xl"
+                    : "border-border/80 bg-card hover:border-neutral-400 dark:hover:border-neutral-700"
+                }`}
               >
-                Cancel subscription
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleSubscribe}
-              disabled={loading}
-              className="mt-6 w-full bg-indigo-600 dark:bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-400 transition"
-            >
-              Upgrade to Pro
-            </button>
-          )}
+                {isProCard && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-emerald-600 text-white shadow-sm flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Most Popular
+                  </div>
+                )}
+
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xl font-bold">{plan.name}</h4>
+                    <p className="text-muted-foreground text-xs sm:text-sm mt-1">{plan.description}</p>
+                  </div>
+
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl sm:text-5xl font-extrabold tracking-tight">{plan.price}</span>
+                    <span className="text-muted-foreground text-sm font-medium">/{plan.period}</span>
+                  </div>
+
+                  <div className="space-y-3 pt-2 border-t border-border/60">
+                    {plan.features.map((feat, fIdx) => (
+                      <div key={fIdx} className="flex items-start gap-2.5 text-sm">
+                        <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-8">
+                  {isProCard ? (
+                    user.isPro ? (
+                      <div className="space-y-3">
+                        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-center text-xs font-semibold">
+                          ✨ You are currently on the Pro plan!
+                        </div>
+                        <Button
+                          variant="destructive"
+                          className="w-full py-5 text-sm font-semibold rounded-xl"
+                          onClick={cancelSubscription}
+                        >
+                          Cancel Subscription
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleSubscribe}
+                        disabled={loading}
+                        className="w-full py-5 text-sm font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow cursor-pointer"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Connecting to Razorpay...
+                          </>
+                        ) : (
+                          <>
+                            Upgrade to Pro
+                            <ArrowRight className="h-4 w-4 ml-1.5" />
+                          </>
+                        )}
+                      </Button>
+                    )
+                  ) : user.isPro ? (
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full py-5 text-sm font-semibold rounded-xl"
+                    >
+                      <Link href="/documents">
+                        Included in Pro
+                        <ArrowRight className="h-4 w-4 ml-1.5" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      className="w-full py-5 text-sm font-semibold rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+                    >
+                      <Link href="/documents">
+                        Current Active Plan
+                        <ArrowRight className="h-4 w-4 ml-1.5" />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

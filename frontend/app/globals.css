@@ -137,20 +137,46 @@ body,
 button {
   cursor: pointer;
 }
-[data-floating-ui-focusable] {
+
+/* Editor focus outline reset: prevents unwanted border around text content on click */
+.bn-container,
+.bn-container:focus,
+.bn-container:focus-visible,
+.bn-container:focus-within,
+.bn-editor,
+.bn-editor:focus,
+.bn-editor:focus-visible,
+.bn-editor:focus-within,
+.bn-editor.bn-default-styles,
+.bn-editor.bn-default-styles:focus,
+.bn-editor.bn-default-styles:focus-visible,
+.ProseMirror,
+.ProseMirror:focus,
+.ProseMirror:focus-visible,
+.ProseMirror-focused,
+[contenteditable="true"],
+[contenteditable="true"]:focus,
+[contenteditable="true"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure BlockNote formatting toolbar and floating elements stay above all editor content */
+.bn-toolbar,
+.bn-action-toolbar,
+.bn-formatting-toolbar,
+.bn-panel,
+.bn-mantine,
+[data-floating-ui-portal],
+[data-floating-ui-focusable],
+[data-floating-ui-popper],
+.mantine-Popover-dropdown {
   z-index: 99999 !important;
 }
 
-
 @media (max-width: 475px) {
-
   .bn-editor.bn-default-styles {
     padding: 1rem;
-  }
-  [data-floating-ui-focusable] {
-    right: 0.5rem !important;
-    left: auto !important;
-    top: 0% !important;
   }
   .bn-panel,
   .bn-mantine {

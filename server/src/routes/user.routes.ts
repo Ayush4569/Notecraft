@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { getUser, createUser, loginUser, logoutUser, refreshAccessToken, verifyCode, changePassword,forgotPassword, resetPasswordOtp } from "../controllers/user.controller";
+import { getUser, createUser, createGuestUser, loginUser, logoutUser, refreshAccessToken, verifyCode, changePassword,forgotPassword, resetPasswordOtp } from "../controllers/user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { rateLimiter } from "../middlewares/redis.middleware";
 
 const router: Router = Router();
 router.get("/", authMiddleware, getUser);
 router.post("/signup", createUser)
+router.post("/guest", rateLimiter(`rl:guest`, 15, 60), createGuestUser)
 router.post("/login", rateLimiter(`rl:login`, 10, 60), loginUser)
 router.post("/logout", logoutUser)
 router.post("/refresh-token", refreshAccessToken)

@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import Groq from "groq-sdk"
 import { prisma } from "../db/db";
 import { promptSchema } from "../schemas/index";
+import { RedisClient } from "../helpers/redis";
 const groq = new Groq({
     apiKey: process.env.GROK_API_KEY ?? ""
 })
@@ -17,6 +18,7 @@ const formatTextWithAi = async (req: Request, res: Response) => {
         select: {
             freeAiTrials: true,
             isPro: true,
+            isGuest: true,
             subscription: {
                 select: {
                     aiCreditsLeft: true,
@@ -29,16 +31,23 @@ const formatTextWithAi = async (req: Request, res: Response) => {
         return;
     }
 
-    if (user.isPro && user.subscription?.aiCreditsLeft) {
-        if ((user.subscription.aiCreditsLeft <= 0) && user.freeAiTrials <=0) {
-            res.status(403).json({ success: false, message: "You have no AI credits left" });
-            return
+    if (user.isGuest) {
+        if (user.freeAiTrials <= 0) {
+            res.status(403).json({
+                success: false,
+                message: "You have used all 3 guest AI formatting trials. Please sign up or log in to get more trials."
+            });
+            return;
         }
-    }
-    else {
+    } else if (user.isPro && user.subscription?.aiCreditsLeft) {
+        if ((user.subscription.aiCreditsLeft <= 0) && user.freeAiTrials <= 0) {
+            res.status(403).json({ success: false, message: "You have no AI credits left" });
+            return;
+        }
+    } else {
         if (user.freeAiTrials <= 0) {
             res.status(403).json({ success: false, message: "You have no free AI trials left" });
-            return
+            return;
         }
     }
     const body = req.body
@@ -55,7 +64,7 @@ const formatTextWithAi = async (req: Request, res: Response) => {
     }
     try {
         const aiResponse = await groq.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
+            model: 'openai/gpt-oss-120b',
             messages: [
                 {
                     role: "system",
@@ -101,6 +110,7 @@ const formatTextWithAi = async (req: Request, res: Response) => {
                 }
             })
         }
+        await RedisClient.del(`user:${req.user.id}`).catch(() => {});
         res.status(200).json({
             success: true,
             message: formattedText,

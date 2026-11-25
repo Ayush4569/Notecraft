@@ -16,6 +16,8 @@ export interface UserProfile {
     email: string;
     profileImage?: string;
     isPro: boolean;
+    isGuest?: boolean;
+    freeAiTrials?: number;
     subscriptionStatus: string | null;
 }
 

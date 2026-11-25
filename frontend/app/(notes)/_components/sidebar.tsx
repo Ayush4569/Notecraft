@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
-import { MenuIcon, Trash } from "lucide-react";
+import { MenuIcon, Trash, Sparkles } from "lucide-react";
 import React, { useEffect } from "react";
 import { SidebarHeader } from "./sidebar-header";
 import { SideBarDocuments } from "./sidebar-documents";
 import { SidebarItems } from "./sidebar-items";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   Popover,
   PopoverContent,
@@ -27,6 +29,7 @@ function Sidebar() {
     sidebarRef,
   } = useSideBarResizable();
   const isSidebarOpen = useAppSelector((state) => state.sidebar.isOpen);
+  const user = useAppSelector((state) => state.user);
   useEffect(() => {
     if (isMobile) {
       collapseSidebar();
@@ -48,6 +51,29 @@ function Sidebar() {
         )}
       >
         <SidebarHeader isMobile={isMobile} collapseSideBar={collapseSidebar} />
+        {user.isGuest && (
+          <div className="mx-2 mb-3 p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs shrink-0">
+            <div className="flex items-center justify-between font-semibold text-emerald-600 dark:text-emerald-400">
+              <span className="flex items-center gap-1">
+                <Sparkles className="h-3.5 w-3.5" />
+                Guest Mode
+              </span>
+              <span className="text-[11px] bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded font-mono font-bold">
+                {user.freeAiTrials ?? 3} AI left
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">
+              Sign up for free to preserve your notes permanently and unlock 10+ AI credits.
+            </p>
+            <Button
+              asChild
+              size="sm"
+              className="w-full mt-2.5 h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium cursor-pointer"
+            >
+              <Link href="/signup">Save to Free Account</Link>
+            </Button>
+          </div>
+        )}
         <SidebarItems />
 
         <div className="mt-4 overflow-y-scroll max-h-96">

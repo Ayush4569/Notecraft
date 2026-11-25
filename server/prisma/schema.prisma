@@ -20,6 +20,7 @@ model User{
   isVerified Boolean @default(false)
   documents Document[]
   isPro Boolean @default(false)
+  isGuest Boolean @default(false)
   subscription Subscription?
   freeAiTrials Int @default(10)
 }

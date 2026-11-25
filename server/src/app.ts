@@ -49,7 +49,11 @@ if (cluster.isPrimary && isProduction) {
         origin: allowedOrigins,
         allowedHeaders: [
             "Content-Type",
-            "Authorization"
+            "Authorization",
+            "x-uploadthing-package",
+            "x-uploadthing-version",
+            "traceparent",
+            "b3"
         ],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         credentials: true

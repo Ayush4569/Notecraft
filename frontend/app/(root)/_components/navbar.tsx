@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import {  useAppSelector } from "@/hooks/redux-hooks";
-import { Home } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { UserDropDown } from "@/app/(notes)/_components/user-dropdown";
 export default function Navbar({ isSubscriptionPage }: { isSubscriptionPage?: boolean })  {
   const scrolled = useScroll();
@@ -20,31 +19,32 @@ export default function Navbar({ isSubscriptionPage }: { isSubscriptionPage?: bo
       {isSubscriptionPage ? (
         <div
           className={cn(
-            "w-full z-50 bg-background p-4 flex items-center justify-between fixed top-0 dark:bg-[#1f1f1f]",
-            scrolled && "border-b  shadow-xl"
+            "w-full z-50 bg-background/95 backdrop-blur px-4 sm:px-8 py-3.5 flex items-center justify-between fixed top-0 dark:bg-[#1F1F1F]/95 transition-all border-b border-border/40",
+            scrolled && "shadow-md"
           )}
         >
-          <div className="flex items-center gap-x-3">
-            <span>
-              <Home
-                onClick={() => router.push("/")}
-                className="h-6 w-6 text-gray-500 cursor-pointer"
-              />
-            </span>
+          <div className="flex items-center gap-x-3 sm:gap-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push("/documents")}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 px-2 cursor-pointer"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back to Notes</span>
+            </Button>
+            <div className="h-4 w-px bg-border/60 hidden sm:block" />
             <Logo />
           </div>
 
           <div className="flex items-center gap-x-3">
-            <Button variant="outline">
-              <span className="text-gray-700 dark:invert">{user.email}</span>
-            </Button>
-            <Image
-              src={user.profileImage || "/avatar.png"}
-              className="h-10 w-10 rounded-full"
-              alt="avatar"
-              height={40}
-              width={40}
-            />
+            <ModeToggle />
+            <div className="flex items-center gap-2 pl-2 border-l border-border/60">
+              <span className="text-xs text-muted-foreground hidden sm:inline">
+                {user.isGuest ? "Guest Workspace" : `${user.name}'s workspace`}
+              </span>
+              <UserDropDown isHomePage={true} />
+            </div>
           </div>
         </div>
       ) : (

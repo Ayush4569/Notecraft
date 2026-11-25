@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppSelector } from "@/hooks/redux-hooks";
 import { useAuthContext } from "@/context/auth-context";
-import { ChevronDown, Crown, Pencil } from "lucide-react";
+import { ChevronDown, Crown, Pencil, UserPlus } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -57,8 +57,8 @@ export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
         forceMount
       >
         <div className="flex flex-col space-y-2 p-3">
-          <p className="font-medium text-muted-foreground leading-none">
-            {user?.email}
+          <p className="font-medium text-muted-foreground leading-none text-xs">
+            {user.isGuest ? "Guest Mode Session" : user?.email}
           </p>
           <div className="flex items-center gap-x-2">
             <div className="rounded-md bg-secondary p-1">
@@ -74,34 +74,50 @@ export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
               </Avatar>
             </div>
             <div className="space-y-1">
-              <p className="capitalize line-clamp-1">
-                {user.name}&apos;s workspace
+              <p className="capitalize line-clamp-1 font-medium text-sm">
+                {user.isGuest ? "Guest Workspace" : `${user.name}'s workspace`}
               </p>
             </div>
           </div>
-          <div className="flex flex-col gap-y-2">
-            {
-              user.isPro ? (
+          <div className="flex flex-col gap-y-2 pt-1">
+            {user.isGuest ? (
+              <>
                 <Button
-                  variant="outline"
-                  className="hover:underline w-full cursor-pointer"
-                  onClick={() => router.push("/subscriptions")}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer text-xs h-8"
+                  onClick={() => router.push("/signup")}
                 >
-                  <Crown className="h-4 w-4" />
-                  Pro User
+                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                  Save Notes (Create Account)
                 </Button>
-              ) : (
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
+                  <span>AI Formatting Trials</span>
+                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    {user.freeAiTrials ?? 3} left
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                {user.isPro ? (
+                  <Button
+                    variant="outline"
+                    className="hover:underline w-full cursor-pointer"
+                    onClick={() => router.push("/subscriptions")}
+                  >
+                    <Crown className="h-4 w-4" />
+                    Pro User
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="hover:underline w-full cursor-pointer"
+                    onClick={() => router.push("/subscriptions")}
+                  >
+                    <Crown className="h-4 w-4" />
+                    Get Notecraft Pro
+                  </Button>
+                )}
                 <Button
-                  variant="outline"
-                  className="hover:underline w-full cursor-pointer"
-                  onClick={() => router.push("/subscriptions")}
-                >
-                  <Crown className="h-4 w-4" />
-                  Get Notecraft Pro
-                </Button>
-              )
-            }
-            <Button
                   variant="outline"
                   className="hover:underline w-full cursor-pointer"
                   onClick={() => router.push("/change-password")}
@@ -109,12 +125,14 @@ export function UserDropDown({ isHomePage = false }: { isHomePage?: boolean }) {
                   <Pencil className="h-4 w-4" />
                   Change Password
                 </Button>
+              </>
+            )}
           </div>
         </div>
         <DropdownMenuSeparator />{" "}
         <DropdownMenuItem className="w-full p-2 cursor-pointer text-muted-foreground hover:border-none">
           <Button className="w-full" onClick={() => handleLogOut()}>
-            Logout
+            {user.isGuest ? "Exit Guest Mode" : "Logout"}
           </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>

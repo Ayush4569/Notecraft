@@ -34,13 +34,13 @@ const LoginForm = () => {
   const { isSubmitting, isValidating } = form.formState;
   const router = useRouter();
   const { login } = useAuthContext();
-  const { status } = useAppSelector((state) => state.user);
+  const { status, isGuest } = useAppSelector((state) => state.user);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && !isGuest) {
       router.replace("/documents");
     }
-  }, [status, router]);
+  }, [status, isGuest, router]);
   const onSubmit = async (value: FormData) => {
     const result = loginSchema.safeParse(value);
     if (!result.success) {

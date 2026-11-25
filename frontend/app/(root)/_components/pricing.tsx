@@ -1,15 +1,16 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/redux-hooks";
+import { toast } from "sonner";
 
-const PLANS = [
+export const PRICING_PLANS = [
   {
     name: "Free Starter",
-    price: "$0",
+    price: "₹0",
     period: "forever",
     description: "Everything you need to write, organize, and publish your ideas.",
     features: [
@@ -18,7 +19,7 @@ const PLANS = [
       "One-click public web publishing",
       "10 free AI formatting trials",
       "Instant trash retention & recovery",
-      "Local guest access with zero login",
+      "Guest mode with instant workspace",
     ],
     cta: "Start Free",
     href: "/signup",
@@ -26,7 +27,7 @@ const PLANS = [
   },
   {
     name: "Notecraft Pro",
-    price: "$5",
+    price: "₹399",
     period: "per month",
     description: "For power creators, writers, and teams who rely heavily on AI assistance.",
     features: [
@@ -45,6 +46,30 @@ const PLANS = [
 
 export function Pricing() {
   const { status, isPro } = useAppSelector((state) => state.user);
+  const router = useRouter();
+
+  const handlePlanClick = (e: React.MouseEvent, plan: (typeof PRICING_PLANS)[0]) => {
+    e.preventDefault();
+    if (status !== "authenticated") {
+      if (plan.popular) {
+        toast.info("Please sign in or create an account to subscribe to Notecraft Pro.");
+        router.push("/login");
+      } else {
+        router.push(plan.href);
+      }
+      return;
+    }
+
+    if (plan.popular) {
+      if (isPro) {
+        router.push("/documents");
+      } else {
+        router.push("/subscriptions");
+      }
+    } else {
+      router.push("/documents");
+    }
+  };
 
   return (
     <section id="pricing" className="w-full max-w-5xl mx-auto px-4 py-16 scroll-mt-20">
@@ -61,7 +86,7 @@ export function Pricing() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        {PLANS.map((plan, idx) => (
+        {PRICING_PLANS.map((plan, idx) => (
           <div
             key={idx}
             className={`relative p-8 rounded-3xl border flex flex-col justify-between transition-all duration-200 ${
@@ -100,33 +125,21 @@ export function Pricing() {
 
             <div className="pt-8">
               <Button
-                asChild
+                onClick={(e) => handlePlanClick(e, plan)}
                 className={`w-full py-5 text-sm font-semibold rounded-xl ${
                   plan.popular
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow"
                     : "bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
                 }`}
               >
-                <Link
-                  href={
-                    status === "authenticated"
-                      ? plan.popular
-                        ? isPro
-                          ? "/documents"
-                          : "/subscriptions"
-                        : "/documents"
-                      : plan.href
-                  }
-                >
-                  {status === "authenticated"
-                    ? plan.popular
-                      ? isPro
-                        ? "Currently Active"
-                        : "Upgrade to Pro"
-                      : "Go to Dashboard"
-                    : plan.cta}
-                  <ArrowRight className="h-4 w-4 ml-1.5" />
-                </Link>
+                {status === "authenticated"
+                  ? plan.popular
+                    ? isPro
+                      ? "Currently Active"
+                      : "Upgrade to Pro"
+                    : "Go to Dashboard"
+                  : plan.cta}
+                <ArrowRight className="h-4 w-4 ml-1.5" />
               </Button>
             </div>
           </div>

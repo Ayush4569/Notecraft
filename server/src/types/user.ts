@@ -9,4 +9,7 @@ export interface User {
     verifyCodeExpiry: Date;
     isVerified: boolean;
     refreshToken: string | null;
+    isPro?: boolean;
+    isGuest?: boolean;
+    freeAiTrials?: number;
 }

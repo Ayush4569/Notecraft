@@ -36,13 +36,13 @@ const SignupForm = () => {
     },
   });
   const { isSubmitting, isValidating } = form.formState;
-  const { status } = useAppSelector((state) => state.user);
+  const { status, isGuest } = useAppSelector((state) => state.user);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && !isGuest) {
       router.replace("/documents");
     }
-  }, [status, router]);
+  }, [status, isGuest, router]);
 
   const onSubmit = async (data: FormData) => {
     const result = registerSchema.safeParse(data);

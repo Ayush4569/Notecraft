@@ -26,16 +26,18 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { deleteFileApi } from "@/lib/api/file";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/uploadthing";
+import { cn } from "@/lib/utils";
 
 interface EditorProps {
   docId: string;
   initialContent?: PartialBlock[];
   editable?: boolean;
   isGuest?: boolean;
+  isDemo?: boolean;
   onSaveGuest?: (blocks: PartialBlock[]) => void;
 }
 
-const Editor = ({ docId, initialContent, editable, isGuest = false, onSaveGuest }: EditorProps) => {
+const Editor = ({ docId, initialContent, editable, isGuest = false, isDemo = false, onSaveGuest }: EditorProps) => {
   const { resolvedTheme } = useTheme();
   const [previousImages, setPreviousImages] = useState<Set<string>>(new Set());
   const { mutate: updateDocument } = useEditDocument();
@@ -119,14 +121,15 @@ const Editor = ({ docId, initialContent, editable, isGuest = false, onSaveGuest 
   });
 
   return (
-    <div className="flex-grow overflow-y-auto">
-        <article className="pt-8 md:py-8">
+    <div className={cn("flex-grow", isDemo ? "overflow-visible" : "overflow-y-auto")}>
+        <article className="pt-8 md:py-8 outline-none focus:outline-none">
           <BlockNoteView
             formattingToolbar={false}
             editor={editor}
             theme={resolvedTheme === "dark" ? "dark" : "light"}
             editable={editable}
             onChange={onChange}
+            className="outline-none focus:outline-none focus-visible:outline-none"
           >
             <FormattingToolbarController
               formattingToolbar={() => (

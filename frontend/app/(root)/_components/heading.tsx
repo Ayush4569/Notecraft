@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppSelector } from "@/hooks/redux-hooks";
-import { ArrowRight, PenLine, Sparkles } from "lucide-react";
+import { ArrowRight, PenLine } from "lucide-react";
 import Link from "next/link";
 
 export default function Heading() {
@@ -11,12 +11,7 @@ export default function Heading() {
 
   return (
     <div className="max-w-4xl space-y-6 pt-20 md:pt-28 text-center flex flex-col items-center">
-      {/* Pill Badge */}
-      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-neutral-100 dark:bg-neutral-800/80 text-foreground border border-border shadow-xs">
-        <Sparkles className="h-4 w-4 text-emerald-500" />
-        <span>Try our instant Guest Workspace — No sign up required</span>
-        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-      </div>
+     
 
       <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight max-w-3xl leading-[1.1]">
         Your Ideas, Documents & Plans.{" "}

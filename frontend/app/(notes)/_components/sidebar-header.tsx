@@ -21,7 +21,7 @@ export function SidebarHeader({
           <AvatarImage src={user?.profileImage !== '' ?  user.profileImage:  "/avatar.png"} />
         </Avatar>
         <span className="font-medium text-lg md:text-base line-clamp-1 text-start">
-          {user.name} workspace
+          {user.isGuest ? "Guest Workspace" : `${user.name} workspace`}
         </span>
       </div>
       <div className="flex items-center gap-x-4 md:gap-x-2">

@@ -59,9 +59,9 @@ export function DemoEditor() {
       </div>
 
       {/* Editor Mockup Container */}
-      <div className="w-full rounded-2xl border border-border/80 shadow-2xl bg-card overflow-hidden transition-all dark:border-neutral-800">
+      <div className="w-full rounded-2xl border border-border/80 shadow-2xl bg-card transition-all dark:border-neutral-800 relative">
         {/* Window Chrome Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40 dark:bg-neutral-900/60 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40 dark:bg-neutral-900/60 text-xs text-muted-foreground rounded-t-2xl">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-red-400/80 inline-block" />
             <span className="h-3 w-3 rounded-full bg-yellow-400/80 inline-block" />
@@ -85,12 +85,13 @@ export function DemoEditor() {
         </div>
 
         {/* Live BlockNote Editor View */}
-        <div className="p-4 sm:p-8 min-h-[320px] bg-background dark:bg-[#1F1F1F]">
+        <div className="p-4 sm:p-8 min-h-[320px] bg-background dark:bg-[#1F1F1F] rounded-b-2xl overflow-visible relative">
           <Editor
             docId="demo-doc"
             initialContent={initialBlocks}
             editable={true}
             isGuest={true}
+            isDemo={true}
           />
         </div>
       </div>

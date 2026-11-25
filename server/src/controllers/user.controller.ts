@@ -22,6 +22,8 @@ const getUser = async (req: Request, res: Response) => {
             const userObject = JSON.parse(cachedUser)
             const userProfile = {
                 ...userObject,
+                isGuest: userObject.isGuest ?? false,
+                freeAiTrials: userObject.freeAiTrials ?? 0,
                 subscriptionStatus: userObject.subscription?.status ?? null
             };
             res
@@ -42,6 +44,8 @@ const getUser = async (req: Request, res: Response) => {
                 username: true,
                 email: true,
                 profileImage: true,
+                isGuest: true,
+                freeAiTrials: true,
                 subscription: {
                     select: {
                         status: true,
@@ -62,6 +66,8 @@ const getUser = async (req: Request, res: Response) => {
             email: user.email,
             profileImage: user.profileImage ?? "",
             isPro: user.isPro,
+            isGuest: user.isGuest ?? false,
+            freeAiTrials: user.freeAiTrials ?? 0,
             subscriptionStatus: user.subscription?.status ?? null
         };
         res
@@ -162,6 +168,31 @@ const createUser = async (req: Request, res: Response) => {
             });
         }
 
+        // Check if there is an active guest session to transfer documents from
+        const existingRefreshToken = req.cookies?.refreshToken;
+        if (existingRefreshToken) {
+            try {
+                const decoded = decodeRefreshToken(existingRefreshToken);
+                if (decoded?.id) {
+                    const guestUser = await prisma.user.findUnique({
+                        where: { id: decoded.id },
+                        select: { id: true, isGuest: true }
+                    });
+                    if (guestUser?.isGuest) {
+                        await prisma.document.updateMany({
+                            where: { userId: guestUser.id },
+                            data: { userId: user.id }
+                        });
+                        await prisma.user.delete({
+                            where: { id: guestUser.id }
+                        }).catch(() => {});
+                    }
+                }
+            } catch (guestMigrateErr) {
+                console.warn("Guest session migration non-critical error:", guestMigrateErr);
+            }
+        }
+
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
@@ -183,6 +214,8 @@ const createUser = async (req: Request, res: Response) => {
             email: user.email,
             profileImage: user.profileImage ?? "",
             isPro: user.isPro,
+            isGuest: false,
+            freeAiTrials: user.freeAiTrials ?? 10,
             subscriptionStatus: user.subscription?.status ?? null
         };
 
@@ -624,9 +657,117 @@ const forgotPassword = async (req: Request, res: Response) => {
         return;
     }
 }
+const createGuestUser = async (req: Request, res: Response) => {
+    try {
+        const guestId = nanoid(10);
+        const username = `guest_${guestId}`;
+        const email = `guest_${guestId}@guest.notecraft.app`;
+        const dummyPassword = await hashPassword(crypto.randomUUID());
+
+        const guestUser = await prisma.user.create({
+            data: {
+                username,
+                email,
+                password: dummyPassword,
+                isGuest: true,
+                freeAiTrials: 3, // Backend-enforced limit of 3 AI trials for guests
+                isVerified: true,
+                verifyCode: "",
+                verifyCodeExpiry: new Date(Date.now() + 3600000),
+            },
+            include: {
+                subscription: {
+                    select: {
+                        status: true,
+                    }
+                }
+            }
+        });
+
+        // Create an initial welcoming document for the guest workspace
+        const initialDoc = await prisma.document.create({
+            data: {
+                userId: guestUser.id,
+                title: "Welcome to Notecraft (Guest)",
+                icon: "🚀",
+                content: {
+                    version: "0.31.2",
+                    blocks: [
+                        {
+                            type: "heading",
+                            props: { level: 2 },
+                            content: "✨ Your Guest Workspace is Ready!",
+                        },
+                        {
+                            type: "paragraph",
+                            content: "You're exploring Notecraft in Guest Mode. You have 3 free AI formatting trials to test out.",
+                        },
+                        {
+                            type: "bulletListItem",
+                            content: "Create new documents, nested pages, and manage your trash from the sidebar.",
+                        },
+                        {
+                            type: "bulletListItem",
+                            content: "Select any text to trigger the AI formatting partner (3 trials remaining).",
+                        },
+                        {
+                            type: "bulletListItem",
+                            content: "Sign up for a free account at any time to preserve your documents permanently and unlock 10+ AI credits.",
+                        },
+                    ],
+                },
+            },
+        });
+
+        const accessToken = generateAccessToken(guestUser);
+        const refreshToken = generateRefreshToken(guestUser);
+
+        await prisma.user.update({
+            where: { id: guestUser.id },
+            data: {
+                refreshToken,
+            },
+        });
+
+        const userProfile = {
+            id: guestUser.id,
+            username: guestUser.username,
+            email: guestUser.email,
+            profileImage: "",
+            isPro: false,
+            isGuest: true,
+            freeAiTrials: 3,
+            subscriptionStatus: null,
+        };
+
+        res
+            .status(200)
+            .cookie("accessToken", accessToken, accessTokenOptions)
+            .cookie("refreshToken", refreshToken, refreshTokenOptions)
+            .json({
+                success: true,
+                message: "Guest session created successfully",
+                data: {
+                    user: userProfile,
+                    accessToken,
+                    documentId: initialDoc.id,
+                },
+            });
+        return;
+    } catch (error) {
+        console.error("Error creating guest user:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to initialize guest session",
+        });
+        return;
+    }
+};
+
 export {
     getUser,
     createUser,
+    createGuestUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
